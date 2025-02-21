@@ -7,3 +7,4 @@ terraform.tfstate.backup
 # General
 __pycache__
 node_modules
+.env

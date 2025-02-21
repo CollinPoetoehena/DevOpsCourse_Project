@@ -48,6 +48,9 @@ sudo apt install ansible -y
 ansible --version
 ```
 
+## Environment variables
+See the dummy.env file for an example, use these variables in a .env file.
+
 
 ## Infrastructure Automation (Terraform & Ansible)
 We use Terraform for infrastructure provisioning and Ansible for configuration management. For example:
