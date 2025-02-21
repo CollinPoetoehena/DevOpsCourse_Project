@@ -1,5 +1,5 @@
 /*
-Main Terraform file
+Defines the core infrastructure
 */
 
 resource "aws_elastic_beanstalk_application" "app" {

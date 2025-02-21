@@ -1,6 +1,8 @@
 # Terraform
 Terraform is used for provisioning and managing the cloud infrastructure. See main README.md > Prerequisites for how to install Terraform in a Linux environment.
 
+Terraform documentation: https://www.terraform.io/
+
 ## Using Terraform
 ```sh
 # Navigate to the terraform directory

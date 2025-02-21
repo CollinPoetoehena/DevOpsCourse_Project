@@ -1,4 +1,6 @@
 /*
+Specifies actual values for variables
+
 Actual values of the variables in file variables.tf
 */
 aws_region = "us-east-1"

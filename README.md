@@ -46,19 +46,45 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install ansible -y
 # Verify installation:
 ansible --version
+```
 
-# [web-server1]
-# ec2-xx-xx-xxx-xxx.compute-1.amazonaws.com
 
-# [web-server2]
-# ec2-xx-xxx-xxx-xxx.compute-1.amazonaws.com
-
-# [cluster:children]
-# web-server1
-# web-server2
-
-# [cluster:vars]
-# ansible_ssh_user=ubuntu
-# ansible_ssh_private_key_file=/home/ubuntu/lab_user.pem
-# ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+## Infrastructure Automation (Terraform & Ansible)
+We use Terraform for infrastructure provisioning and Ansible for configuration management. For example:
+1. Terraform to create AWS services, such as EC2 instances.
+2. Ansible to configure those instances with the necessary software and deploy automatically using CI/CD pipelines from GitHub Actions for example.
+```
+Example project structure:
+📂 my-project/
+│── 📂 terraform/
+│   │── 📂 modules/            # (Optional) Reusable Terraform modules
+│   │   │── 📂 networking/      # Example: VPC, subnets, security groups
+│   │   │── 📂 compute/         # Example: EC2, Auto Scaling
+│   │   │── 📂 database/        # Example: RDS, DynamoDB
+│   │── 📄 main.tf              # Main Terraform configuration
+│   │── 📄 variables.tf         # Variable definitions
+│   │── 📄 outputs.tf           # Outputs definitions
+│   │── 📄 terraform.tfvars     # Input variables (e.g., AWS region)
+│   │── 📄 provider.tf          # Provider configurations (AWS, Azure, GCP)
+│   │── 📄 backend.tf           # (Optional) Remote state configuration (S3, Terraform Cloud)
+│   │── 📄 versions.tf          # Terraform version constraints
+│
+│── 📂 ansible/
+│   │── 📂 roles/               # Role-based configurations (modular)
+│   │   │── 📂 webserver/       # Example: Webserver role
+│   │   │── 📂 database/        # Example: Database role
+│   │── 📂 inventory/           # Hosts inventory files
+│   │   │── 📄 hosts.yml        # List of managed servers (IP addresses or domain names)
+│   │── 📂 playbooks/           # Playbooks to execute tasks
+│   │   │── 📄 deploy.yml       # Example: Deploying an application
+│   │   │── 📄 configure.yml    # Example: Configuring a server
+│   │── 📄 ansible.cfg          # Ansible configuration file
+│
+│── 📂 scripts/                 # Optional helper scripts
+│   │── 📄 init.sh              # Example: Initialization script
+│
+│── 📂 docs/                    # Documentation related to infrastructure
+│
+│── 📄 README.md                # Project documentation
+│── 📄 .gitignore                # Ignore Terraform state, Ansible logs, etc.
 ```

@@ -1,4 +1,6 @@
 /*
+Contains all configurable parameters
+
 Reusable variables for Terraform.
 Actual values are present in terraform.tfvars
 */
