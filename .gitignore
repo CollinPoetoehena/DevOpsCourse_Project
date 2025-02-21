@@ -1,0 +1,9 @@
+# Ignore Terraform state files
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+.terraform*
+
+# General
+__pycache__
+node_modules
