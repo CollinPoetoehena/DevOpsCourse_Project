@@ -8,3 +8,6 @@ terraform.tfstate.backup
 __pycache__
 node_modules
 .env
+
+# Ignore the config.sh file
+scripts/config.sh

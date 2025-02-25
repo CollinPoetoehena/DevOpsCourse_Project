@@ -19,4 +19,5 @@ docker push poetoecuva/rac-backend
 # Run Docker locally with the .env file
 docker run -p 4001:4001 --env-file .env --name rac-backend poetoecuva/rac-backend:latest
 
+# In the scripts folder, an automated script for this is present
 ```
