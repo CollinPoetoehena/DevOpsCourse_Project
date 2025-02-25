@@ -1,5 +1,5 @@
 # Use official Node.js LTS as the base image
-FROM node:18
+FROM node:21
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -17,8 +17,5 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 4001
 
-# Define environment variables (optional)
-ENV NODE_ENV=production
-
 # Start the application
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]

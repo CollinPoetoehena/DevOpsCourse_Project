@@ -1,0 +1,5 @@
+# Docker ignore to ensure not copying other files, such as node_modules. 
+# This can cause an error like: "Error: /app/node_modules/bcrypt/lib/binding/napi-v3/bcrypt_lib.node: invalid ELF header"
+node_modules
+.git
+.DS_Store

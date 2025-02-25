@@ -19,7 +19,7 @@ set -e
 # Function to display usage instructions
 usage() {
   echo "Usage: $0 -s <service-name> -p <service-root-path> [-b <branch-name>] [-r <docker-registry>]"
-  echo "  -s: Service name (required)"
+  echo "  -s: Service name: backend or frontend (required)"
   echo "  -p: Path to service on local machine, such as /mnt/c/Users/cpoet/IdeaProjects/DevOpsCourse_Project/backend (required)"
   echo "  -b: Branch name (default used from scripts/config.sh)"
   echo "  -r: Docker registry (default used from scripts/config.sh)"
@@ -94,7 +94,21 @@ echo "Docker image ${IMAGE_TAG} built and pushed successfully."
 # Display the appropriate docker run command based on the service name
 echo "Running Docker file locally..."
 if [ "$SERVICE_NAME" == "backend" ]; then
-  docker run -p 4001:4001 --env-file .env ${IMAGE_TAG}
+  # Check if a container with the same name exists
+  if [ "$(docker ps -a -q -f name=rac-backend)" ]; then
+    # Remove earlier container with the same name (use force to remove running containers as well)
+    docker rm rac-backend --force
+  fi
+  # Remove earlier container with the same name (use force to remove running containers as well)
+  docker rm rac-backend --force
+  # Run docker container
+  docker run -p 4001:4001 --env-file .env --name rac-backend ${IMAGE_TAG}
 else
-  docker run -p 3000:3000 ${IMAGE_TAG}
+  # Check if a container with the same name exists
+  if [ "$(docker ps -a -q -f name=rac-frontend)" ]; then
+    # Remove earlier container with the same name (use force to remove running containers as well)
+    docker rm rac-frontend --force
+  fi
+  # Run docker container
+  docker run -p 3000:3000 --name rac-frontend ${IMAGE_TAG}
 fi

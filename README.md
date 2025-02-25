@@ -9,11 +9,7 @@ wsl
 
 ### Backend and frontend
 ```sh
-# Install Node.js
-sudo apt update
-sudo apt install nodejs
-# Verify installation
-node -v
+# You can run the files as containers using Docker, see the scripts folder and the docs/Docker.md file.
 ```
 
 ### Homebrew on Linux
