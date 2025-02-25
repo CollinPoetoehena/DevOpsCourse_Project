@@ -12,5 +12,10 @@ cd ansible
 # Install dependencies using Ansible galaxy
 ansible-galaxy collection install -r requirements.yml
 
+# Test connection with all connected hosts
+ansible all -m ping -u root
+
+# Run a playbook, such as:
+ansible-playbook playbooks/create-s3.yml
 
 ```

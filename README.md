@@ -34,16 +34,20 @@ terraform -version
 ``` 
 
 ### Ansible
-For full information and guide see: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible 
+For full information and guide see: https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-ubuntu 
 
 Ansible documentation: https://docs.ansible.com/ansible/latest/index.html
 
 ```sh
 # Update apt
-sudo apt update && sudo apt upgrade -y
+sudo apt update
 
-# Install Ansible
-sudo apt install ansible -y
+# Install necessary software, add ansible to apt and install ansible:
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible --yes
+# Alternatively, you can use the default installation setup, such as using pip or pipx: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
+
 # Verify installation:
 ansible --version
 ```
