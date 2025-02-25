@@ -1,10 +1,19 @@
 # DevOps course project
 
-## Prerequisites
+## Main prerequisites
 These installation guides assume a Linux environment (with WSL for Windows for example). Before each instruction, it is expected to have a Linux environment op, which can be opened in Windows with the following steps with WSL:
 ```sh
 # (Open WSL on Windows in a terminal)
 wsl 
+```
+
+### Backend and frontend
+```sh
+# Install Node.js
+sudo apt update
+sudo apt install nodejs
+# Verify installation
+node -v
 ```
 
 ### Homebrew on Linux
