@@ -27,7 +27,7 @@ terraform destroy
 
 ### AWS Access keys (required for Terraform)
 To create an access key, follow these steps:
-1. In the AWS Console, select IAM
+1. In the AWS Management Console, select IAM
 2. Go to Users and select a user by clicking on their username
 3. Select Security credentials tab
 4. Scroll to the Access keys section

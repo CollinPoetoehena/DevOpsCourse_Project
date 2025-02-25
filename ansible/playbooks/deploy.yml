@@ -1,0 +1,25 @@
+- name: Deploy application to AWS Elastic Beanstalk
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Upload application version to Elastic Beanstalk
+      community.aws.elasticbeanstalk_app_version:
+        region: "us-east-1"  # Change to your AWS region
+        application: "my-eb-app"  # Elastic Beanstalk Application Name
+        version_label: "v1"  # Application version
+        description: "Deployed via Ansible"
+        s3_bucket: "my-deployment-bucket"  # S3 bucket where ZIP is stored
+        s3_key: "app.zip"  # S3 object key
+      register: app_version
+
+    - name: Deploy new version to Elastic Beanstalk environment
+      community.aws.elasticbeanstalk_env:
+        region: "us-east-1"
+        application: "my-eb-app"
+        env_name: "my-eb-env"
+        version_label: "{{ app_version.version_label }}"
+      register: deploy_status
+
+    - name: Display deployment status
+      debug:
+        msg: "Deployment status: {{ deploy_status }}"

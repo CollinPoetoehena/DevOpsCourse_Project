@@ -82,6 +82,7 @@ Example project structure:
 │   │   │── 📄 deploy.yml       # Example: Deploying an application
 │   │   │── 📄 configure.yml    # Example: Configuring a server
 │   │── 📄 ansible.cfg          # Ansible configuration file
+│   │── 📄 requirements.yml     # Ansible dependencies (collections)
 │
 │── 📂 scripts/                 # Optional helper scripts
 │   │── 📄 init.sh              # Example: Initialization script
