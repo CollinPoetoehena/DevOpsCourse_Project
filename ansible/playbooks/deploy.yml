@@ -1,3 +1,5 @@
+# TODO: deploy to AWS Elastic Beanstalk service, use .ini files for host.
+
 - name: Deploy application to AWS Elastic Beanstalk
   hosts: localhost
   gather_facts: no

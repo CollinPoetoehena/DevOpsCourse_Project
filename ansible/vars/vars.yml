@@ -1,0 +1,12 @@
+# Global variables
+global:
+  aws_region: "us-east-1"
+
+# S3 bucket variables
+s3:
+  bucket_name: "test"
+  tags:
+    Environment: "Production"
+    Owner: "Ansible"
+  bucket_acl: "private"
+  enable_versioning: true
