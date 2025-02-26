@@ -30,3 +30,5 @@ Therefore:
 ✅ **Using a single Elastic Beanstalk service with Docker Compose (`Dockerrun.aws.json`) is more cost-effective**, especially for small applications.
 
 ❌ **Using two separate services is better for scaling independently but increases costs significantly** due to additional EC2 instances, load balancers, and potential inter-service data transfer costs.
+
+It is a best practice to separate them, however, depending on the specific application it can also be possible to combine them into one service to optimize costs and simplicity for example.
