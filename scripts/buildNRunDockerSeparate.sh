@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Script to build and push a docker image for a service. It build and pushes the image and displays a command at the end to run the Docker image locally.
+# Script to build, push and run a docker image for a single service (e.g. frontend or backend)
 # Example usage:
-# ./buildNRunDocker.sh -s backend -p /mnt/c/Users/cpoet/IdeaProjects/DevOpsCourse_Project/backend
+# ./buildNRunDockerSeparate.sh -s backend -p /mnt/c/Users/cpoet/IdeaProjects/DevOpsCourse_Project/backend
 
 # Check if the config.sh file exists
 if [ ! -f "./config.sh" ]; then
