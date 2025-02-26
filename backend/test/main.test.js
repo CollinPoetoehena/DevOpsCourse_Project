@@ -1,5 +1,6 @@
 // Main testing file for the backend. For simplicity and time constraints, 
 // just a simple test file is created to test DevOps practices and CI/CD pipeline
+// Note: this test assumes the service is running in the Docker container when executed
 
 // Configure/load environment variables
 require('dotenv').config();
@@ -9,17 +10,14 @@ const request = require('supertest');
 // as this will connect to the db, etc., but we just want to test the endpoints
 const { API_NAME, API_VERSION, BACKEND_URL } = process.env;
 
-// Simple function
-const sum = (a, b) => a + b;
-
 // Successful test
 test('adds 1 + 2 to equal 3', () => {
-    expect(sum(1, 2)).toBe(3);
+    expect(1+2).toBe(3);
 });
 
 // Failed test (can be commented or uncommented to test CI/CD pipeline with testing)
 test('adds 3 + 2 to equal 3', () => {
-    expect(sum(3, 2)).toBe(3);
+    expect(3+2).toBe(3);
 });
 
 // Test welcome message
