@@ -60,6 +60,14 @@ jobs:
         cd backend
         docker build --build-arg NAME="${BE_IMAGE_NAME}" -t "${BE_IMAGE_TAG}" .
     
+    - name: Debug MONGO_URI
+      run: |
+        if [[ -n "${{ secrets.MONGO_URI }}" ]]; then
+          echo "YES"
+        else
+          echo "NO"
+        fi
+
     # Step to run Docker container
     - name: Run Backend Container with Environment Variables
       # Set environment variables manually instead of passing the .env file (not present in GitHub repo, only locally)
