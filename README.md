@@ -66,6 +66,14 @@ In GitHub, you can create secrets and variables for GitHub Actions in Settings >
 - https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions
 - https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables 
 
+For the secrets and variables:
+- Do not add quotes around values (only for strings with spaces for example, but not with URLs). This can cause problems in GitHub Actions, such as:
+```
+getaddrinfo ENOTFOUND 'http
+```
+This happened because the BACKEND_URL was inside '' in the GitHub environment variables. However, when removing the '' around it, it worked without problems.
+
+### Required variables for GitHub Actions
 The following repository secrets need to be created:
 - DOCKER_USERNAME: Docker Hub username
 - DOCKER_ACCESS_TOKEN: Docker personal access token (with read, write and delete permission): https://docs.docker.com/security/for-developers/access-tokens/

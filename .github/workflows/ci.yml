@@ -1,4 +1,4 @@
-name: Build Test and Push Docker
+name: Build, Test and Push Docker
 on:
   push:
     branches:
@@ -11,10 +11,6 @@ env:
   FE_IMAGE_NAME: rac-frontend
   DOCKER_REGISTRY: docker.io/poetoecuva
 
-# TODO: first build and run docker and then do tests (backend with environment variables). 
-# Then do docker push if tests succeed and do deployment step.
-
-# TODO: change below to use correct docker image and correct test setup.
 jobs:
   # Job to test environment variables in GitHub repository
   env-test:
