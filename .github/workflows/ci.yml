@@ -19,16 +19,19 @@ jobs:
   # Job to test environment variables in GitHub repository
   env-test:
     runs-on: ubuntu-latest
+    # Use the backend environment from GitHub
+    environment: backend
     steps:
         - name: Test Environment Variable
           run: |
             echo "API name: ${{ vars.API_NAME }}"
             echo "API version: ${{ vars.API_VERSION }}"
-            echo "API version secrets: ${{ secrets.API_VERSION }}"
 
   # Job to build and test the backend Docker container
   be-build-test-push:
     runs-on: ubuntu-latest
+    # Use the backend environment from GitHub
+    environment: backend
     steps:
     - uses: actions/checkout@v2
 
