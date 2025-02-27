@@ -5,25 +5,14 @@ Terraform documentation: https://www.terraform.io/
 
 ## Using Terraform
 ```sh
-# Load/export environment variables from the .env file in the infrastructure folder
-cd infrastructure
-# grep searches through the .env file.
-# -v means invert match (i.e., exclude lines that match the pattern).
-# '^#' filters out commented lines (lines that start with #).
-# xargs takes the filtered output from grep and converts it into a single-line argument to be able to execute it
-export $(grep -v '^#' .env | xargs)
-# Verify loaded environment variables with one of the variables in the .env file, such as
-echo $AWS_ACCESS_KEY_ID
-echo $AWS_SECRET_ACCESS_KEY
-echo $AWS_REGION
-# REMEMBER: this only loads it in the current terminal session, so this has to be done in the same terminal session you use Terraform with!
+# Make sure you followed the Credentials.md to load the environment variables in the terminal session!
 
 # Navigate to the terraform directory
-cd terraform
+cd infrastructure/terraform
 
 # Initialize: Prepares Terraform and downloads provider plugins
 terraform init
-# Plan: Shows a preview of what Terraform will do
+# Plan: Shows a preview of what Terraform will do (might take some time)
 terraform plan
 # Apply: Provisions the infrastructure as defined
 terraform apply

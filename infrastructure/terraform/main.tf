@@ -7,7 +7,8 @@ For example S3 buckets: https://registry.terraform.io/providers/hashicorp/aws/la
 
 # References S3 module
 module "s3" {
-  source      = "./modules/s3"
+  source = "./modules/s3"
+  # Variables with values passed to the module
   bucket_name = "my-unique-bucket-name"
 }
 
