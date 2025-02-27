@@ -1,0 +1,84 @@
+name: Build Test and Push Docker
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+env:
+  BE_IMAGE_NAME: rac-backend
+  FE_IMAGE_NAME: rac-frontend
+  DOCKER_REGISTRY: docker.io/poetoecuva
+
+# TODO: first build and run docker and then do tests (backend with environment variables). 
+# Then do docker push if tests succeed and do deployment step.
+
+# TODO: change below to use correct docker image and correct test setup.
+jobs:
+  # Job to test environment variables in GitHub repository
+  env-test:
+  runs-on: ubuntu-latest
+  steps:
+      - name: Test Environment Variable
+        run: |
+          echo "API name: ${{ vars.API_NAME }}"
+          echo "API version: ${{ vars.API_VERSION }}"
+
+  # Job to build and test the BE Docker container
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    # Step to set IMAGE_TAG environment variable
+    - name: Set BE_IMAGE_TAG
+      # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
+      run: |
+        BE_IMAGE_TAG="${{ env.DOCKER_REGISTRY }}/${{ env.BE_IMAGE_NAME }}:latest"
+        echo "BE_IMAGE_TAG=$BE_IMAGE_TAG" >> $GITHUB_ENV
+    # Step to confirm BE_IMAGE_TAG
+    - name: Print BE_IMAGE_TAG
+      run: echo "Using BE_IMAGE_TAG=${BE_IMAGE_TAG}"
+
+    # Step to login to Docker Hub
+    - name: Login to Docker Container Registry
+      uses: docker/login-action@v1
+      with:
+        # Use repository secrets from GitHub for Docker Hub username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        # Use repository secrets from GitHub for Docker Hub access token: https://docs.docker.com/security/for-developers/access-tokens/
+        password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+    # Step to build Docker container
+    - name: Build Docker Image
+      run: |
+        docker build --build-arg NAME="${BE_IMAGE_NAME}" -t "${BE_IMAGE_TAG}" .
+    # Step to run Docker container
+    - name: Run Backend Container with Environment Variables
+      run: |
+        # Run docker in detached mode (-d) to run the container in the background
+        docker run -d \
+            -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
+            --name ${{ vars.BE_IMAGE_NAME }} \
+            ${BE_IMAGE_TAG}
+      # Set environment variables manually instead of passing the .env file (not present in GitHub repo, only locally)
+      # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
+      env:
+        # Environment secrets
+        MONGO_URI: ${{ secrets.MONGO_URI }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        FACTOR: ${{ secrets.FACTOR }}
+        ROLE: ${{ secrets.ROLE }}
+        # Environment variables
+        API_NAME: ${{ vars.API_NAME }}
+        API_PORT: ${{ vars.API_PORT }}
+        API_VERSION: ${{ vars.API_VERSION }}
+        FRONTEND_URL: ${{ vars.FRONTEND_URL }}
+        BACKEND_URL: ${{ vars.BACKEND_URL }}
+        VEHICLE_URL: ${{ vars.VEHICLE_URL }}
+
+    # If all above steps are successful, push the image to Docker Hub
+    - name: Push Image to Docker Hub Container Registry
+      run: | 
+          docker push "${BE_IMAGE_TAG}"
