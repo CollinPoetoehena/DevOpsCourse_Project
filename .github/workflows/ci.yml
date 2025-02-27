@@ -32,21 +32,6 @@ jobs:
     runs-on: ubuntu-latest
     # Use the backend environment from GitHub
     environment: backend
-    # Set environment variables manually instead of passing the .env file (not present in GitHub repo, only locally)
-    # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
-    env:
-      # Environment secrets
-      MONGO_URI: ${{ secrets.MONGO_URI }}
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      FACTOR: ${{ secrets.FACTOR }}
-      ROLE: ${{ secrets.ROLE }}
-      # Environment variables
-      API_NAME: ${{ vars.API_NAME }}
-      API_PORT: ${{ vars.API_PORT }}
-      API_VERSION: ${{ vars.API_VERSION }}
-      FRONTEND_URL: ${{ vars.FRONTEND_URL }}
-      BACKEND_URL: ${{ vars.BACKEND_URL }}
-      VEHICLE_URL: ${{ vars.VEHICLE_URL }}
     steps:
     - uses: actions/checkout@v2
 
@@ -77,13 +62,27 @@ jobs:
     
     # Step to run Docker container
     - name: Run Backend Container with Environment Variables
-      # (Environment variables should have been set manually in this job to work)
+      # Set environment variables manually instead of passing the .env file (not present in GitHub repo, only locally)
+      # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
       run: |
         # Run docker in detached mode (-d) to run the container in the background
         docker run -d \
             -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
             --name ${{ env.BE_IMAGE_NAME }} \
-            ${BE_IMAGE_TAG}
+            ${BE_IMAGE_TAG} \
+            # Environment secrets
+            -e MONGO_URI=${{ secrets.MONGO_URI }} \
+            -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
+            -e FACTOR=${{ secrets.FACTOR }} \
+            -e ROLE=${{ secrets.ROLE }} \
+            # Environment variables
+            -e API_NAME=${{ vars.API_NAME }} \
+            -e API_PORT=${{ vars.API_PORT }} \
+            -e API_VERSION=${{ vars.API_VERSION }} \
+            -e FRONTEND_URL=${{ vars.FRONTEND_URL }} \
+            -e BACKEND_URL=${{ vars.BACKEND_URL }} \
+            -e VEHICLE_URL=${{ vars.VEHICLE_URL }}
+      
     # Step to wait for the backend to be ready before running tests
     - name: Wait for Backend to Start
       run: |
@@ -95,12 +94,8 @@ jobs:
   
     # Step to run `npm run test` inside the running container
     - name: Run Backend Tests in Container
-      # Explicitely pass the environment variables, ensuring they are present in Docker
-      # TODO: if this works, it also has to be done like this above and the env: has to be removed at top
       run: |
-        docker exec -e BACKEND_URL=${{ vars.BACKEND_URL }} \
-                    -e API_VERSION=${{ vars.API_VERSION }} \
-                    ${{ env.BE_IMAGE_NAME }} npm run test
+        docker exec ${{ env.BE_IMAGE_NAME }} npm run test
     # If tests fail, stop execution before pushing
     - name: Fail if tests fail
       if: failure()
