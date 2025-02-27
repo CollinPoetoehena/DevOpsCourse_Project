@@ -2,7 +2,7 @@
 
 To use the infrastructure tools, credentials should be configured. 
 
-## AWS 
+## Loading Credentials (AWS as example)
 For this tutorials we will use AWS, since this is the main provider we use in this project.
 
 ### Loading credentials from .env file
@@ -33,3 +33,12 @@ Error: Retrieving AWS account details: validating provider credentials: retrievi
 export $(grep -v '^#' .env | xargs)
 # However, this did not filter that out (what the new above command does), which caused Terraform to fail authentication with AWS.
 ```
+
+### AWS Access keys
+To create an access key, follow these steps:
+1. In the AWS Management Console, select IAM
+2. Go to Users and select a user by clicking on their username
+3. Select Security credentials tab
+4. Scroll to the Access keys section
+5. If you don’t have one, click Create access key
+6. Copy AWS Access Key ID and AWS Secret Access Key (You won’t be able to see the secret key again after closing this page!) 
