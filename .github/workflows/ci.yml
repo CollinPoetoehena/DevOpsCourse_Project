@@ -88,13 +88,19 @@ jobs:
     - name: Wait for Backend to Start
       run: |
         echo "Waiting for backend to be ready..."
-        timeout 30 sh -c 'until curl -s ${{ vars.BACKEND_URL }}/health; do sleep 2; done'
+        # 'until curl -s' silently tries to fetch the backend URL, retrying every 2 seconds 
+        # and timing out after 15 seconds
+        timeout 15 sh -c 'until curl -s ${{ vars.BACKEND_URL }}; do sleep 2; done'
         echo "Backend is ready!"
   
     # Step to run `npm run test` inside the running container
     - name: Run Backend Tests in Container
+      # Explicitely pass the environment variables, ensuring they are present in Docker
+      # TODO: if this works, it also has to be done like this above and the env: has to be removed at top
       run: |
-        docker exec ${{ env.BE_IMAGE_NAME }} npm run test
+        docker exec -e BACKEND_URL=${{ vars.BACKEND_URL }} \
+                    -e API_VERSION=${{ vars.API_VERSION }} \
+                    ${{ env.BE_IMAGE_NAME }} npm run test
     # If tests fail, stop execution before pushing
     - name: Fail if tests fail
       if: failure()
