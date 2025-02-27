@@ -65,7 +65,7 @@ jobs:
         # Run docker in detached mode (-d) to run the container in the background
         docker run -d \
             -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
-            --name ${{ vars.BE_IMAGE_NAME }} \
+            --name ${{ env.BE_IMAGE_NAME }} \
             ${BE_IMAGE_TAG}
       # Set environment variables manually instead of passing the .env file (not present in GitHub repo, only locally)
       # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
