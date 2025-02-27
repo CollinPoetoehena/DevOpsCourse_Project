@@ -25,7 +25,7 @@ jobs:
             echo "API name: ${{ vars.API_NAME }}"
             echo "API version: ${{ vars.API_VERSION }}"
 
-  # Job to build and test the BE Docker container
+  # Job to build and test the backend Docker container
   be-build-test-push:
     runs-on: ubuntu-latest
     steps:
@@ -53,6 +53,7 @@ jobs:
     # Step to build Docker container
     - name: Build Docker Image
       run: |
+        cd backend
         docker build --build-arg NAME="${BE_IMAGE_NAME}" -t "${BE_IMAGE_TAG}" .
     # Step to run Docker container
     - name: Run Backend Container with Environment Variables
