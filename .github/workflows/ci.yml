@@ -64,11 +64,13 @@ jobs:
     - name: Run Backend Container with Environment Variables
       # Set environment variables manually instead of passing the .env file (not present in GitHub repo, only locally)
       # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
+      # Run docker in detached mode (-d) to run the container in the background
+      # Add environment variables with -e
+      # (Avoid comments in the below command (run), as it will break the commands and give errors)
       run: |
         docker run -d \
             -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
             -e FACTOR=${{ secrets.FACTOR }} \
-            -e MONGO_URI=${{ secrets.MONGO_URI }} \
             -e ROLE=${{ secrets.ROLE }} \
             -e API_NAME=${{ vars.API_NAME }} \
             -e API_PORT=${{ vars.API_PORT }} \
