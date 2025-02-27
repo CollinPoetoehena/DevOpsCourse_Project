@@ -67,6 +67,7 @@ jobs:
       run: |
         # Run docker in detached mode (-d) to run the container in the background
         # Add environment variables with -e
+        # (Avoid comments in the below command, as it will break the command)
         docker run -d \
             -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
             -e FACTOR=${{ secrets.FACTOR }} \
@@ -78,11 +79,8 @@ jobs:
             -e FRONTEND_URL=${{ vars.FRONTEND_URL }} \
             -e BACKEND_URL=${{ vars.BACKEND_URL }} \
             -e VEHICLE_URL=${{ vars.VEHICLE_URL }} \
-            # Port
             -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
-            # Container name
             --name ${{ env.BE_IMAGE_NAME }} \
-            # Image tag of the container to run
             ${BE_IMAGE_TAG} 
       
     # Step to wait for the backend to be ready before running tests
