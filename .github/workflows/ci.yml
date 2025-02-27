@@ -27,7 +27,7 @@ jobs:
             echo "API name: ${{ vars.API_NAME }}"
             echo "API version: ${{ vars.API_VERSION }}"
 
-  # Job to build and test the backend Docker container
+  # Job to build, test and push the backend Docker container
   be-build-test-push:
     runs-on: ubuntu-latest
     # Use the backend environment from GitHub
@@ -59,6 +59,7 @@ jobs:
       run: |
         cd backend
         docker build --build-arg NAME="${BE_IMAGE_NAME}" -t "${BE_IMAGE_TAG}" .
+    
     # Step to run Docker container
     - name: Run Backend Container with Environment Variables
       run: |
@@ -82,6 +83,15 @@ jobs:
         FRONTEND_URL: ${{ vars.FRONTEND_URL }}
         BACKEND_URL: ${{ vars.BACKEND_URL }}
         VEHICLE_URL: ${{ vars.VEHICLE_URL }}
+    
+    # Step to run `npm run test` inside the running container
+    - name: Run Backend Tests in Container
+      run: |
+        docker exec ${{ env.BE_IMAGE_NAME }} npm run test
+    # If tests fail, stop execution before pushing
+    - name: Fail if tests fail
+      if: failure()
+      run: exit 1
 
     # If all above steps are successful, push the image to Docker Hub
     - name: Push Image to Docker Hub Container Registry
