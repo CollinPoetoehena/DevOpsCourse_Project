@@ -84,7 +84,13 @@ jobs:
             -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
             --name ${{ env.BE_IMAGE_NAME }} \
             ${BE_IMAGE_TAG}
-    
+    # Step to wait for the backend to be ready before running tests
+    - name: Wait for Backend to Start
+      run: |
+        echo "Waiting for backend to be ready..."
+        timeout 30 sh -c 'until curl -s ${{ vars.BACKEND_URL }}/health; do sleep 2; done'
+        echo "Backend is ready!"
+  
     # Step to run `npm run test` inside the running container
     - name: Run Backend Tests in Container
       run: |

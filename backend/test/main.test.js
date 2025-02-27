@@ -22,6 +22,8 @@ test('adds 3 + 2 to equal 3', () => {
 
 // Test welcome message
 test('GET /api/v1/', async () => {
+    console.log("BACKEND_URL:", BACKEND_URL);
+    console.log("API_VERSION:", API_VERSION);
     // Make a request to the backend using the backend URL
     const response = await request(BACKEND_URL).get(`${API_VERSION}/`);
     expect(response.status).toBe(200);
