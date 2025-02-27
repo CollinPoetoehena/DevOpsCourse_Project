@@ -1,6 +1,7 @@
 # Docker
 This document explains how Docker can be used to containerize the applications in this project.
 
+
 ## Docker Compose to run all services
 You can use Docker Compose to run both the backend and the frontend as containers:
 ```sh
