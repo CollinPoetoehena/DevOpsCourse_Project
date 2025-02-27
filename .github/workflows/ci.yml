@@ -24,6 +24,7 @@ jobs:
           run: |
             echo "API name: ${{ vars.API_NAME }}"
             echo "API version: ${{ vars.API_VERSION }}"
+            echo "API version secrets: ${{ secrets.API_VERSION }}"
 
   # Job to build and test the backend Docker container
   be-build-test-push:
