@@ -5,18 +5,24 @@ Terraform documentation: https://www.terraform.io/
 
 ## Using Terraform
 ```sh
-# Load environment variables from root of the project
+# Load/export environment variables from the .env file in the infrastructure folder
+cd infrastructure
+# grep searches through the .env file.
+# -v means invert match (i.e., exclude lines that match the pattern).
+# '^#' filters out commented lines (lines that start with #).
+# xargs takes the filtered output from grep and converts it into a single-line argument to be able to execute it
 export $(grep -v '^#' .env | xargs)
 # Verify loaded environment variables with one of the variables in the .env file, such as
 echo $AWS_ACCESS_KEY_ID
-# TODO: if .env file does not work, use the TODO at the bottom of this file with manual export command in terminal
+echo $AWS_SECRET_ACCESS_KEY
+echo $AWS_REGION
+# REMEMBER: this only loads it in the current terminal session, so this has to be done in the same terminal session you use Terraform with!
 
 # Navigate to the terraform directory
 cd terraform
 
 # Initialize: Prepares Terraform and downloads provider plugins
 terraform init
-
 # Plan: Shows a preview of what Terraform will do
 terraform plan
 # Apply: Provisions the infrastructure as defined
@@ -33,32 +39,3 @@ To create an access key, follow these steps:
 4. Scroll to the Access keys section
 5. If you don’t have one, click Create access key
 6. Copy AWS Access Key ID and AWS Secret Access Key (You won’t be able to see the secret key again after closing this page!) 
-
-TODO: with AWS Sandbox environment, I could not create an access key, so test with real AWS environment. Otherwise try with:
-// Cloud provider and region
-provider "aws" {
-  region     = var.aws_region
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
-}
-
-variable "aws_region" {
-  description = "The AWS region to deploy resources in"
-  type        = string
-}
-
-variable "aws_access_key" {
-  description = "The AWS access key"
-  type        = string
-  sensitive   = true
-}
-
-variable "aws_secret_key" {
-  description = "The AWS secret key"
-  type        = string
-  sensitive   = true
-}
-
-export TF_VAR_aws_region="us-west-2"
-export TF_VAR_aws_access_key="your_access_key"
-export TF_VAR_aws_secret_key="your_secret_key"

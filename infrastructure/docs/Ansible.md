@@ -7,7 +7,7 @@ Ansible documentation: https://docs.ansible.com/ansible/latest/index.html
 ## Using Ansible
 ```sh
 # Navigate to the terraform directory
-cd ansible
+cd infrastructure/ansible
 
 # Install dependencies using Ansible galaxy
 ansible-galaxy collection install -r requirements.yml

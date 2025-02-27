@@ -15,3 +15,5 @@
     - name: Display S3 Bucket Information
       debug:
         msg: "S3 bucket created with name: {{ s3_bucket_info.name }}"
+
+# TODO: remove this file later, this is just for testing the variables, but Terraform is used to provision (create infrastructure)

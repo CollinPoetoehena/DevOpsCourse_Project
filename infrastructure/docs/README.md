@@ -11,7 +11,7 @@ Example project structure (can be changed according to specific project and best
 │   │   │   │── 📂 networking/   # Example: VPC, subnets, security groups
 │   │   │   │── 📂 compute/      # Example: EC2, Auto Scaling
 │   │   │   │── 📂 database/     # Example: RDS, DynamoDB
-│   │   │── 📄 main.tf           # Main Terraform configuration
+│   │   │── 📄 main.tf           # Central definition file to specify what resources to create
 │   │   │── 📄 variables.tf      # Variable definitions
 │   │   │── 📄 outputs.tf        # Outputs definitions
 │   │   │── 📄 terraform.tfvars  # Input variables (e.g., AWS region)
@@ -23,7 +23,8 @@ Example project structure (can be changed according to specific project and best
 │   │   │   │── 📂 webserver/    # Example: Webserver role
 │   │   │   │── 📂 database/     # Example: Database role
 │   │   │── 📂 inventory/        # Hosts inventory files
-│   │   │   │── 📄 prod          # List of managed servers (IP addresses or domain names, etc.). Can be per environment, such as prod, dev, etc.
+│   │   │   │── 📄 dev           # List of managed servers (IP addresses or domain names, etc.).
+│   │   │   │── 📄 prod          # Can be per environment, such as dev, prod, etc.
 │   │   │── 📂 vars/             # Variables for different playbooks (different than inventory files (mainly used for hosts))
 │   │   │   │── 📄 vars.yml      # Variables (e.g., region)
 │   │   │── 📂 playbooks/        # Playbooks to execute tasks
