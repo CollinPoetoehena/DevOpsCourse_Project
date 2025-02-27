@@ -60,47 +60,34 @@ jobs:
         cd backend
         docker build --build-arg NAME="${BE_IMAGE_NAME}" -t "${BE_IMAGE_TAG}" .
     
+    # Manually create a .env file in this job with the environment variables
+    # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
+    # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
     - name: Create .env file
       run: |
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
         echo "FACTOR=${{ secrets.FACTOR }}" >> .env
         echo "ROLE=${{ secrets.ROLE }}" >> .env
-        echo "API_NAME=RAC" >> .env
-        echo "API_PORT=4001" >> .env
-        echo "API_VERSION=/api/v1" >> .env
-        echo "FRONTEND_URL=http://localhost:3000" >> .env
-        echo "BACKEND_URL=http://localhost:4001" >> .env
-        echo "VEHICLE_URL=https://vpic.nhtsa.dot.gov/api/vehicles" >> .env
+        echo "API_NAME=${{ vars.API_NAME }}" >> .env
+        echo "API_PORT=${{ vars.API_PORT }}" >> .env
+        echo "API_VERSION=${{ vars.API_VERSION }}" >> .env
+        echo "FRONTEND_URL=${{ vars.FRONTEND_URL }}" >> .env
+        echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
+        echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
+    # Step to run Docker container
+    # Run docker in detached mode (-d) to run the container in the background
+    # Use the .env file just created, since -e caused the docker run command to crash, specifically MONGO_URI
     - name: Run Backend Container with Environment Variables
       run: |
         docker run -d \
           --env-file .env \
-          -p 4001:4001 \
-          --name rac-backend \
+          -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
+          --name ${{ env.BE_IMAGE_NAME }} \
           ${BE_IMAGE_TAG}
-    
-    # # Step to run Docker container
-    # - name: Run Backend Container with Environment Variables
-    #   # Set environment variables manually instead of passing the .env file (not present in GitHub repo, only locally)
-    #   # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
-    #   # Run docker in detached mode (-d) to run the container in the background
-    #   # Add environment variables with -e
-    #   # (Avoid comments in the below command (run), as it will break the commands and give errors)
-    #   run: |
-    #     docker run -d \
-    #         -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
-    #         -e FACTOR=${{ secrets.FACTOR }} \
-    #         -e MONGO_URI=${{ secrets.MONGO_URI }} \
-    #         -e ROLE=${{ secrets.ROLE }} \
-    #         -e API_NAME=${{ vars.API_NAME }} \
-    #         -e API_PORT=${{ vars.API_PORT }} \
-    #         -e API_VERSION=${{ vars.API_VERSION }} \
-    #         -e FRONTEND_URL=${{ vars.FRONTEND_URL }} \
-    #         -e BACKEND_URL=${{ vars.BACKEND_URL }} \
-    #         -e VEHICLE_URL=${{ vars.VEHICLE_URL }} \
-    #         -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
-    #         --name ${{ env.BE_IMAGE_NAME }} \
-    #         ${BE_IMAGE_TAG} 
+    # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
+    - name: Delete .env File After Use
+      run: rm -f .env
       
     # Step to wait for the backend to be ready before running tests
     - name: Wait for Backend to Start
