@@ -66,8 +66,8 @@ jobs:
       # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
       run: |
         # Run docker in detached mode (-d) to run the container in the background
+        # Add environment variables with -e
         docker run -d \
-            # Comment
             -e MONGO_URI=${{ secrets.MONGO_URI }} \
             -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
             -e FACTOR=${{ secrets.FACTOR }} \
