@@ -65,6 +65,7 @@ jobs:
       # Set environment variables manually instead of passing the .env file (not present in GitHub repo, only locally)
       # Names must be exactly the same as the backend/dummy.env, otherwise the variables cannot be found by the source code
       run: |
+        echo "MONGO_URI='${{ secrets.MONGO_URI }}'"
         # Run docker in detached mode (-d) to run the container in the background
         # Add environment variables with -e
         docker run -d \
@@ -79,10 +80,12 @@ jobs:
             -e FRONTEND_URL=${{ vars.FRONTEND_URL }} \
             -e BACKEND_URL=${{ vars.BACKEND_URL }} \
             -e VEHICLE_URL=${{ vars.VEHICLE_URL }} \
+            # Port
             -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
+            # Container name
             --name ${{ env.BE_IMAGE_NAME }} \
+            # Image tag of the container to run
             ${BE_IMAGE_TAG} 
-      # TODO: above is not working, maybe do before executing command
       
     # Step to wait for the backend to be ready before running tests
     - name: Wait for Backend to Start
