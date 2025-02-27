@@ -67,9 +67,6 @@ jobs:
       run: |
         # Run docker in detached mode (-d) to run the container in the background
         docker run -d \
-            -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
-            --name ${{ env.BE_IMAGE_NAME }} \
-            ${BE_IMAGE_TAG} \
             # Environment secrets
             -e MONGO_URI=${{ secrets.MONGO_URI }} \
             -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
@@ -82,6 +79,10 @@ jobs:
             -e FRONTEND_URL=${{ vars.FRONTEND_URL }} \
             -e BACKEND_URL=${{ vars.BACKEND_URL }} \
             -e VEHICLE_URL=${{ vars.VEHICLE_URL }}
+            # Commands
+            -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
+            --name ${{ env.BE_IMAGE_NAME }} \
+            ${BE_IMAGE_TAG} \
       # TODO: above is not working, maybe do before executing command
       
     # Step to wait for the backend to be ready before running tests
