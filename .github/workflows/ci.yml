@@ -67,6 +67,9 @@ jobs:
       run: |
         # Run docker in detached mode (-d) to run the container in the background
         docker run -d \
+            -e ROLE=${{ secrets.ROLE }} \
+            -e API_NAME=${{ vars.API_NAME }} \
+            -e API_PORT=${{ vars.API_PORT }} \
             -e API_VERSION=${{ vars.API_VERSION }} \
             -e FRONTEND_URL=${{ vars.FRONTEND_URL }} \
             -e BACKEND_URL=${{ vars.BACKEND_URL }} \
