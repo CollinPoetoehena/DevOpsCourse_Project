@@ -41,7 +41,7 @@ resource "aws_elastic_beanstalk_application" "app" {
 }
 
 # Configuration template (will be used for the environment)
-# For possible configuration options: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html
+# For possible configuration options (settings): https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html
 # Specifically: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html
 resource "aws_elastic_beanstalk_configuration_template" "app_template" {
   name                = var.app_conf_templ_name
