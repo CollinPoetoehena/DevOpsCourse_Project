@@ -22,6 +22,14 @@ module "elastic_beanstalk" {
   app_sol_stack_name = "64bit Amazon Linux 2023 v4.4.4 running Docker"
 }
 
+# References Cognito module
+module "cognito" {
+  source = "./modules/cognito"
+  # Variables with values passed to the module
+  cog_user_pool_name = "main_user_pool"
+}
+
+
 # resource "aws_elastic_beanstalk_application" "app" {
 #   name = var.app_name
 # }

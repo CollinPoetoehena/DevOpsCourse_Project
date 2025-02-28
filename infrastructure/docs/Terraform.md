@@ -14,15 +14,16 @@ cd infrastructure/terraform
 terraform init
 # Plan: Shows a preview of what Terraform will do (might take some time)
 terraform plan
-
 # Apply: Provisions the infrastructure as defined
 terraform apply
-# Run with auto approve (avoids manual required prompt)
-terraform apply -auto-approve
 # Destroy: Removes the infrastructure when no longer needed
 terraform destroy
+
 # Run with auto approve (avoids manual required prompt)
+terraform apply -auto-approve
 terraform destroy -auto-approve
 ```
 
-**VERY IMPORTANT:** Try to always destroy the infrastructure after you are done, such as at the end of each day, to avoid unexpected and unnecessary costs! The only exceptions is if you are sure that resources are free and you need them multiple days after each other, such as for a presentation, etc. You can comment out resources in the main.tf file to exclude some resources, e.g., when you only want to test one or a selection of resources.
+After creating your resources, you can view and monitor them in the AWS Management Console for example. 
+
+**VERY IMPORTANT:** Try to always destroy the infrastructure after you are done, such as at the end of each day (or more often after testing an application deployment for example, as these also use resources in the background, or you can stop the instance running in the Management Console, etc.), to avoid unexpected and unnecessary costs! The only exceptions is if you are sure that resources are free and you need them multiple days after each other, such as for a presentation, etc. You can comment out resources in the main.tf file to exclude some resources, e.g., when you only want to test one or a selection of resources.
