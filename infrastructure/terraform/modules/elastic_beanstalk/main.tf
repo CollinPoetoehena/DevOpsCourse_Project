@@ -41,10 +41,20 @@ resource "aws_elastic_beanstalk_application" "app" {
 }
 
 # Configuration template (will be used for the environment)
+# For possible configuration options: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html
+# Specifically: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html
 resource "aws_elastic_beanstalk_configuration_template" "app_template" {
   name                = var.app_conf_templ_name
   application         = aws_elastic_beanstalk_application.app.name
   solution_stack_name = var.app_sol_stack_name
+
+  # By default, AWS EB uses a LoadBalanced environment, which creates additional resources
+  # However, this is not necessary, and we can suffice with a single (VM) instance 
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "EnvironmentType"
+    value     = "SingleInstance"
+  }
 
   # Use instance profile for IAM
   # Required for EB environment (will otherwise give error: Environment must have instance profile associated with it)

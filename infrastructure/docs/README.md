@@ -1,9 +1,10 @@
 # Infrastructure Automation (Terraform & Ansible)
 We use Terraform for infrastructure provisioning and Ansible for configuration management. For example:
-1. Terraform to create AWS services, such as EC2 instances.
-2. Ansible to configure those instances with the necessary software and deploy automatically using CI/CD pipelines from GitHub Actions for example.
-```
+1. Terraform to create, update and delete (i.e. manage) AWS resources, such as EC2 instances.
+2. Ansible to configure those resources and deploy/orchestrate automatically using CI/CD pipelines from GitHub Actions for example.
+
 Example project structure (can be changed according to specific project and best practices):
+```
 📂 my-project/
 │── 📂 infrastructure/           # Centralized folder for infrastructure automation
 │   │── 📂 terraform/            # Terraform example structure

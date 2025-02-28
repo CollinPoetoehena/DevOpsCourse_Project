@@ -24,7 +24,9 @@ terraform apply -auto-approve
 terraform destroy -auto-approve
 ```
 
-After creating your resources, you can view and monitor them in the AWS Management Console for example. You can also see potential errors there that might not be reported by Terraform, such as when creating the AWS Elastic Beanstalk environment, etc.
+After creating your resources, you can view and monitor them in the AWS Management Console for example. You can also see potential errors there that might not be reported by Terraform, such as when creating the AWS Elastic Beanstalk environment, etc. Also, you can see the exact configuration of the resources there. You can use this to see if you might need to change some things in the Terraform code for example.
+
+Something that might help is reading the documentation of the resources extensively to get a good overview of how everything works. Also, manually following some steps in the AWS Management Console might also help you understand the creation and configuration steps (do NOT forget to cancel/delete afterwards).
 
 **VERY IMPORTANT:** Try to always destroy the infrastructure after you are done, such as at the end of each day (or more often after testing an application deployment for example, as these also use resources in the background, or you can stop the instance running in the Management Console, etc.), to avoid unexpected and unnecessary costs! The only exceptions is if you are sure that resources are free and you need them multiple days after each other, such as for a presentation, etc. You can comment out resources in the main.tf file to exclude some resources, e.g., when you only want to test one or a selection of resources.
 If costs are less important or you are not in the situation where you need to personally develop and pay for the resources, you can omit this step and instead stop the resources when not used or always keep them on, depending on your specific situation.
