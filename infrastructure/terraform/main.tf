@@ -12,6 +12,16 @@ module "s3" {
   bucket_name = "rac-main-bucket"
 }
 
+# References Elastic Beanstalk module
+module "elastic_beanstalk" {
+  source = "./modules/elastic_beanstalk"
+  # Variables with values passed to the module
+  app_name = "rac-app"
+  app_desc = "rent a car application"
+  # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html
+  app_sol_stack_name = "64bit Amazon Linux 2023 v4.4.4 running Docker"
+}
+
 # resource "aws_elastic_beanstalk_application" "app" {
 #   name = var.app_name
 # }
