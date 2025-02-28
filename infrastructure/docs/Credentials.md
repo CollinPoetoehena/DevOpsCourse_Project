@@ -42,3 +42,6 @@ To create an access key, follow these steps:
 4. Scroll to the Access keys section
 5. If you don’t have one, click Create access key
 6. Copy AWS Access Key ID and AWS Secret Access Key (You won’t be able to see the secret key again after closing this page!) 
+
+To give a user full access, provide the user with the AdministratorAccess policy: https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AdministratorAccess.html
+Other policies might be better suited for security reasons, but for development this gives full access.

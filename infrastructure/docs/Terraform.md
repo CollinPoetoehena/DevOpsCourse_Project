@@ -19,3 +19,5 @@ terraform apply
 # Destroy: Removes the infrastructure when no longer needed
 terraform destroy
 ```
+
+**VERY IMPORTANT:** Try to always destroy the infrastructure after you are done, such as at the end of each day, to avoid unexpected and unnecessary costs! The only exceptions is if you are sure that resources are free and you need them multiple days after each other, such as for a presentation, etc. You can comment out resources in the main.tf file to exclude some resources, e.g., when you only want to test one or a selection of resources.

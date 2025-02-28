@@ -9,7 +9,7 @@ For example S3 buckets: https://registry.terraform.io/providers/hashicorp/aws/la
 module "s3" {
   source = "./modules/s3"
   # Variables with values passed to the module
-  bucket_name = "my-unique-bucket-name"
+  bucket_name = "rac-main-bucket"
 }
 
 # resource "aws_elastic_beanstalk_application" "app" {
