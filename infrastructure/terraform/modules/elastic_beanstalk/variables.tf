@@ -10,7 +10,11 @@ variable "app_sol_stack_name" {
   type = string
 }
 
-variable "app_env_name" {
+variable "app_env_name_frontend" {
+  type = string
+}
+
+variable "app_env_name_backend" {
   type = string
 }
 

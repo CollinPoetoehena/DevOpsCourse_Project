@@ -21,7 +21,8 @@ module "elastic_beanstalk" {
   app_conf_templ_name = "rac-app-conf-templ"
   # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html
   app_sol_stack_name = "64bit Amazon Linux 2023 v4.4.4 running Docker"
-  app_env_name = "rac-app-env"
+  app_env_name_frontend = "rac-app-env-frontend"
+  app_env_name_backend = "rac-app-env-backend"
 }
 
 # References Cognito module
