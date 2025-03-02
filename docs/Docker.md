@@ -1,10 +1,13 @@
 # Docker
 This document explains how Docker can be used to containerize the applications in this project.
 
-
 ## Docker Compose to run all services
 You can use Docker Compose to run both the backend and the frontend as containers:
 ```sh
+# Login to docker with your Docker hub username (needs to be done once)
+docker login -u <username>
+# Then enter the password when prompted
+
 # Build and start the services in the docker-compose.yml file
 docker-compose up --build
 # Stop the services:
@@ -12,14 +15,13 @@ docker-compose up --build
 docker-compose down
 ```
 
-
-## Separate Docker containers (for local testing for example)
-To run Docker containers of services separately (e.g. for local development), you can follow these steps:
+## Separate Docker containers
+To run Docker containers of services separately, you can follow these steps:
 ```sh
 # Navigate to the scripts folder
 cd scripts
 
-# Login to docker with your Docker hub username
+# Login to docker with your Docker hub username (needs to be done once)
 docker login -u <username>
 # Then enter the password when prompted
 
