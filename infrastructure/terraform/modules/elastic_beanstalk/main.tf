@@ -72,17 +72,9 @@ resource "aws_elastic_beanstalk_configuration_template" "app_template" {
   }
 }
 
-# Environment (uses the template), used to run the actual frontend application
-resource "aws_elastic_beanstalk_environment" "app_env_frontend" {
-  name                = var.app_env_name_frontend
-  application         = aws_elastic_beanstalk_application.app.name
-  # Use the earlier created template for the environment
-  template_name = aws_elastic_beanstalk_configuration_template.app_template.name
-}
-
-# Environment (uses the template), used to run the actual backend application
-resource "aws_elastic_beanstalk_environment" "app_env_backend" {
-  name                = var.app_env_name_backend
+# Environment (uses the template), used to run the actual application
+resource "aws_elastic_beanstalk_environment" "app_env" {
+  name                = var.app_env_name
   application         = aws_elastic_beanstalk_application.app.name
   # Use the earlier created template for the environment
   template_name = aws_elastic_beanstalk_configuration_template.app_template.name

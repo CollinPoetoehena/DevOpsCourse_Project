@@ -1,5 +1,3 @@
-# Docker Compose file to easily run both frontend and backend locally. This is just for local development purposes.
-
 services:
   # Frontend service
   frontend:

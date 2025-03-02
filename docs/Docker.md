@@ -15,8 +15,8 @@ docker-compose up --build
 docker-compose down
 ```
 
-## Separate Docker containers
-To run Docker containers of services separately, you can follow these steps:
+## Separate Docker containers (for local testing for example)
+To run Docker containers of services separately (e.g. for local development), you can follow these steps:
 ```sh
 # Navigate to the scripts folder
 cd scripts
