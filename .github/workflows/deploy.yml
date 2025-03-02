@@ -35,6 +35,7 @@ jobs:
         aws sts get-caller-identity
     
     # TODO: from here not tested yet, change a bit to deploy the backend
+    
     - name: Install AWS CLI
       run: |
         sudo apt-get update
