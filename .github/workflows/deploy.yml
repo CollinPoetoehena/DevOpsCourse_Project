@@ -30,31 +30,36 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ vars.AWS_REGION }}
+      # Continute on error to verify account worked, if not, credentials are probably wrong
+      continue-on-error: true
+    # This step will print the account used, if it is not 
     - name: Verify AWS Credentials
       run: |
         aws sts get-caller-identity
     
     # TODO: from here not tested yet, change a bit to deploy the backend
-    
+
     - name: Install AWS CLI
       run: |
         sudo apt-get update
         sudo apt-get install -y awscli zip
-
+    
+    # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
+    # This command now only adds the Dockerrun.aws.json and .ebextensions files to avoid unnecessary files
     - name: Package Backend Application
       run: |
         cd backend
-        zip -r ../backend-deploy.zip Dockerrun.aws.json .ebextensions
+        zip -r ../backend.zip Dockerrun.aws.json .ebextensions
 
     - name: Upload Backend to S3
       run: |
-        aws s3 cp backend-deploy.zip s3://${{ secrets.S3_BUCKET }}/backend-deploy.zip
+        aws s3 cp backend.zip s3://${{ secrets.S3_BUCKET }}/backend.zip
 
     - name: Deploy Backend to AWS Elastic Beanstalk
       run: |
         aws elasticbeanstalk create-application-version --application-name BackendApp \
           --version-label "backend-${{ github.run_number }}" \
-          --source-bundle S3Bucket="${{ secrets.S3_BUCKET }}",S3Key="backend-deploy.zip"
+          --source-bundle S3Bucket="${{ secrets.S3_BUCKET }}",S3Key="backend.zip"
 
         aws elasticbeanstalk update-environment --environment-name ${{ secrets.BACKEND_ENV_NAME }} \
           --version-label "backend-${{ github.run_number }}"
