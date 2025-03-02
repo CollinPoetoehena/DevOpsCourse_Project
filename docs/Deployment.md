@@ -21,11 +21,13 @@ The following repository secrets need to be created:
 - DOCKER_USERNAME: Docker Hub username
 - DOCKER_ACCESS_TOKEN: Docker personal access token (with read, write and delete permission): https://docs.docker.com/security/for-developers/access-tokens/
 
-For the environment secrets, create an environment called backend and add the following secrets (see backend/dummy.env):
+For the environment secrets, create an environment called main and add the following secrets (see backend/dummy.env):
 - MONGO_URI: MongoDB connection string
 - SECRET_KEY: bcrypt secret key
 - FACTOR: bcrypt factor
 - ROLE: bcrypt role
+- AWS_ACCESS_KEY_ID: AWS access key id
+- AWS_SECRET_ACCESS_KEY: AWS access key secret
 And add the following environment variables:
 - API_NAME: Name of the API
 - API_PORT: Port of the API
@@ -33,8 +35,7 @@ And add the following environment variables:
 - FRONTEND_URL: Frontend URL
 - BACKEND_URL: Backend URL
 - VEHICLE_URL: URL of the vehicle API
+- AWS_REGION: AWS region used
 
-TODO: create environment cloud and add secrets there for deployment:
-- AWS_ACCESS_KEY_ID: AWS access key id
-- AWS_SECRET_ACCESS_KEY: AWS access key secret
-TODO
+TODO: more?
+This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.

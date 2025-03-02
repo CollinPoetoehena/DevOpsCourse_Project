@@ -15,8 +15,8 @@ jobs:
   # Job to test environment variables in GitHub repository
   env-test:
     runs-on: ubuntu-latest
-    # Use the backend environment from GitHub
-    environment: backend
+    # Use the main environment from GitHub to load environment variables
+    environment: main
     steps:
         - name: Test Environment Variable
           run: |
@@ -26,8 +26,8 @@ jobs:
   # Job to build, test and push the backend Docker container
   be-build-test-push:
     runs-on: ubuntu-latest
-    # Use the backend environment from GitHub
-    environment: backend
+    # Use the main environment from GitHub to load environment variables
+    environment: main
     steps:
     - uses: actions/checkout@v2
 

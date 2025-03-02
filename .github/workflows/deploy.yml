@@ -13,8 +13,8 @@ jobs:
   deploy-backend:
     name: Deploy Backend
     runs-on: ubuntu-latest
-    # Use the backend environment from GitHub
-    environment: backend
+    # Use the main environment from GitHub to load environment variables
+    environment: main
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
