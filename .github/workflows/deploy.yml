@@ -32,17 +32,25 @@ jobs:
         aws-region: ${{ vars.AWS_REGION }}
       # Continute on error to verify account worked, if not, credentials are probably wrong
       continue-on-error: true
-    # This step will print the account used, if it is not 
+    # This step will print the account used, if it is not configured correctly, it will not show an account,
+    # meaning the credentials are probably invalid
     - name: Verify AWS Credentials
       run: |
         aws sts get-caller-identity
     
     # TODO: from here not tested yet, change a bit to deploy the backend
-
+    
+    # https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
     - name: Install AWS CLI
       run: |
-        sudo apt-get update
-        sudo apt-get install -y awscli zip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+        ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+    # This step will print the awscli version used 
+    - name: Verify AWS Credentials
+      run: |
+        aws --version
     
     # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
     # This command now only adds the Dockerrun.aws.json and .ebextensions files to avoid unnecessary files
