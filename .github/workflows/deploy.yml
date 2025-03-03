@@ -29,6 +29,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
     
+    # Test authentication with Docker Hub account (these variables are used by AWS to pull images)
+    - name: Login to Docker Container Registry
+      uses: docker/login-action@v1
+      with:
+        # Use repository secrets from GitHub for Docker Hub username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        # Use repository secrets from GitHub for Docker Hub access token: https://docs.docker.com/security/for-developers/access-tokens/
+        password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+    
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -73,19 +82,22 @@ jobs:
     
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
+    # Include additional variables for AWS EB, such as S3 and Docker Hub vars for authentication 
     - name: Create .env file
       run: |
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
         echo "FACTOR=${{ secrets.FACTOR }}" >> .env
         echo "ROLE=${{ secrets.ROLE }}" >> .env
+        echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
+        echo "DOCKER_ACCESS_TOKEN=${{ secrets.DOCKER_ACCESS_TOKEN }}" >> .env
         echo "API_NAME=${{ vars.API_NAME }}" >> .env
         echo "API_PORT=${{ vars.API_PORT }}" >> .env
         echo "API_VERSION=${{ vars.API_VERSION }}" >> .env
         echo "FRONTEND_URL=${{ vars.FRONTEND_URL }}" >> .env
         echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
-        echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
+        echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
     
     # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
     # This command now only adds the specified files to avoid unnecessary files

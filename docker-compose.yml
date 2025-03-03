@@ -14,6 +14,10 @@ services:
       - backend
     networks:
       - fe_be
+    # Add environment variables to authenticate to Docker Hub (corresponding variables are added in GitHub Actions)
+    environment:
+      - DOCKER_USERNAME=${DOCKER_USERNAME}
+      - DOCKER_PASSWORD=${DOCKER_ACCESS_TOKEN}
 
   # Backend service
   backend:
@@ -26,6 +30,10 @@ services:
       - .env
     networks:
       - fe_be
+    # Add environment variables to authenticate to Docker Hub (corresponding variables are added in GitHub Actions)
+    environment:
+      - DOCKER_USERNAME=${DOCKER_USERNAME}
+      - DOCKER_PASSWORD=${DOCKER_ACCESS_TOKEN}
 
 # Define networks (In Docker Compose, a network allows containers to communicate with each other 
 # without exposing their ports to the host machine. It creates an isolated environment where services 
