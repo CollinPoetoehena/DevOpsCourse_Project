@@ -8,7 +8,7 @@ To avoid costs, these are some helpful tips:
 
 2. Monitor costs in the "Billing and Cost Management" in the AWS Management Console.
 
-3. Add Budgets to get notified when costs reach above a set budge (e.g. set it to $0.1): https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html. Specifically: https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-create.html
+3. Add Budgets to get notified when costs reach above a set budge (e.g. set it to $0.1 for a zero spend buget, and another (or more budgets) to get notified when it exceeds $0.50 for example): https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html. Specifically: https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-create.html
 
 4. Manage your infrastructure with a tool such as Terraform to automatically create and manage your infrastructure. This allows you to automatically remove all resources created, which can be helpful for the following step.
 When configuring them and deploying the applications and services, you need to be very careful! For example, when using Ansible (and/or Terraform) for this, make sure you select/configure the free tier options (see the documentation of each specific service for which tiers/configurations are free), etc.
