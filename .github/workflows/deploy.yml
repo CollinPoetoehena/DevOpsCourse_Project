@@ -1,4 +1,4 @@
-name: Deploy Frontend & Backend to AWS Elastic Beanstalk
+name: Deploy Application (Frontend & Backend) to AWS Elastic Beanstalk
 
 on:
     push:
@@ -7,7 +7,12 @@ on:
     pull_request:
       branches:
         - main
-
+# Variables for this workflow
+env:
+  APP_NAME: rac-app
+  # Application name and version. Use Git commit id to create unique uploads and link back to commits
+  APP_NAME_VERSION: "rac-app-${{ github.sha }}"
+  
 jobs:
   # Job to deploy backend
   deploy-backend:
@@ -37,9 +42,7 @@ jobs:
     - name: Verify AWS Credentials
       run: |
         aws sts get-caller-identity
-    
-    # TODO: from here not tested yet, change a bit to deploy the backend
-    
+      
     # https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
     # apt was not possible, as previously it failed with awscli not present in packages
     # Install or update AWS CLI
@@ -82,29 +85,34 @@ jobs:
         echo "FRONTEND_URL=${{ vars.FRONTEND_URL }}" >> .env
         echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
+        echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
     
     # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
     # This command now only adds the specified files to avoid unnecessary files
     - name: Package Application with Docker Compose
       run: |
-        zip -r rac-app.zip .env docker-compose.yml
+        zip -r "${{ env.APP_NAME }}.zip" .env docker-compose.yml
     
     # Upload the application to S3 bucket (use the name of the bucket created with Terraform)
-    # Use Git commit id to create unique uploads and link back to commits
+    # First save variable for this workflow and then upload to S3
     - name: Upload Application to S3
       run: |
-        aws s3 cp rac-app.zip s3://rac-main-bucket/rac-app-${{ github.sha }}.zip
+        S3_APP_KEY="${{ env.APP_NAME }}-${{ github.sha }}"
+        echo "S3_URL=$S3_URL" >> $GITHUB_ENV
+
+        aws s3 cp "${{ env.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/$S3_APP_KEY.zip"
     
       # TODO: now test the rest, works up until the above
+      # TODO: also rename it and make just one .yml file which uses all the files in a sequence
 
     - name: Deploy Backend to AWS Elastic Beanstalk
       run: |
         aws elasticbeanstalk create-application-version --application-name BackendApp \
-          --version-label "backend-${{ github.run_number }}" \
-          --source-bundle S3Bucket="${{ secrets.S3_BUCKET }}",S3Key="backend.zip"
+          --version-label "$S3_APP_KEY" \
+          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="$S3_APP_KEY"
 
-        aws elasticbeanstalk update-environment --environment-name ${{ secrets.BACKEND_ENV_NAME }} \
-          --version-label "backend-${{ github.run_number }}"
+        aws elasticbeanstalk update-environment --environment-name ${{ vars.EB_ENV_NAME }} \
+          --version-label "$S3_APP_KEY"
 
 # deploy-frontend:
 #   name: Deploy Frontend
