@@ -105,7 +105,7 @@ jobs:
     - name: Deploy Backend to AWS Elastic Beanstalk
       run: |
         aws elasticbeanstalk create-application-version --application-name BackendApp \
-          --version-label "$S3_APP_KEY" \
+          --version-label "${{ env.APP_NAME_VERSION }}" \
           --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ env.APP_NAME_VERSION }}"
 
         aws elasticbeanstalk update-environment --environment-name ${{ vars.EB_ENV_NAME }} \
