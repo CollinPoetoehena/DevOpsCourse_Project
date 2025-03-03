@@ -82,9 +82,23 @@ jobs:
 
         aws --version
     
+    # Step to get the environment url of the AWS EB environment (=public URL used) 
+    - name: Get Backend Environment URL
+      run: |
+        BACKEND_URL=$(aws elasticbeanstalk describe-environments \
+          --application-name "${{ vars.EB_APP_NAME }}" \
+          --environment-names "${{ vars.EB_ENV_NAME }}" \
+          --query "Environments[0].CNAME" \
+          --output text)
+    
+        echo "Backend URL: http://$BACKEND_URL"
+        echo "BACKEND_URL=http://$BACKEND_URL" >> $GITHUB_ENV
+      
+    
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
-    # Include additional variables for AWS EB, such as S3 and Docker Hub vars for authentication 
+    # Include additional variables for AWS EB, such as S3 and Docker Hub vars for authentication
+    # Use the AWS EB domain URL for the frontend and backend url env vars now instead of localhost.
     - name: Create .env file
       run: |
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
