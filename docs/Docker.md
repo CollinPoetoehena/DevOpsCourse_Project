@@ -8,8 +8,9 @@ You can use Docker Compose to run both the backend and the frontend as container
 docker login -u <username>
 # Then enter the password when prompted
 
-# Build and start the services in the docker-compose.yml file
-docker-compose up --build
+# Build and start the services from the Docker Compose file
+# This uses the local docker-compose file and builds the containers with the --build flag
+docker-compose -f docker-compose.local.yml up --build
 # Stop the services:
 # Ctrl+C in the same terminal, or in a new WSL terminal:
 docker-compose down

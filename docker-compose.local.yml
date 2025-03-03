@@ -1,14 +1,15 @@
-# Docker Compose file used for deployment (should be called docker-compose.yml, as this is used by AWS directly)
+# Docker Compose file for local development (can only be used for local development)
 
 services:
   # Frontend service
   frontend:
-    # Use the image from the Docker Hub
-    image: poetoecuva/rac-frontend:latest
-    # Define ports: "HOST_PORT:CONTAINER_PORT": https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/
+    build:
+      # Use frontend folder as build context
+      context: ./frontend
+      # Use the Dockerfile in the context folder
+      dockerfile: Dockerfile
     ports:
-      # This forwards any traffic send through port 80 (main port on AWS EB instace) to container port 3000 (frontend container)
-      - "80:3000"
+      - "3000:3000"
     # Depends on backend to run first
     depends_on:
       - backend
@@ -17,13 +18,17 @@ services:
 
   # Backend service
   backend:
-    image: poetoecuva/rac-backend:latest
+    build:
+      # Use backend folder as build context
+      context: ./backend
+      # Use the Dockerfile in the context folder
+      dockerfile: Dockerfile
     ports:
       - "4001:4001"
     # Load a .env file with the container for the backend
     env_file:
       # Use .env file from the root of the project
-      - .env
+      - ./backend/.env
     networks:
       - fe_be
 
