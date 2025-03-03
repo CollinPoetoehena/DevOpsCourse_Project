@@ -85,14 +85,15 @@ jobs:
     # Step to get the environment url of the AWS EB environment (=public URL used) 
     - name: Get Backend Environment URL
       run: |
-        BACKEND_URL=$(aws elasticbeanstalk describe-environments \
+        PUBLIC_APP_URL=$(aws elasticbeanstalk describe-environments \
           --application-name "${{ vars.EB_APP_NAME }}" \
           --environment-names "${{ vars.EB_ENV_NAME }}" \
           --query "Environments[0].CNAME" \
           --output text)
     
-        echo "Backend URL: http://$BACKEND_URL"
-        echo "BACKEND_URL=http://$BACKEND_URL" >> $GITHUB_ENV
+        echo "Public App URL: http://$PUBLIC_APP_URL"
+        echo "BACKEND_URL=http://$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV  
+        echo "Backend URL: $BACKEND_URL"
       
     
     # Manually create a .env file in this job with the environment variables
