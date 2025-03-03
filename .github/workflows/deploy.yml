@@ -99,11 +99,17 @@ jobs:
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
         echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
     
+    # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
+    # This is not done in the project structure since it is a more logical place in the infrastructure folder
+    # More folders, such as .ebextensions can be added accordingly
+    - name: Move infrastructure/extension Folders to the Root
+      run: |
+        mv infrastructure/extensions/.platform .platform
     # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
     # This command now only adds the specified files to avoid unnecessary files
     - name: Package Application with Docker Compose
       run: |
-        zip -r "${{ env.APP_NAME }}.zip" .env docker-compose.yml
+        zip -r "${{ env.APP_NAME }}.zip" .env docker-compose.yml .platform/
     
     # Upload the application to S3 bucket (use the name of the bucket created with Terraform)
     # First save variable for this workflow and then upload to S3
