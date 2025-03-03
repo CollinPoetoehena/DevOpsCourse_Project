@@ -40,13 +40,28 @@ jobs:
     
     # TODO: from here not tested yet, change a bit to deploy the backend
     
-    - name: Install AWS CLI
+    # https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+    # apt was not possible, as previously it failed with awscli not present in packages
+    # Install or update AWS CLI
+    - name: Install or Update AWS CLI
+      # First get the path where aws is installed, if empty, it is not installed
+      # Depending on this result, install or update it and print the aws version at the end to verify installation
       run: |
-        sudo apt update
-        sudo apt install --assume-yes awscli
-    # This step will print the awscli version used 
-    - name: Verify AWS Credentials
-      run: |
+        AWS_PATH=$(which aws)
+
+        if [ -n "$AWS_PATH" ]; then
+          echo "AWS CLI is already installed at $AWS_PATH"
+          INSTALL_DIR=$(ls -l "$AWS_PATH" | awk '{print $NF}' | sed 's|/aws$||')
+
+          echo "Updating AWS CLI at $INSTALL_DIR"
+          sudo ./aws/install --bin-dir "$AWS_PATH" --install-dir "$INSTALL_DIR" --update
+        else
+          echo "AWS CLI is not installed. Installing..."
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+        fi
+        
         aws --version
     
     # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
