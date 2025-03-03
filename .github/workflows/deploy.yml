@@ -88,10 +88,11 @@ jobs:
     - name: Package Application with Docker Compose
       run: |
         zip -r rac-app.zip .env docker-compose.yml
-      
+    
+    # Upload the application to S3 bucket (use the name of the bucket created with Terraform)
     - name: Upload Application to S3
       run: |
-        aws s3 cp backend.zip s3://${{ secrets.S3_BUCKET }}/backend.zip
+        aws s3 cp rac-app.zip s3://rac-main-bucket/rac-app.zip
     # TODO: upload to S3 bucket and test everything here. Can use bucket created with Terraform.
 
     - name: Deploy Backend to AWS Elastic Beanstalk
