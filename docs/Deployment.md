@@ -65,6 +65,7 @@ And add the following environment variables:
 - VEHICLE_URL: URL of the vehicle API
 - AWS_REGION: AWS region used
 - S3_BUCKET_NAME: AWS S3 bucket name (created with Terraform)
+- EB_APP_NAME: AWS Elastic Beanstalk application name (created with Terraform)
 - EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
 
 TODO: more?

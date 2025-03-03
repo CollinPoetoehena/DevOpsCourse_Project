@@ -101,12 +101,13 @@ jobs:
     
       # TODO: now test the rest, works up until the above
       # TODO: also rename it and make just one .yml file which uses all the files in a sequence
-
-    - name: Deploy Backend to AWS Elastic Beanstalk
+    
+    # Deploy application to an existing AWS EB application
+    - name: Deploy Application to AWS Elastic Beanstalk
       run: |
-        aws elasticbeanstalk create-application-version --application-name BackendApp \
+        aws elasticbeanstalk create-application-version --application-name "${{ vars.EB_APP_NAME }}" \
           --version-label "${{ env.APP_NAME_VERSION }}" \
-          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ env.APP_NAME_VERSION }}"
+          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ env.APP_NAME_VERSION }}.zip"
 
         aws elasticbeanstalk update-environment --environment-name ${{ vars.EB_ENV_NAME }} \
           --version-label "${{ env.APP_NAME_VERSION }}"
