@@ -47,7 +47,12 @@ jobs:
       # First get the path where aws is installed, if empty, it is not installed
       # Depending on this result, install or update it and print the aws version at the end to verify installation
       run: |
+        echo "Searching for installed aws location (if any)"
         AWS_PATH=$(which aws)
+
+        echo "Download awscli files..."
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
 
         if [ -n "$AWS_PATH" ]; then
           echo "AWS CLI is already installed at $AWS_PATH"
@@ -57,11 +62,9 @@ jobs:
           sudo ./aws/install --bin-dir "$AWS_PATH" --install-dir "$INSTALL_DIR" --update
         else
           echo "AWS CLI is not installed. Installing..."
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
           sudo ./aws/install
         fi
-        
+
         aws --version
     
     # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
