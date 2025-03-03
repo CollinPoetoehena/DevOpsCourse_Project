@@ -5,6 +5,14 @@
 
 echo "Logging into Docker Hub during prebuild from custom docker-login.sh script..."
 
+# Manually source environment variables from .env of the deployed source bundle in AWS EB
+if [ -f "/var/app/staging/.env" ]; then
+    echo "Sourcing environment variables from /var/app/staging/.env"
+    export $(grep -v '^#' /var/app/staging/.env | xargs)
+else
+    echo "Warning: /var/app/staging/.env not found!"
+fi
+
 # Ensure that DOCKER_USERNAME and DOCKER_ACCESS_TOKEN are set before running docker login
 if [[ -z "$DOCKER_USERNAME" || -z "$DOCKER_ACCESS_TOKEN" ]]; then
   echo "Error: DOCKER_USERNAME or DOCKER_ACCESS_TOKEN is not set. Exiting..."
