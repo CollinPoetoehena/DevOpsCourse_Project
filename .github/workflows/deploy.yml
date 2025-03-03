@@ -97,10 +97,7 @@ jobs:
     # First save variable for this workflow and then upload to S3
     - name: Upload Application to S3
       run: |
-        S3_APP_KEY="${{ env.APP_NAME }}-${{ github.sha }}"
-        echo "S3_URL=$S3_URL" >> $GITHUB_ENV
-
-        aws s3 cp "${{ env.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/$S3_APP_KEY.zip"
+        aws s3 cp "${{ env.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ env.APP_NAME_VERSION }}.zip"
     
       # TODO: now test the rest, works up until the above
       # TODO: also rename it and make just one .yml file which uses all the files in a sequence
@@ -109,10 +106,10 @@ jobs:
       run: |
         aws elasticbeanstalk create-application-version --application-name BackendApp \
           --version-label "$S3_APP_KEY" \
-          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="$S3_APP_KEY"
+          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ env.APP_NAME_VERSION }}"
 
         aws elasticbeanstalk update-environment --environment-name ${{ vars.EB_ENV_NAME }} \
-          --version-label "$S3_APP_KEY"
+          --version-label "${{ env.APP_NAME_VERSION }}"
 
 # deploy-frontend:
 #   name: Deploy Frontend

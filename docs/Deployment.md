@@ -65,7 +65,7 @@ And add the following environment variables:
 - VEHICLE_URL: URL of the vehicle API
 - AWS_REGION: AWS region used
 - S3_BUCKET_NAME: AWS S3 bucket name (created with Terraform)
-- EB_ENV_NAME: AWS Elastic Beanstalk environment name
+- EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
 
 TODO: more?
 This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.
