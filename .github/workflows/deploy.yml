@@ -46,13 +46,14 @@ jobs:
     - name: Install or Update AWS CLI
       # First get the path where aws is installed, if empty, it is not installed
       # Depending on this result, install or update it and print the aws version at the end to verify installation
+      # Unzip with -q flag to unzip quietly (avoids printing all zip files in the logs)
       run: |
         echo "Searching for installed aws location (if any)"
         AWS_PATH=$(which aws)
 
         echo "Download awscli files..."
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-        unzip awscliv2.zip
+        unzip awscliv2.zip -q
 
         if [ -n "$AWS_PATH" ]; then
           echo "AWS CLI is already installed at $AWS_PATH"
@@ -67,16 +68,31 @@ jobs:
 
         aws --version
     
-    # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
-    # This command now only adds the Dockerrun.aws.json and .ebextensions files to avoid unnecessary files
-    - name: Package Backend Application
+    # Manually create a .env file in this job with the environment variables
+    # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
+    - name: Create .env file
       run: |
-        cd backend
-        zip -r ../backend.zip Dockerrun.aws.json .ebextensions
-
-    - name: Upload Backend to S3
+        echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+        echo "FACTOR=${{ secrets.FACTOR }}" >> .env
+        echo "ROLE=${{ secrets.ROLE }}" >> .env
+        echo "API_NAME=${{ vars.API_NAME }}" >> .env
+        echo "API_PORT=${{ vars.API_PORT }}" >> .env
+        echo "API_VERSION=${{ vars.API_VERSION }}" >> .env
+        echo "FRONTEND_URL=${{ vars.FRONTEND_URL }}" >> .env
+        echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
+        echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
+    
+    # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
+    # This command now only adds the specified files to avoid unnecessary files
+    - name: Package Application with Docker Compose
+      run: |
+        zip -r rac-app.zip .env docker-compose.yml
+      
+    - name: Upload Application to S3
       run: |
         aws s3 cp backend.zip s3://${{ secrets.S3_BUCKET }}/backend.zip
+    # TODO: upload to S3 bucket and test everything here. Can use bucket created with Terraform.
 
     - name: Deploy Backend to AWS Elastic Beanstalk
       run: |
