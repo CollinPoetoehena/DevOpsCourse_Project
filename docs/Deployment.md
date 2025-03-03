@@ -65,6 +65,7 @@ For the environment secrets, create an environment called main and add the follo
 And add the following environment variables:
 - API_NAME: Name of the API
 - API_PORT: Port of the API
+- FRONTEND_PORT: Port of the frontend
 - API_VERSION: Version of the API
 - FRONTEND_URL: Frontend URL
 - BACKEND_URL: Backend URL

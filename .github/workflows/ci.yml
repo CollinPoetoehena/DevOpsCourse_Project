@@ -147,7 +147,7 @@ jobs:
     - name: Run Frontend Container
       run: |
         docker run -d \
-          -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
+          -p ${{ vars.FRONTEND_PORT }}:${{ vars.FRONTEND_PORT }} \
           --name ${{ env.FE_IMAGE_NAME }} \
           ${FE_IMAGE_TAG}
       
