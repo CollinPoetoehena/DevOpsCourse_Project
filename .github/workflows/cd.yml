@@ -94,7 +94,6 @@ jobs:
         echo "Public App URL: http://$PUBLIC_APP_URL"
         echo "BACKEND_URL=http://$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV  
         echo "Backend URL: $BACKEND_URL"
-      
     
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
