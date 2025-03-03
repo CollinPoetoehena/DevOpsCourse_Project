@@ -2,6 +2,12 @@
 
 TODO: explain how the application is deployed using Docker
 
+TODO: explain that AWS EB automatically runs the docker-compose.yml, which pulls the images. 
+TODO: explain: a custom prebuild script 01-docker-login.sh is executed beforehand to login to docker with the necessary credentials to allow docker-compose.yml to pull images from the private Docker Hub repository.
+
+
+
+
 ## Cost Comparison: Single vs. Separate Elastic Beanstalk Services for Frontend and Backend
 You can use Docker Compose to run both services in a single AWS EB service, or you can use two separate AWS EB services. Both have their advantages and disadvantages:
 

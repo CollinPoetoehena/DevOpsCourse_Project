@@ -108,3 +108,69 @@ jobs:
     - name: Push Image to Docker Hub Container Registry
       run: | 
           docker push "${BE_IMAGE_TAG}"
+
+  # Job to build, test and push the frontend Docker container
+  fe-build-test-push:
+    runs-on: ubuntu-latest
+    # Use the main environment from GitHub to load environment variables
+    environment: main
+    steps:
+    - uses: actions/checkout@v2
+
+    # Step to set IMAGE_TAG environment variable
+    - name: Set FE_IMAGE_TAG
+      # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
+      run: |
+        FE_IMAGE_TAG="${{ env.DOCKER_REGISTRY }}/${{ env.FE_IMAGE_NAME }}:latest"
+        echo "FE_IMAGE_TAG=$FE_IMAGE_TAG" >> $GITHUB_ENV
+    # Step to confirm FE_IMAGE_TAG
+    - name: Print FE_IMAGE_TAG
+      run: echo "Using FE_IMAGE_TAG=${FE_IMAGE_TAG}"
+
+    # Step to login to Docker Hub
+    - name: Login to Docker Container Registry
+      uses: docker/login-action@v1
+      with:
+        # Use repository secrets from GitHub for Docker Hub username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        # Use repository secrets from GitHub for Docker Hub access token: https://docs.docker.com/security/for-developers/access-tokens/
+        password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+    # Step to build Docker container
+    - name: Build Docker Image
+      run: |
+        cd frontend
+        docker build --build-arg NAME="${FE_IMAGE_NAME}" -t "${FE_IMAGE_TAG}" .
+    
+    # Step to run Docker container
+    # Run docker in detached mode (-d) to run the container in the background
+    - name: Run Frontend Container
+      run: |
+        docker run -d \
+          -p ${{ vars.API_PORT }}:${{ vars.API_PORT }} \
+          --name ${{ env.FE_IMAGE_NAME }} \
+          ${FE_IMAGE_TAG}
+      
+    # Step to wait for the frontend to be ready before running tests
+    - name: Wait for Frontend to Start
+      run: |
+        echo "Waiting for frontend to be ready..."
+        # 'until curl -s' silently tries to fetch the frontend URL, retrying every 2 seconds 
+        # and timing out after 15 seconds
+        timeout 15 sh -c 'until curl -s ${{ vars.FRONTEND_URL }}; do sleep 2; done'
+        echo "Frontend is ready!"
+
+    # Step to run `npm run test` inside the running container
+    # (environment variables should already be present in the docker container, as they are set in the docker run step)
+    - name: Run Frontend Tests in Container
+      run: |
+        docker exec ${{ env.FE_IMAGE_NAME }} npm run test
+    # If tests fail, stop execution before pushing
+    - name: Fail if tests fail
+      if: failure()
+      run: exit 1
+
+    # If all above steps are successful, push the image to Docker Hub
+    - name: Push Image to Docker Hub Container Registry
+      run: | 
+          docker push "${FE_IMAGE_TAG}"

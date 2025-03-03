@@ -3,6 +3,8 @@
 # Script to login to Docker (to ensure Docker Compose can pull the images). Environment variables should be present
 # For documentation see: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/platforms-linux-extend.hooks.html 
 
+# Logs of this file can be found in eb-hooks.log (only when errors occur, the error will be displayed in eb-engine.log)
+
 echo "Logging into Docker Hub during prebuild from custom docker-login.sh script..."
 
 # Manually source environment variables from .env of the deployed source bundle in AWS EB
