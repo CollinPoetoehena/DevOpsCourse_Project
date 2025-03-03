@@ -1,3 +1,5 @@
+# CI: Continuous Integration (for building, testing and pushing the Docker image)
+
 name: Build, Test and Push Docker
 on:
   push:

@@ -1,3 +1,5 @@
+# CD: Continuous Deployment (for deploying the application)
+
 name: Deploy Application (Frontend & Backend) to AWS Elastic Beanstalk
 
 on:
