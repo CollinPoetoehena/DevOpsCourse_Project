@@ -82,7 +82,6 @@ jobs:
 
         aws --version
     
-        
     # Step to get the environment url of the AWS EB environment (=public URL used) 
     - name: Get Backend Environment URL
       run: |
