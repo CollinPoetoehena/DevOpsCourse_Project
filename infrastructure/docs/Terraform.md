@@ -14,9 +14,9 @@ cd infrastructure/terraform
 terraform init
 # Plan: Shows a preview of what Terraform will do (might take some time)
 terraform plan
-# Apply: Provisions the infrastructure as defined
+# Apply: Provisions the infrastructure as defined (might take some time)
 terraform apply
-# Destroy: Removes the infrastructure when no longer needed
+# Destroy: Removes the infrastructure when no longer needed (might take some time)
 terraform destroy
 
 # Run with auto approve (avoids manual required prompt)
