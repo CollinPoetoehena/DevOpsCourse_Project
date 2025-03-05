@@ -1,24 +1,33 @@
-name: Build Docker Image
+name: Build Docker Images
 
 # Specify this workflow can be called by another workflow using workflow_call: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_call
 on:
   workflow_call:
-    # Use input variables for this step
-    inputs:
-      service:
-        required: true
-        type: string
-      image_tag:
-        required: true
-        type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Use the main environment from GitHub to load environment variables
+    environment: main
+    # Use strategy to run this step multiple times with the possible services
+    # Documentation: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
+    strategy:
+      matrix:
+        service: [backend, frontend]  # Runs for both services
     steps:
+    # Step 0: Set IMAGE_TAG environment variable for this specific service
+    - name: Set Image Tag
+      # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
+      run: |
+        IMAGE_TAG="${{ env.DOCKER_REGISTRY }}/rac-${{ matrix.service }}:latest"
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+    # Step to confirm IMAGE_TAG
+    - name: Print IMAGE_TAG
+      run: echo "Using IMAGE_TAG=${IMAGE_TAG}"
+    
     # Step to build the Docker image
     # First go into the service folder and then build the image
     - name: Build Docker Image
       run: |
-        cd ${{ inputs.service }}
-        docker build --build-arg NAME="rac-${{ inputs.service }}" -t "${{ inputs.image_tag }}" .
+        cd ${{ matrix.service }}
+        docker build --build-arg NAME="rac-${{ matrix.service }}" -t "${IMAGE_TAG}" .

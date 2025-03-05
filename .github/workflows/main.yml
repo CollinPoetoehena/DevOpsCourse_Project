@@ -47,10 +47,14 @@ jobs:
     uses: ./.github/workflows/env.yml
   
   # Step 3: Continuous integration - Build, Test and Push Docker Images (if previous steps succeeded)
-  ci:
+  build:
     needs: env-setup
     secrets: inherit
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/build.yml
+  # ci:
+  #   needs: env-setup
+  #   secrets: inherit
+  #   uses: ./.github/workflows/ci.yml
   
   # Step 4: Deploy to AWS EB (if previous steps succeeded)
   cd:

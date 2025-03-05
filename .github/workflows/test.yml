@@ -1,26 +1,25 @@
-name: Test Docker Image
+name: Test Docker Images
 
 # Specify this workflow can be called by another workflow using workflow_call: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_call
 on:
   workflow_call:
-    # Use input variables for this step
-    inputs:
-      service:
-        required: true
-        type: string
-      image_tag:
-        required: true
-        type: string
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    # Use the main environment from GitHub to load environment variables
+    environment: main
+    # Use strategy to run this step multiple times with the possible services
+    # Documentation: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
+    strategy:
+      matrix:
+        service: [backend, frontend]  # Runs for both services
     steps:
     # Manually create a .env file in this job with the environment variables for each service
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
     # Names must be exactly the same as the dummy.env files, otherwise the variables cannot be found by the source code
     - name: Create .env file (backend)
-      if: inputs.service == 'backend'
+      if: matrix.service == 'backend'
       run: |
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
@@ -34,7 +33,7 @@ jobs:
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
     # Create a different .env file for the frontend
     - name: Create .env file (frontend)
-      if: inputs.service == 'frontend'
+      if: matrix.service == 'frontend'
       run: |
         echo "NEXT_PUBLIC_FRONTEND_URL=${{ vars.NEXT_PUBLIC_FRONTEND_URL }}" >> .env
         echo "NEXT_PUBLIC_BACKEND_FULL_URL=${{ vars.NEXT_PUBLIC_BACKEND_FULL_URL }}" >> .env
@@ -45,7 +44,7 @@ jobs:
     # Select the correct port using the service
     - name: Run Container with Environment Variables
       run: |
-        if [ "${{ inputs.service }}" == "backend" ]; then
+        if [ "${{ matrix.service }}" == "backend" ]; then
           PORT=${{ vars.API_PORT }}
         else
           PORT=${{ vars.FRONTEND_PORT }}
@@ -54,8 +53,8 @@ jobs:
         docker run -d \
           --env-file .env \
           -p $PORT:$PORT \
-          --name rac-${{ inputs.service }} \
-          ${{ inputs.image_tag }}
+          --name rac-${{ matrix.service }} \
+          ${IMAGE_TAG}
     
     # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
     - name: Delete .env File After Use
@@ -66,7 +65,7 @@ jobs:
     # and timing out after 15 seconds
     - name: Wait for Container to Start
       run: |
-        if [ "${{ inputs.service }}" == "backend" ]; then
+        if [ "${{ matrix.service }}" == "backend" ]; then
           CONTAINER_URL=${{ vars.BACKEND_URL }}
         else
           CONTAINER_URL=${{ vars.FRONTEND_URL }}
@@ -81,7 +80,7 @@ jobs:
     # (environment variables should already be present in the docker container, as they are set in the docker run step)
     - name: Run Container Tests and Stop Container After Tests
       run: |
-        if [ "${{ inputs.service }}" == "backend" ]; then
+        if [ "${{ matrix.service }}" == "backend" ]; then
           IMAGE_NAME=${{ env.BE_IMAGE_NAME }}
         else
           IMAGE_NAME=${{ env.FE_IMAGE_NAME }}
