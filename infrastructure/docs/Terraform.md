@@ -22,6 +22,15 @@ terraform destroy
 # Run with auto approve (avoids manual required prompt)
 terraform apply -auto-approve
 terraform destroy -auto-approve
+
+# To remove specific infrastructure resources, you can at a target to destroy, such as only the aws eb environment:
+terraform destroy \
+  -target="module.elastic_beanstalk.aws_elastic_beanstalk_environment.app_env" \
+  -auto-approve
+# The targets are referenced by main.tf in the root of Terraform, from there you can select the targets (you can add more targets)
+# OR: you can comment out parts of your infrastructure and do apply (it will remove the commented parts)
+# For example, you can comment out whole modules, or just a part of a module in its main.tf, such as aws_elastic_beanstalk_environment.app_env
+terraform apply -auto-approve
 ```
 
 After creating your resources, you can view and monitor them in the AWS Management Console for example. You can also see potential errors there that might not be reported by Terraform, such as when creating the AWS Elastic Beanstalk environment, etc. Also, you can see the exact configuration of the resources there. You can use this to see if you might need to change some things in the Terraform code for example.
