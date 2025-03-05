@@ -3,6 +3,17 @@ name: Test Docker Images
 # Specify this workflow can be called by another workflow using workflow_call: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_call
 on:
   workflow_call:
+    # Input variables
+    inputs:
+      BE_IMAGE_NAME:
+        required: true
+        type: string
+      FE_IMAGE_NAME:
+        required: true
+        type: string
+      DOCKER_REGISTRY:
+        required: true
+        type: string
 
 jobs:
   test:
@@ -15,6 +26,16 @@ jobs:
       matrix:
         service: [backend, frontend]  # Runs for both services
     steps:
+    # Step 0: Set IMAGE_TAG environment variable for this specific service
+    - name: Set Image Tag
+      # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
+      run: |
+        IMAGE_TAG="${{ inputs.DOCKER_REGISTRY }}/rac-${{ matrix.service }}:latest"
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+    # Step to confirm IMAGE_TAG
+    - name: Print IMAGE_TAG
+      run: echo "Using IMAGE_TAG=${IMAGE_TAG}"
+
     # Manually create a .env file in this job with the environment variables for each service
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
     # Names must be exactly the same as the dummy.env files, otherwise the variables cannot be found by the source code
