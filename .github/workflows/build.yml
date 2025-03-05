@@ -16,33 +16,4 @@ on:
         type: string
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    # Use the main environment from GitHub to load environment variables
-    environment: main
-    # Use strategy to run this step multiple times with the possible services
-    # Documentation: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
-    strategy:
-      matrix:
-        service: [backend, frontend]  # Runs for both services
-    steps:
-    # Checkout repository
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-
-    # Step 0: Set IMAGE_TAG environment variable for this specific service
-    - name: Set Image Tag
-      # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
-      run: |
-        IMAGE_TAG="${{ inputs.DOCKER_REGISTRY }}/rac-${{ matrix.service }}:latest"
-        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-    # Step to confirm IMAGE_TAG
-    - name: Print IMAGE_TAG
-      run: echo "Using IMAGE_TAG=${IMAGE_TAG}"
-    
-    # Step to build the Docker image
-    # First go into the service folder and then build the image
-    - name: Build Docker Image
-      run: |
-        cd ${{ matrix.service }}
-        docker build --build-arg NAME="rac-${{ matrix.service }}" -t "${IMAGE_TAG}" .
+  

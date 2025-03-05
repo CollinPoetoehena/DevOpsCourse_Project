@@ -26,32 +26,11 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/setup.yml
   
-  # CI - Build, Test and Push Docker Images (if previous steps succeeded)
-  # Step 2: Build Docker Images
-  build:
+  # Step 2: CI - Build, Test and Push Docker Images (if previous steps succeeded)
+  build-test-push:
     needs: setup
     secrets: inherit
-    uses: ./.github/workflows/build.yml
-    # Add variables
-    with:
-      BE_IMAGE_NAME: rac-backend
-      FE_IMAGE_NAME: rac-frontend
-      DOCKER_REGISTRY: docker.io/poetoecuva
-  # Step 3: Test Docker Images
-  test:
-    needs: build
-    secrets: inherit
-    uses: ./.github/workflows/test.yml
-    # Add variables
-    with:
-      BE_IMAGE_NAME: rac-backend
-      FE_IMAGE_NAME: rac-frontend
-      DOCKER_REGISTRY: docker.io/poetoecuva
-  # Step 4: Push Docker Images to Docker Hub
-  push:
-    needs: test
-    secrets: inherit
-    uses: ./.github/workflows/push.yml
+    uses: ./.github/workflows/ci.yml
     # Add variables
     with:
       BE_IMAGE_NAME: rac-backend
@@ -59,8 +38,8 @@ jobs:
       DOCKER_REGISTRY: docker.io/poetoecuva
   
   # Step 5: CD - Deploy to AWS EB (if previous steps succeeded)
-  cd:
-    needs: push
+  deploy:
+    needs: build-test-push
     secrets: inherit
     uses: ./.github/workflows/deploy.yml
     # Add variables
