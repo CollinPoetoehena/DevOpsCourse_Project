@@ -21,6 +21,7 @@ env:
 
 # Jobs to execute for this workflow
 # This reuses workflows, for more information see: https://docs.github.com/en/actions/sharing-automations/reusing-workflows
+# Unfortunately, folders are not supported yet, so all files need to be in .github/workflows
 jobs:
   # Step 1: Install dependencies
   setup:
@@ -35,9 +36,9 @@ jobs:
   # Step 3: Continuous integration - Build, Test and Push Docker Images (if previous steps succeeded)
   ci:
     needs: env-setup
-    uses: ./.github/workflows/ci/ci.yml
+    uses: ./.github/workflows/ci.yml
   
   # Step 4: Deploy to AWS EB (if previous steps succeeded)
   cd:
     needs: ci
-    uses: ./.github/workflows/cd/cd.yml
+    uses: ./.github/workflows/cd.yml
