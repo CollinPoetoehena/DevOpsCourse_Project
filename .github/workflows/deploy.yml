@@ -7,6 +7,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Use the main environment from GitHub to load environment variables
+    environment: main
     steps:
     # Configure AWS Credentials for this workflow
     - name: Configure AWS Credentials
@@ -22,6 +24,19 @@ jobs:
     - name: Verify AWS Credentials
       run: |
         aws sts get-caller-identity
+    
+    # Step to get the environment url of the AWS EB environment (=public URL used) and save it for later jobs/steps
+    - name: Get Deployed Application Environment URL
+      run: |
+        PUBLIC_APP_URL=$(aws elasticbeanstalk describe-environments \
+          --application-name "${{ vars.EB_APP_NAME }}" \
+          --environment-names "${{ vars.EB_ENV_NAME }}" \
+          --query "Environments[0].CNAME" \
+          --output text)
+
+        echo "Public App URL: http://$PUBLIC_APP_URL"
+        echo "DEPLOYED_BACKEND_URL=$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV  
+        echo "Backend URL: $DEPLOYED_BACKEND_URL"
 
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
