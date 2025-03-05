@@ -111,7 +111,7 @@ jobs:
       run: rm -f .env
     
     # Step to wait for the container to be ready and running tests
-    # 'until curl -s' silently tries to fetch the backend URL, retrying every 2 seconds 
+    # "until curl -s" silently tries to fetch the backend URL, retrying every 2 seconds 
     # and timing out after 15 seconds
     - name: Wait for Container to Start
       run: |
@@ -122,7 +122,7 @@ jobs:
         fi
 
         echo "Waiting for container $IMAGE_TAG to be ready at $CONTAINER_URL..."
-        timeout 15 sh -c 'until curl -s $CONTAINER_URL; do sleep 2; done'
+        timeout 15 sh -c "until curl -s $CONTAINER_URL; do sleep 2; done"
         echo "Container is ready!"
         
     # Step to run `npm run test` inside the running container
