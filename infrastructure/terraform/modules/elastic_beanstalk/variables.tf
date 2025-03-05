@@ -17,3 +17,7 @@ variable "app_env_name" {
 variable "app_conf_templ_name" {
   type = string
 }
+
+variable "app_sg_name" {
+  type = string
+}

@@ -32,5 +32,12 @@ poetoec@LAPTOP-IA1OBTR5:/mnt/c/Users/cpoet/IdeaProjects/DevOpsCourse_Project$ eb
 ERROR: NotFoundError - Environment "rac-app-env" not Found.
 # You can manually remove the .elasticbeanstalk folder in the root of the project and run "eb init" again, then try again
 
+# You can try accessing the deployed instance with curl as well, such as accessing the deployed backend:
+curl http://rac-app-env.eba-8eb9aff9.eu-central-1.elasticbeanstalk.com:4001/api/v1 
+# May return something like "Welcome to RAC"
+# Or frontend:
+curl http://rac-app-env.eba-8eb9aff9.eu-central-1.elasticbeanstalk.com
+# A lot of times it is not working because of security rules. For example, adding an inbound TCP rule for port 4001 with "0.0.0.0/0" in the security group of the AWS EB environment fixed backend not accessible problem (problem was timing out or saying not accessible)
+
 # If you encounter more weird errors with Elastic Beanstalk, such as infinite loading, etc., you can try restarting and/or removing the environment using Terraform (see infrastructure/docs/Terraform.md) and then try again.
 ```

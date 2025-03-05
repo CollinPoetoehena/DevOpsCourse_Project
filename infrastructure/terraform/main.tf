@@ -22,6 +22,7 @@ module "elastic_beanstalk" {
   # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html
   app_sol_stack_name = "64bit Amazon Linux 2023 v4.4.4 running Docker"
   app_env_name = "rac-app-env"
+  app_sg_name = "rac-app-env-sg"
 }
 
 # References Cognito module
