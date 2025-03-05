@@ -40,17 +40,20 @@ jobs:
     # Step to get the environment url of the AWS EB environment (=public URL used) and save it for later jobs/steps
     - name: Get Deployed Application Environment URL
       run: |
-        PUBLIC_APP_URL=$(aws elasticbeanstalk describe-environments \
+        PUBLIC_APP_DOMAIN=$(aws elasticbeanstalk describe-environments \
           --application-name "${{ vars.EB_APP_NAME }}" \
           --environment-names "${{ vars.EB_ENV_NAME }}" \
           --query "Environments[0].CNAME" \
           --output text)
 
-        echo "Public App Domain: $PUBLIC_APP_URL"
-        echo "PUBLIC_APP_URL=http://$PUBLIC_APP_URL" >> $GITHUB_ENV
-        echo "DEPLOYED_BACKEND_URL=$PUBLIC_APP_URL:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV  
+        echo "Public App Domain: $PUBLIC_APP_DOMAIN"
+        echo "PUBLIC_APP_URL=http://$PUBLIC_APP_DOMAIN" >> $GITHUB_ENV
+        echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_APP_DOMAIN:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV  
+    # Step to confirm variables (can only use variables saved to $GITHUB_ENV in a new step)
+    - name: Print Application Environment Variables
+      run: |
         echo "Public App URL: $PUBLIC_APP_URL"
-        echo "Backend URL: $DEPLOYED_BACKEND_URL"
+        echo "Deployed Backend URL: $DEPLOYED_BACKEND_URL"
 
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
