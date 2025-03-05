@@ -31,4 +31,6 @@ eb logs rac-app-env --zip && unzip -o .elasticbeanstalk/logs/*.zip -d .elasticbe
 poetoec@LAPTOP-IA1OBTR5:/mnt/c/Users/cpoet/IdeaProjects/DevOpsCourse_Project$ eb status rac-app-env
 ERROR: NotFoundError - Environment "rac-app-env" not Found.
 # You can manually remove the .elasticbeanstalk folder in the root of the project and run "eb init" again, then try again
+
+# If you encounter more weird errors with Elastic Beanstalk, such as infinite loading, etc., you can try restarting and/or removing the environment using Terraform (see infrastructure/docs/Terraform.md) and then try again.
 ```
