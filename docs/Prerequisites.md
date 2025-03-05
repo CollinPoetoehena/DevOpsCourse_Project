@@ -57,3 +57,29 @@ sudo apt install ansible --yes
 # Verify installation:
 ansible --version
 ```
+
+
+## AWS CLI and other AWS CLI tools
+Full documentation: https://docs.aws.amazon.com/cli/
+
+Use the following steps:
+```sh
+# Alternatively, you can also use Homebrew on Linux, as it also generally supports the latest version: https://formulae.brew.sh/formula/awscli
+brew install awscli
+# Verify installation (you may need to restart your terminal session (i.e. close and open a new one) before it works)
+aws --version
+# Alternatively, you can also use snap on Linux (this is the only package manager AWS officially guarentees the latest version)
+# But Homebrew on Linux also works and generally has the latest version!
+sudo apt update
+sudo apt install snapd
+# Verify installation
+snap version
+# Install AWS CLI
+sudo snap install aws-cli --classic
+
+# Install AWS EB CLI: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html
+# Use Homebrew on Linux for this installation as this is the easiest and best setup I found: https://formulae.brew.sh/formula/aws-elasticbeanstalk
+brew install aws-elasticbeanstalk
+# Verify installation (you may need to restart your terminal session (i.e. close and open a new one) before it works)
+eb --version
+```
