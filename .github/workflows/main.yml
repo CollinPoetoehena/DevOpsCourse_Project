@@ -8,10 +8,7 @@ on:
       - main
   pull_request:
     branches:
-      - main
-
-env:
-  
+      - main  
 
 # These permissions are needed to interact with GitHub's OIDC Token endpoint for AWS Credentials step in setup.yml
 # These must be set in this main.yml file, otherwise, it will error with "The nested job 'setup' is requesting 'id-token: write', but is only allowed 'id-token: none'."
