@@ -10,6 +10,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    # Load a .env file with the container for the frontend
+    env_file:
+      # Use .env file from the root of the project
+      - ./frontend/.env
     # Depends on backend to run first
     depends_on:
       - backend

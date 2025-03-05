@@ -74,6 +74,9 @@ And add the following environment variables:
 - S3_BUCKET_NAME: AWS S3 bucket name (created with Terraform)
 - EB_APP_NAME: AWS Elastic Beanstalk application name (created with Terraform)
 - EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
+- NEXT_PUBLIC_FRONTEND_URL: Frontend base URL including version
+- NEXT_PUBLIC_BACKEND_FULL_URL: Backend URL including version
+
 
 TODO: more?
 This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.

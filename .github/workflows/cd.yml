@@ -82,9 +82,8 @@ jobs:
 
         aws --version
     
-        
     # Step to get the environment url of the AWS EB environment (=public URL used) 
-    - name: Get Backend Environment URL
+    - name: Get Deployed Application Environment URL
       run: |
         PUBLIC_APP_URL=$(aws elasticbeanstalk describe-environments \
           --application-name "${{ vars.EB_APP_NAME }}" \
@@ -93,13 +92,14 @@ jobs:
           --output text)
     
         echo "Public App URL: http://$PUBLIC_APP_URL"
-        echo "BACKEND_URL=http://$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV  
-        echo "Backend URL: $BACKEND_URL"
+        echo "DEPLOYED_BACKEND_URL=$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV  
+        echo "Backend URL: $DEPLOYED_BACKEND_URL"
     
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
     # Include additional variables for AWS EB, such as S3 and Docker Hub vars for authentication
     # Use the AWS EB domain URL for the frontend and backend url env vars now instead of localhost.
+    # Set next js public environment variables for the frontend to connect to the deployed backend
     - name: Create .env file
       run: |
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
@@ -115,7 +115,9 @@ jobs:
         echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
         echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
-    
+        echo "NEXT_PUBLIC_FRONTEND_URL=$PUBLIC_APP_URL" >> .env
+        echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_BACKEND_URL" >> .env
+        
     # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
     # This is not done in the project structure since it is a more logical place in the infrastructure folder
     # More folders, such as .ebextensions can be added accordingly
@@ -127,6 +129,9 @@ jobs:
     - name: Package Application with Docker Compose
       run: |
         zip -r "${{ env.APP_NAME }}.zip" .env docker-compose.yml .platform/
+    # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
+    - name: Delete .env File After Use
+      run: rm -f .env
     
     # Upload the application to S3 bucket (use the name of the bucket created with Terraform)
     # First save variable for this workflow and then upload to S3
