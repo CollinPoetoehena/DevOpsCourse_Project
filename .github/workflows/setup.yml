@@ -53,18 +53,3 @@ jobs:
         password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
         # Avoid logging out afterwards so that it can be used in other jobs
         logout: false
-    
-    # Configure AWS Credentials
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
-      # Continute on error to verify account worked, if not, credentials are probably wrong
-      continue-on-error: true
-    # This step will print the account used, if it is not configured correctly, it will not show an account,
-    # meaning the credentials are probably invalid
-    - name: Verify AWS Credentials
-      run: |
-        aws sts get-caller-identity
