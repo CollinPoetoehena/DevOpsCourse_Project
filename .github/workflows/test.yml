@@ -81,9 +81,9 @@ jobs:
     - name: Run Container Tests and Stop Container After Tests
       run: |
         if [ "${{ matrix.service }}" == "backend" ]; then
-          IMAGE_NAME=${{ env.BE_IMAGE_NAME }}
+          IMAGE_NAME=${{ inputs.BE_IMAGE_NAME }}
         else
-          IMAGE_NAME=${{ env.FE_IMAGE_NAME }}
+          IMAGE_NAME=${{ inputs.FE_IMAGE_NAME }}
         fi
 
         docker exec $IMAGE_NAME npm run test

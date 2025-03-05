@@ -3,6 +3,14 @@ name: Deploy to AWS Elastic Beanstalk
 # Specify this workflow can be called by another workflow using workflow_call: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_call
 on:
   workflow_call:
+    # Input variables
+    inputs:
+      APP_NAME:
+        required: true
+        type: string
+      APP_NAME_VERSION:
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -75,7 +83,7 @@ jobs:
     # This command now only adds the specified files to avoid unnecessary files
     - name: Package Application with Docker Compose
       run: |
-        zip -r "${{ env.APP_NAME }}.zip" .env docker-compose.yml .platform/
+        zip -r "${{ inputs.APP_NAME }}.zip" .env docker-compose.yml .platform/
     
     # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
     - name: Delete .env File After Use
@@ -85,14 +93,14 @@ jobs:
     # First save variable for this workflow and then upload to S3
     - name: Upload Application to S3
       run: |
-        aws s3 cp "${{ env.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ env.APP_NAME_VERSION }}.zip"
+        aws s3 cp "${{ inputs.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ inputs.APP_NAME_VERSION }}.zip"
     
     # Deploy application to an existing AWS EB application
     - name: Deploy Application to AWS Elastic Beanstalk
       run: |
         aws elasticbeanstalk create-application-version --application-name "${{ vars.EB_APP_NAME }}" \
-          --version-label "${{ env.APP_NAME_VERSION }}" \
-          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ env.APP_NAME_VERSION }}.zip"
+          --version-label "${{ inputs.APP_NAME_VERSION }}" \
+          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ inputs.APP_NAME_VERSION }}.zip"
 
         aws elasticbeanstalk update-environment --environment-name ${{ vars.EB_ENV_NAME }} \
-          --version-label "${{ env.APP_NAME_VERSION }}"
+          --version-label "${{ inputs.APP_NAME_VERSION }}"

@@ -1,8 +1,20 @@
-name: Setup Dependencies
+name: Setup Dependencies and Variables
 
 # Specify this workflow can be called by another workflow using workflow_call: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_call
 on:
   workflow_call:
+    # Outputs that can be used by other workflows
+    outputs:
+      BE_IMAGE_NAME:
+        value: rac-backend
+      FE_IMAGE_NAME:
+        value: rac-frontend
+      DOCKER_REGISTRY:
+        value: docker.io/poetoecuva
+      APP_NAME:
+        value: rac-app
+      APP_NAME_VERSION:
+        value: rac-app-${{ github.sha }}
 
 jobs:
   setup:
