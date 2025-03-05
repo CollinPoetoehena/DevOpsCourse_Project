@@ -10,6 +10,10 @@ jobs:
     # Use the main environment from GitHub to load environment variables
     environment: main
     steps:
+    # Checkout repository
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
     # Configure AWS Credentials for this workflow
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1

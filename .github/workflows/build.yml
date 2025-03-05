@@ -15,6 +15,10 @@ jobs:
       matrix:
         service: [backend, frontend]  # Runs for both services
     steps:
+    # Checkout repository
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
     # Step 0: Set IMAGE_TAG environment variable for this specific service
     - name: Set Image Tag
       # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
