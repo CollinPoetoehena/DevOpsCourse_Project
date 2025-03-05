@@ -31,6 +31,8 @@ permissions:
 jobs:
   # Step 1: Install dependencies
   setup:
+    # Use secrets inherit to ensure secrets are also available in called jobs from main
+    secrets: inherit
     uses: ./.github/workflows/setup.yml
   
   # TODO: test if the login still works in other steps
@@ -41,7 +43,6 @@ jobs:
   env-setup:
     # Needs is used to specify that the previous job needs to be successful
     needs: setup
-    # Use secrets inherit to ensure secrets are also available in called jobs from main
     secrets: inherit
     uses: ./.github/workflows/env.yml
   
