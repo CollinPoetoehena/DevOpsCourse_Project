@@ -8,8 +8,8 @@ const racUrl = process.env.NEXT_PUBLIC_BACKEND_FULL_URL;
 // const racUrl = process.env.BACKEND_FULL_URL || 'http://localhost:4001/api/v1';
 
 // Log variables for debugging purposes
-console.log("FRONTEND_URL:", baseUrl);
-console.log("BACKEND_FULL_URL:", racUrl);
+console.log("NEXT_PUBLIC_FRONTEND_URL:", baseUrl);
+console.log("NEXT_PUBLIC_BACKEND_FULL_URL:", racUrl);
 
 const config = {
     title,

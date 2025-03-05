@@ -9,6 +9,8 @@ __pycache__
 node_modules
 .env
 
+logs*
+
 # Ignore the config.sh file
 scripts/config.sh
 # Elastic Beanstalk Files
