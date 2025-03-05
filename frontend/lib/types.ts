@@ -99,8 +99,8 @@ export enum BodyType {
  * Possible fuel types for cars.
  */
 export enum FuelType {
-    HybridGasoline = 'Hybrid (electric/gasoline)',
-    HybridDiesel = 'Hybrid (electric/diesel)',
+    HybridGasoline = 'Hybrid (Electric/Gasoline)',
+    HybridDiesel = 'Hybrid (Electric/Diesel)',
     Gasoline = 'Gasoline',
     CNG = 'CNG',
     Diesel = 'Diesel',

@@ -55,27 +55,31 @@ async function getCarById(carId) {
 }
 
 async function updateCar(carId, updateData, user) {
-    const car = await Car.findById(carId);
+    const car = await Car.findById(carId).populate('garage');
     if (!car) {
         throw new Error('Car not found');
     }
+
     // For maintainers, verify that the car's garage matches the user's garage.
-    if (user.role === 'maintainer' && !car.garage.equals(user.garage)) {
+    if (user.role === 'maintainer' && (!car.garage || !car.garage.maintainer.equals(user.id))) {
         throw new Error('Unauthorized to update this car');
     }
+
     const updatedCar = await Car.findByIdAndUpdate(carId, updateData, { new: true });
     return updatedCar;
 }
 
 async function deleteCar(carId, user) {
-    const car = await Car.findById(carId);
+    const car = await Car.findById(carId).populate('garage');
     if (!car) {
         throw new Error('Car not found');
     }
+
     // For maintainers, verify that the car belongs to their garage.
-    if (user.role === 'maintainer' && !car.garage.equals(user.garage)) {
+    if (user.role === 'maintainer' && (!car.garage || !car.garage.maintainer.equals(user.id))) {
         throw new Error('Unauthorized to delete this car');
     }
+
     await Car.findByIdAndDelete(carId);
     return;
 }
