@@ -33,6 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     # Use the main environment from GitHub to load environment variables
     environment: main
+    # Use strategy to run this step multiple times with the possible services
+    # Documentation: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
     strategy:
       matrix:
         service: [backend, frontend]  # Runs for both services
@@ -113,9 +115,15 @@ jobs:
     # and timing out after 15 seconds
     - name: Wait for Container to Start
       run: |
-        echo "Waiting for container $IMAGE_TAG to be ready..."
-        timeout 15 sh -c 'until curl -s ${{ vars.BACKEND_URL }}; do sleep 2; done'
-        echo "Backend is ready!"
+        if [ "${{ matrix.service }}" == "backend" ]; then
+          CONTAINER_URL=${{ vars.BACKEND_URL }}
+        else
+          CONTAINER_URL=${{ vars.FRONTEND_URL }}
+        fi
+
+        echo "Waiting for container $IMAGE_TAG to be ready at $CONTAINER_URL..."
+        timeout 15 sh -c 'until curl -s $CONTAINER_URL; do sleep 2; done'
+        echo "Container is ready!"
         
     # Step to run `npm run test` inside the running container
     # (environment variables should already be present in the docker container, as they are set in the docker run step)
