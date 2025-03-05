@@ -46,8 +46,6 @@ jobs:
     needs: setup
     secrets: inherit
     uses: ./.github/workflows/env.yml
-    with:
-      
   
   # CI - Build, Test and Push Docker Images (if previous steps succeeded)
   # Step 3: Build Docker Images
