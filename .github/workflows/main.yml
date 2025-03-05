@@ -11,13 +11,7 @@ on:
       - main
 
 env:
-  BE_IMAGE_NAME: rac-backend
-  FE_IMAGE_NAME: rac-frontend
-  DOCKER_REGISTRY: docker.io/poetoecuva
-  APP_NAME: rac-app
-  # Application name and version. Use Git commit id to create unique uploads and link back to commits
-  APP_NAME_VERSION: "rac-app-${{ github.sha }}"
-  # TODO: find something else for version, since github.sha is not really a good one.
+  
 
 # These permissions are needed to interact with GitHub's OIDC Token endpoint for AWS Credentials step in setup.yml
 # These must be set in this main.yml file, otherwise, it will error with "The nested job 'setup' is requesting 'id-token: write', but is only allowed 'id-token: none'."
@@ -41,38 +35,40 @@ jobs:
     needs: setup
     secrets: inherit
     uses: ./.github/workflows/build.yml
-    # Add variables (using outputs from setup.yml to avoid duplication)
+    # Add variables
     with:
-      BE_IMAGE_NAME: ${{ needs.setup.outputs.BE_IMAGE_NAME }}
-      FE_IMAGE_NAME: ${{ needs.setup.outputs.FE_IMAGE_NAME }}
-      DOCKER_REGISTRY: ${{ needs.setup.outputs.DOCKER_REGISTRY }}
+      BE_IMAGE_NAME: rac-backend
+      FE_IMAGE_NAME: rac-frontend
+      DOCKER_REGISTRY: docker.io/poetoecuva
   # Step 3: Test Docker Images
   test:
     needs: build
     secrets: inherit
     uses: ./.github/workflows/test.yml
-    # Add variables (using outputs from setup.yml to avoid duplication)
+    # Add variables
     with:
-      BE_IMAGE_NAME: ${{ needs.setup.outputs.BE_IMAGE_NAME }}
-      FE_IMAGE_NAME: ${{ needs.setup.outputs.FE_IMAGE_NAME }}
-      DOCKER_REGISTRY: ${{ needs.setup.outputs.DOCKER_REGISTRY }}
+      BE_IMAGE_NAME: rac-backend
+      FE_IMAGE_NAME: rac-frontend
+      DOCKER_REGISTRY: docker.io/poetoecuva
   # Step 4: Push Docker Images to Docker Hub
   push:
     needs: test
     secrets: inherit
     uses: ./.github/workflows/push.yml
-    # Add variables (using outputs from setup.yml to avoid duplication)
+    # Add variables
     with:
-      BE_IMAGE_NAME: ${{ needs.setup.outputs.BE_IMAGE_NAME }}
-      FE_IMAGE_NAME: ${{ needs.setup.outputs.FE_IMAGE_NAME }}
-      DOCKER_REGISTRY: ${{ needs.setup.outputs.DOCKER_REGISTRY }}
+      BE_IMAGE_NAME: rac-backend
+      FE_IMAGE_NAME: rac-frontend
+      DOCKER_REGISTRY: docker.io/poetoecuva
   
   # Step 5: CD - Deploy to AWS EB (if previous steps succeeded)
   cd:
     needs: push
     secrets: inherit
     uses: ./.github/workflows/deploy.yml
-    # Add variables (using outputs from setup.yml to avoid duplication)
+    # Add variables
     with:
-      APP_NAME: ${{ needs.setup.outputs.APP_NAME }}
-      APP_NAME_VERSION: ${{ needs.setup.outputs.APP_NAME_VERSION }}
+      APP_NAME: rac-app
+      # Application name and version. Use Git commit id to create unique uploads and link back to commits
+      APP_NAME_VERSION: "rac-app-${{ github.sha }}"
+      # TODO: find something else for version, since github.sha is not really a good one.
