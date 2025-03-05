@@ -33,18 +33,26 @@ jobs:
   setup:
     uses: ./.github/workflows/setup.yml
   
+  # TODO: test if the login still works in other steps
+  # TODO: go back to build, test and push
+  # TODO: change to only install dependencies and login later.
+  
   # Step 2: Setup environment variables
   env-setup:
     # Needs is used to specify that the previous job needs to be successful
     needs: setup
+    # Use secrets inherit to ensure secrets are also available in called jobs from main
+    secrets: inherit
     uses: ./.github/workflows/env.yml
   
   # Step 3: Continuous integration - Build, Test and Push Docker Images (if previous steps succeeded)
   ci:
     needs: env-setup
+    secrets: inherit
     uses: ./.github/workflows/ci.yml
   
   # Step 4: Deploy to AWS EB (if previous steps succeeded)
   cd:
     needs: ci
+    secrets: inherit
     uses: ./.github/workflows/cd.yml

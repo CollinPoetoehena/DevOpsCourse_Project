@@ -51,6 +51,8 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         # Use repository secrets from GitHub for Docker Hub access token: https://docs.docker.com/security/for-developers/access-tokens/
         password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+        # Avoid logging out afterwards so that it can be used in other jobs
+        logout: false
     
     # Configure AWS Credentials
     - name: Configure AWS Credentials
