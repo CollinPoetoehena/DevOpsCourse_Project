@@ -142,62 +142,94 @@ jobs:
     name: Deploy Application
     runs-on: ubuntu-latest
     needs: build-test-push  # Only run if CI steps pass
+    # Use the main environment from GitHub to load environment variables
     environment: main
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint for AWS Credentials step
     permissions:
       id-token: write
       contents: read
     steps:
+      # Checkout repository
     - uses: actions/checkout@v2
 
-    - name: Login to Docker Hub
+    # Test authentication with Docker Hub account (these variables are used by AWS to pull images)
+    - name: Login to Docker Container Registry
       uses: docker/login-action@v1
       with:
+        # Use repository secrets from GitHub for Docker Hub username
         username: ${{ secrets.DOCKER_USERNAME }}
+        # Use repository secrets from GitHub for Docker Hub access token: https://docs.docker.com/security/for-developers/access-tokens/
         password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-
+    
+    # Configure AWS Credentials
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ vars.AWS_REGION }}
-
+      # Continute on error to verify account worked, if not, credentials are probably wrong
+      continue-on-error: true
+    # This step will print the account used, if it is not configured correctly, it will not show an account,
+    # meaning the credentials are probably invalid
     - name: Verify AWS Credentials
-      run: aws sts get-caller-identity
-
-    - name: Install or Update AWS CLI
       run: |
-        echo "Searching for installed aws location..."
+        aws sts get-caller-identity
+    
+    # https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+    # apt was not possible, as previously it failed with awscli not present in packages
+    # Install or update AWS CLI
+    - name: Install or Update AWS CLI
+      # First get the path where aws is installed, if empty, it is not installed
+      # Depending on this result, install or update it and print the aws version at the end to verify installation
+      # Unzip with -q flag to unzip quietly (avoids printing all zip files in the logs)
+      run: |
+        echo "Searching for installed aws location (if any)"
         AWS_PATH=$(which aws)
+
+        echo "Download awscli files..."
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip -q awscliv2.zip
 
         if [ -n "$AWS_PATH" ]; then
-          echo "Updating AWS CLI"
+          echo "AWS CLI is already installed at $AWS_PATH"
           INSTALL_DIR=$(ls -l "$AWS_PATH" | awk '{print $NF}' | sed 's|/aws$||')
+
+          echo "Updating AWS CLI at $INSTALL_DIR"
           sudo ./aws/install --bin-dir "$AWS_PATH" --install-dir "$INSTALL_DIR" --update
         else
-          echo "Installing AWS CLI"
+          echo "AWS CLI is not installed. Installing..."
           sudo ./aws/install
         fi
 
-    - name: Get Deployed AWS EB Environment URL
+        aws --version
+    
+    # Step to get the environment url of the AWS EB environment (=public URL used) 
+    - name: Get Deployed Application Environment URL
       run: |
         PUBLIC_APP_URL=$(aws elasticbeanstalk describe-environments \
           --application-name "${{ vars.EB_APP_NAME }}" \
           --environment-names "${{ vars.EB_ENV_NAME }}" \
           --query "Environments[0].CNAME" \
           --output text)
+    
+        echo "Public App URL: http://$PUBLIC_APP_URL"
+        echo "DEPLOYED_BACKEND_URL=$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV  
+        echo "Backend URL: $DEPLOYED_BACKEND_URL"
 
-        echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV
-        echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_BACKEND_URL" >> $GITHUB_ENV
-
-    - name: Create .env File for Deployment
+    # Manually create a .env file in this job with the environment variables
+    # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
+    # Include additional variables for AWS EB, such as S3 and Docker Hub vars for authentication
+    # Use the AWS EB domain URL for the frontend and backend url env vars now instead of localhost.
+    # Set next js public environment variables for the frontend to connect to the deployed backend
+    - name: Create .env file
       run: |
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
         echo "FACTOR=${{ secrets.FACTOR }}" >> .env
         echo "ROLE=${{ secrets.ROLE }}" >> .env
+        echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
+        echo "DOCKER_ACCESS_TOKEN=${{ secrets.DOCKER_ACCESS_TOKEN }}" >> .env
         echo "API_NAME=${{ vars.API_NAME }}" >> .env
         echo "API_PORT=${{ vars.API_PORT }}" >> .env
         echo "API_VERSION=${{ vars.API_VERSION }}" >> .env
@@ -205,21 +237,32 @@ jobs:
         echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
         echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
-        echo "NEXT_PUBLIC_FRONTEND_URL=http://$PUBLIC_APP_URL" >> .env
-
-    - name: Move `.platform` Folder to Root
-      run: mv infrastructure/extensions/.platform .platform
-
-    - name: Package Application for AWS EB
-      run: zip -r "${{ env.APP_NAME }}.zip" .env docker-compose.yml .platform/
-
-    - name: Delete .env File for Security
+        echo "NEXT_PUBLIC_FRONTEND_URL=$PUBLIC_APP_URL" >> .env
+        echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_BACKEND_URL" >> .env
+        
+    # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
+    # This is not done in the project structure since it is a more logical place in the infrastructure folder
+    # More folders, such as .ebextensions can be added accordingly
+    - name: Move infrastructure/extension Folders to the Root
+      run: |
+        mv infrastructure/extensions/.platform .platform
+    # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
+    # This command now only adds the specified files to avoid unnecessary files
+    - name: Package Application with Docker Compose
+      run: |
+        zip -r "${{ env.APP_NAME }}.zip" .env docker-compose.yml .platform/
+    # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
+    - name: Delete .env File After Use
       run: rm -f .env
-
+    
+    # Upload the application to S3 bucket (use the name of the bucket created with Terraform)
+    # First save variable for this workflow and then upload to S3
     - name: Upload Application to S3
-      run: aws s3 cp "${{ env.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ env.APP_NAME_VERSION }}.zip"
-
-    - name: Deploy Application to AWS EB
+      run: |
+        aws s3 cp "${{ env.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ env.APP_NAME_VERSION }}.zip"
+    
+    # Deploy application to an existing AWS EB application
+    - name: Deploy Application to AWS Elastic Beanstalk
       run: |
         aws elasticbeanstalk create-application-version --application-name "${{ vars.EB_APP_NAME }}" \
           --version-label "${{ env.APP_NAME_VERSION }}" \
