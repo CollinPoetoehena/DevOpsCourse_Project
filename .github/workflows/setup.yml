@@ -9,10 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     # Use the main environment from GitHub to load environment variables
     environment: main
-    # These permissions are needed to interact with GitHub's OIDC Token endpoint for AWS Credentials step
-    permissions:
-      id-token: write
-      contents: read
     steps:
     # Checkout repository
     - name: Checkout Repository
