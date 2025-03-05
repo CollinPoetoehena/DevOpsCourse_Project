@@ -23,7 +23,7 @@ jobs:
     - name: Set Image Tag
       # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
       run: |
-        IMAGE_TAG="${{ env.DOCKER_REGISTRY }}/rac-${{ matrix.service }}:latest"
+        IMAGE_TAG="$DOCKER_REGISTRY/rac-${{ matrix.service }}:latest"
         echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
     # Step to confirm IMAGE_TAG
     - name: Print IMAGE_TAG

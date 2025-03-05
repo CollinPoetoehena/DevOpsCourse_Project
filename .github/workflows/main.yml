@@ -10,16 +10,6 @@ on:
     branches:
       - main
 
-# Additional variables
-env:
-  BE_IMAGE_NAME: rac-backend
-  FE_IMAGE_NAME: rac-frontend
-  DOCKER_REGISTRY: docker.io/poetoecuva
-  APP_NAME: rac-app
-  # Application name and version. Use Git commit id to create unique uploads and link back to commits
-  APP_NAME_VERSION: "rac-app-${{ github.sha }}"
-  # TODO: find something else for version, since github.sha is not really a good one.
-
 # These permissions are needed to interact with GitHub's OIDC Token endpoint for AWS Credentials step in setup.yml
 # These must be set in this main.yml file, otherwise, it will error with "The nested job 'setup' is requesting 'id-token: write', but is only allowed 'id-token: none'."
 permissions:
@@ -36,7 +26,7 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/setup.yml
   
-  # Step 2: Setup environment variables
+  # Step 2: Set environment variables for workflows
   env-setup:
     # Needs is used to specify that the previous job needs to be successful
     needs: setup

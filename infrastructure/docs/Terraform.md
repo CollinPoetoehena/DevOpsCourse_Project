@@ -27,6 +27,10 @@ terraform destroy -auto-approve
 terraform destroy \
   -target="module.elastic_beanstalk.aws_elastic_beanstalk_environment.app_env" \
   -auto-approve
+# The whole module
+terraform destroy \
+  -target="module.elastic_beanstalk" \
+  -auto-approve
 # The targets are referenced by main.tf in the root of Terraform, from there you can select the targets (you can add more targets)
 # OR: you can comment out parts of your infrastructure and do apply (it will remove the commented parts)
 # For example, you can comment out whole modules, or just a part of a module in its main.tf, such as aws_elastic_beanstalk_environment.app_env
