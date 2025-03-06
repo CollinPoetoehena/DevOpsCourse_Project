@@ -35,6 +35,11 @@ terraform destroy \
 # OR: you can comment out parts of your infrastructure and do apply (it will remove the commented parts)
 # For example, you can comment out whole modules, or just a part of a module in its main.tf, such as aws_elastic_beanstalk_environment.app_env
 terraform apply -auto-approve
+
+# You can do the same with apply, such as only applying a specific module
+terraform apply \
+  -target="module.cognito" \
+  -auto-approve
 ```
 
 After creating your resources, you can view and monitor them in the AWS Management Console for example. You can also see potential errors there that might not be reported by Terraform, such as when creating the AWS Elastic Beanstalk environment, etc. Also, you can see the exact configuration of the resources there. You can use this to see if you might need to change some things in the Terraform code for example.

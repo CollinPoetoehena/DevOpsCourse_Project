@@ -1,25 +1,71 @@
 # AWS Cognito resource: https://docs.aws.amazon.com/cognito/
 # See provider.tf documentation link for these specific resources in Terraform
 
+# AWS Cognito user pool: https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/cognito_user_pool
 resource "aws_cognito_user_pool" "main_user_pool" {
   name                     = var.cog_user_pool_name
   auto_verified_attributes = ["email"]
+
+  # Set username to case sensitive (this is the username used for sign-in and might be a bit confusing, since below
+  # sets the username that can be used to email)
+  username_configuration {
+    case_sensitive = true
+  }
+  # Users can sign in using email, this basically says that the email can be used as username for sign-in
+  alias_attributes = ["email"]
+
+  // Require specific attributes during sign-up
+  schema {
+    attribute_data_type = "String"
+    name               = "email"
+    required           = true
+    mutable            = false
+  }
+
+  schema {
+    attribute_data_type = "String"
+    # Use name instead of username, as custom attributes are not yet supported
+    name               = "name"
+    required           = true
+    mutable            = true
+    string_attribute_constraints {
+      min_length = 0
+      max_length = 30
+    }
+  }
+  
+  # MFA (Multi-Factor Authentication) Settings
+  mfa_configuration = "OFF"
+  # Tier of Cognito: https://aws.amazon.com/cognito/pricing/
+  user_pool_tier = "LITE"
 }
 
-# resource "aws_cognito_identity_provider" "main_provider" {
-#   user_pool_id  = aws_cognito_user_pool.main_user_pool.id
-#   # Use Google as possible provider
-#   provider_name = "Google"
-#   provider_type = "Google"
+# User pool domain for the managed login page: 
+resource "aws_cognito_user_pool_domain" "main_user_pool_domain" {
+  # Domain name should be unique globally, so errors like "Domain already associated with another user pool" mean it already exists
+  domain       = var.cog_user_pool_domain
+  user_pool_id = aws_cognito_user_pool.main_user_pool.id
 
-#   provider_details = {
-#     authorize_scopes = "email"
-#     client_id        = "your client_id"
-#     client_secret    = "your client_secret"
-#   }
+  # Make explicitely dependent on main user pool
+  depends_on = [
+    aws_cognito_user_pool.main_user_pool
+  ]
+}
 
-#   attribute_mapping = {
-#     email    = "email"
-#     username = "sub"
-#   }
-# }
+# App client for the user pool that can be used by the frontend (and backend): https://registry.terraform.io/providers/hashicorp/aws/5.88.0/docs/resources/cognito_user_pool_client
+resource "aws_cognito_user_pool_client" "main_user_pool_client" {
+  name = var.cog_user_pool_client
+  user_pool_id = aws_cognito_user_pool.main_user_pool.id
+  # Set to true so that callback urls, etc. can be set by this app client later in the frontend and/or backend code
+  allowed_oauth_flows_user_pool_client = true
+  # Allow several oauth flows and scopes (required if allowed oauth flows is set to true) for the client
+  allowed_oauth_flows = ["code", "implicit"]
+  allowed_oauth_scopes = ["email", "openid", "phone", "profile", "aws.cognito.signin.user.admin"]
+  # Callback urls cannot be empty with above settings, so use this default one for now, can be edited in code later
+  callback_urls = ["https://localhost:3000/"]
+
+  # Make explicitely dependent on main user pool
+  depends_on = [
+    aws_cognito_user_pool.main_user_pool
+  ]
+}

@@ -20,10 +20,12 @@
     "framer-motion": "^10.16.4",
     "jest": "^29.7.0",
     "next": "latest",
+    "oidc-client-ts": "^3.1.0",
     "rac": "file:",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.4.1",
+    "react-oidc-context": "^3.2.0",
     "tailwindcss": "^3.3.3"
   },
   "engines": {
