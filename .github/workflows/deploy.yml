@@ -55,102 +55,29 @@ jobs:
         echo "Public App URL: $PUBLIC_APP_URL"
         echo "Deployed Backend URL: $DEPLOYED_BACKEND_URL"
 
-    # Step to generate the environment variables JSON file dynamically (allows access to the variables used in this workflow)
+    # Step to set environment variables directly in AWS EB using the AWS CLI (more secure than adding .env directly in the .zip deployment)
     # For possible configuration options (settings): https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html
     # Specifically: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html
-    - name: Generate AWS EB Environment Variables JSON
-      run: |
-        # Create the file in the root of the project and add the JSON content:
-        cat <<EOF > eb-env-settings.json
-        [
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "MONGO_URI",
-            "Value": "${{ secrets.MONGO_URI }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "SECRET_KEY",
-            "Value": "${{ secrets.SECRET_KEY }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "FACTOR",
-            "Value": "${{ secrets.FACTOR }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "ROLE",
-            "Value": "${{ secrets.ROLE }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "DOCKER_USERNAME",
-            "Value": "${{ secrets.DOCKER_USERNAME }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "DOCKER_ACCESS_TOKEN",
-            "Value": "${{ secrets.DOCKER_ACCESS_TOKEN }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "API_NAME",
-            "Value": "${{ vars.API_NAME }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "API_PORT",
-            "Value": "${{ vars.API_PORT }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "API_VERSION",
-            "Value": "${{ vars.API_VERSION }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "FRONTEND_URL",
-            "Value": "${{ vars.FRONTEND_URL }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "BACKEND_URL",
-            "Value": "${{ vars.BACKEND_URL }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "VEHICLE_URL",
-            "Value": "${{ vars.VEHICLE_URL }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "S3_BUCKET_NAME",
-            "Value": "${{ vars.S3_BUCKET_NAME }}"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "NEXT_PUBLIC_FRONTEND_URL",
-            "Value": "$PUBLIC_APP_URL"
-          }
-          {
-            "Namespace": "aws:elasticbeanstalk:application:environment",
-            "OptionName": "NEXT_PUBLIC_BACKEND_FULL_URL",
-            "Value": "$DEPLOYED_BACKEND_URL"
-          }
-        ]
-        EOF
-
-        # Print JSON file for debugging purposes (should automatically hide the secret variables)
-        echo "Generated eb-env-settings.json:"
-        cat eb-env-settings.json
-    # Step to set environment variables directly in AWS EB (more secure than adding .env directly in the .zip deployment)
-    # The JSON file is generated in the previous step
     - name: Set AWS EB Environment Variables
       run: |
         aws elasticbeanstalk update-environment --environment-name "${{ vars.EB_ENV_NAME }}" \
-          --option-settings file://eb-env-settings.json
-        
+          --option-settings \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=MONGO_URI,Value=${{ secrets.MONGO_URI }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=SECRET_KEY,Value=${{ secrets.SECRET_KEY }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=FACTOR,Value=${{ secrets.FACTOR }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=ROLE,Value=${{ secrets.ROLE }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=DOCKER_USERNAME,Value=${{ secrets.DOCKER_USERNAME }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=DOCKER_ACCESS_TOKEN,Value=${{ secrets.DOCKER_ACCESS_TOKEN }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=API_NAME,Value=${{ vars.API_NAME }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=API_PORT,Value=${{ vars.API_PORT }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=API_VERSION,Value=${{ vars.API_VERSION }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=FRONTEND_URL,Value=${{ vars.FRONTEND_URL }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=BACKEND_URL,Value=${{ vars.BACKEND_URL }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=VEHICLE_URL,Value=${{ vars.VEHICLE_URL }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=S3_BUCKET_NAME,Value=${{ vars.S3_BUCKET_NAME }} \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=NEXT_PUBLIC_FRONTEND_URL,Value=$PUBLIC_APP_URL \
+            Namespace=aws:elasticbeanstalk:application:environment,OptionName=NEXT_PUBLIC_BACKEND_FULL_URL,Value=$DEPLOYED_BACKEND_URL
+  
     # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
     # This is not done in the project structure since it is a more logical place in the infrastructure folder
     # More folders, such as .ebextensions can be added accordingly
