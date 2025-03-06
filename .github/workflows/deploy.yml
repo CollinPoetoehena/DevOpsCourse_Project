@@ -58,25 +58,33 @@ jobs:
     # Step to set environment variables directly in AWS EB using the AWS CLI (more secure than adding .env directly in the .zip deployment)
     # For possible configuration options (settings): https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html
     # Specifically: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html
-    - name: Set AWS EB Environment Variables
+    # First the variables are formatted as JSON, as this allows multiple variables to be set with one command, without it, it would only use the first variable
+    # See: https://docs.aws.amazon.com/cli/latest/reference/elasticbeanstalk/update-environment.html
+    - name: Apply AWS EB Environment Variables
       run: |
+        ENV_SETTINGS='[
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "MONGO_URI", "Value": "${{ secrets.MONGO_URI }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "SECRET_KEY", "Value": "${{ secrets.SECRET_KEY }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "FACTOR", "Value": "${{ secrets.FACTOR }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "ROLE", "Value": "${{ secrets.ROLE }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "DOCKER_USERNAME", "Value": "${{ secrets.DOCKER_USERNAME }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "DOCKER_ACCESS_TOKEN", "Value": "${{ secrets.DOCKER_ACCESS_TOKEN }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "API_NAME", "Value": "${{ vars.API_NAME }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "API_PORT", "Value": "${{ vars.API_PORT }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "API_VERSION", "Value": "${{ vars.API_VERSION }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "FRONTEND_URL", "Value": "${{ vars.FRONTEND_URL }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "BACKEND_URL", "Value": "${{ vars.BACKEND_URL }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "VEHICLE_URL", "Value": "${{ vars.VEHICLE_URL }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "S3_BUCKET_NAME", "Value": "${{ vars.S3_BUCKET_NAME }}"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "NEXT_PUBLIC_FRONTEND_URL", "Value": "$PUBLIC_APP_URL"},
+            {"Namespace": "aws:elasticbeanstalk:application:environment", "OptionName": "NEXT_PUBLIC_BACKEND_FULL_URL", "Value": "$DEPLOYED_BACKEND_URL"}
+          ]'
+        # Print the JSON for debugging
+        echo "Environment settings JSON: $ENV_SETTINGS"
+
+        # Apply the environment variables
         aws elasticbeanstalk update-environment --environment-name "${{ vars.EB_ENV_NAME }}" \
-          --option-settings \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=MONGO_URI,Value=${{ secrets.MONGO_URI }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=SECRET_KEY,Value=${{ secrets.SECRET_KEY }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=FACTOR,Value=${{ secrets.FACTOR }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=ROLE,Value=${{ secrets.ROLE }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=DOCKER_USERNAME,Value=${{ secrets.DOCKER_USERNAME }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=DOCKER_ACCESS_TOKEN,Value=${{ secrets.DOCKER_ACCESS_TOKEN }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=API_NAME,Value=${{ vars.API_NAME }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=API_PORT,Value=${{ vars.API_PORT }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=API_VERSION,Value=${{ vars.API_VERSION }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=FRONTEND_URL,Value=${{ vars.FRONTEND_URL }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=BACKEND_URL,Value=${{ vars.BACKEND_URL }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=VEHICLE_URL,Value=${{ vars.VEHICLE_URL }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=S3_BUCKET_NAME,Value=${{ vars.S3_BUCKET_NAME }} \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=NEXT_PUBLIC_FRONTEND_URL,Value=$PUBLIC_APP_URL \
-            Namespace=aws:elasticbeanstalk:application:environment,OptionName=NEXT_PUBLIC_BACKEND_FULL_URL,Value=$DEPLOYED_BACKEND_URL
+          --option-settings "$ENV_SETTINGS"
   
     # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
     # This is not done in the project structure since it is a more logical place in the infrastructure folder
@@ -95,6 +103,27 @@ jobs:
     - name: Upload Application to S3
       run: |
         aws s3 cp "${{ inputs.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ inputs.APP_NAME_VERSION }}.zip"
+
+    
+    # Step to wait for AWS EB environment to be in "Ready" state before applying updates (otherwise update cannot be applied)
+    # This is because it takes some time to update the environment variables in the earlier step (do this directly before the deploy step
+    # to optimize the waiting time). Use 10 second intervals in between checks.
+    - name: Wait for AWS EB Environment to Be Ready Before Deploying
+      run: |
+        echo "Waiting for AWS Elastic Beanstalk environment to be in 'Ready' state..."
+        while true; do
+          STATUS=$(aws elasticbeanstalk describe-environments \
+            --application-name "${{ vars.EB_APP_NAME }}" \
+            --environment-names "${{ vars.EB_ENV_NAME }}" \
+            --query "Environments[0].Status" --output text)
+          echo "Current status: $STATUS"
+          if [ "$STATUS" == "Ready" ]; then
+            echo "AWS EB Environment is now Ready."
+            break
+          fi
+          echo "Waiting for 10 seconds..."
+          sleep 10
+        done
     
     # Deploy application to an existing AWS EB application
     - name: Deploy Application to AWS Elastic Beanstalk
