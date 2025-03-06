@@ -5,12 +5,14 @@ import { useAuth } from 'react-oidc-context';
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const auth = useAuth();
   const router = useRouter();
+  const hasAuthCode = Boolean(router.query.code);
 
   useEffect(() => {
-    if (!auth.isAuthenticated) {
+    // Only redirect if there is no authentication code in the URL
+    if (!auth.isAuthenticated && !hasAuthCode) {
       auth.signinRedirect();
     }
-  }, [auth.isAuthenticated]);
+  }, [auth.isAuthenticated, hasAuthCode]);
 
   if (auth.isLoading) {
     return <div>Loading...</div>;

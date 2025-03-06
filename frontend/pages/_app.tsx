@@ -23,7 +23,8 @@ const cognitoAuthConfig = {
   authority: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_VVebgtNmw",
   client_id: "3q7iimb5obea8ik0bb1aiv2bao",
   // Must be present in callback_urls specified, otherwise it errors with something like "redirect_mismatch" 
-  redirect_uri: "http://localhost:3000/",
+  // Uses specific page for the callback to handle the callback after the login/signup
+  redirect_uri: "http://localhost:3000/auth/callback",
   response_type: "code",
   scope: "phone openid email",
 };
