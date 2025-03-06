@@ -14,30 +14,18 @@ resource "aws_cognito_user_pool" "main_user_pool" {
   # Users can sign in using email, this basically says that the email can be used as username for sign-in
   alias_attributes = ["email"]
 
-  // Require specific attributes during sign-up
+  // Require email for sign-up (username and password should already be included automatically)
   schema {
     attribute_data_type = "String"
     name               = "email"
     required           = true
     mutable            = false
   }
-
-  schema {
-    attribute_data_type = "String"
-    # Use name instead of username, as custom attributes are not yet supported
-    name               = "name"
-    required           = true
-    mutable            = true
-    string_attribute_constraints {
-      min_length = 0
-      max_length = 30
-    }
-  }
   
   # MFA (Multi-Factor Authentication) Settings
   mfa_configuration = "OFF"
   # Tier of Cognito: https://aws.amazon.com/cognito/pricing/
-  user_pool_tier = "LITE"
+  user_pool_tier = "ESSENTIALS" # Use Essentials to allow managed login page
 }
 
 # User pool domain for the managed login page: 
@@ -63,6 +51,8 @@ resource "aws_cognito_user_pool_client" "main_user_pool_client" {
   allowed_oauth_scopes = ["email", "openid", "phone", "profile", "aws.cognito.signin.user.admin"]
   # Callback urls cannot be empty with above settings, so use this default one for now, can be edited in code later
   callback_urls = ["https://localhost:3000/"]
+  # Add Cognito as an identity provider to allow the login page to have a provider (will otherwise not work without providers)
+  supported_identity_providers = ["COGNITO"]
 
   # Make explicitely dependent on main user pool
   depends_on = [
