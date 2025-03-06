@@ -55,28 +55,101 @@ jobs:
         echo "Public App URL: $PUBLIC_APP_URL"
         echo "Deployed Backend URL: $DEPLOYED_BACKEND_URL"
 
-    # Manually create a .env file in this job with the environment variables
-    # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
-    # Include additional variables for AWS EB, such as S3 and Docker Hub vars for authentication
-    # Use the AWS EB domain URL for the frontend and backend url env vars now instead of localhost.
-    # Set next js public environment variables for the frontend to connect to the deployed backend
-    - name: Create .env file
+    # Step to generate the environment variables JSON file dynamically (allows access to the variables used in this workflow)
+    # For possible configuration options (settings): https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html
+    # Specifically: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html
+    - name: Generate AWS EB Environment Variables JSON
       run: |
-        echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
-        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-        echo "FACTOR=${{ secrets.FACTOR }}" >> .env
-        echo "ROLE=${{ secrets.ROLE }}" >> .env
-        echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
-        echo "DOCKER_ACCESS_TOKEN=${{ secrets.DOCKER_ACCESS_TOKEN }}" >> .env
-        echo "API_NAME=${{ vars.API_NAME }}" >> .env
-        echo "API_PORT=${{ vars.API_PORT }}" >> .env
-        echo "API_VERSION=${{ vars.API_VERSION }}" >> .env
-        echo "FRONTEND_URL=${{ vars.FRONTEND_URL }}" >> .env
-        echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
-        echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
-        echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
-        echo "NEXT_PUBLIC_FRONTEND_URL=$PUBLIC_APP_URL" >> .env
-        echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_BACKEND_URL" >> .env
+        # Create the file in the root of the project and add the JSON content:
+        cat <<EOF > eb-env-settings.json
+        [
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "MONGO_URI",
+            "Value": "${{ secrets.MONGO_URI }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "SECRET_KEY",
+            "Value": "${{ secrets.SECRET_KEY }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "FACTOR",
+            "Value": "${{ secrets.FACTOR }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "ROLE",
+            "Value": "${{ secrets.ROLE }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "DOCKER_USERNAME",
+            "Value": "${{ secrets.DOCKER_USERNAME }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "DOCKER_ACCESS_TOKEN",
+            "Value": "${{ secrets.DOCKER_ACCESS_TOKEN }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "API_NAME",
+            "Value": "${{ vars.API_NAME }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "API_PORT",
+            "Value": "${{ vars.API_PORT }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "API_VERSION",
+            "Value": "${{ vars.API_VERSION }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "FRONTEND_URL",
+            "Value": "${{ vars.FRONTEND_URL }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "BACKEND_URL",
+            "Value": "${{ vars.BACKEND_URL }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "VEHICLE_URL",
+            "Value": "${{ vars.VEHICLE_URL }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "S3_BUCKET_NAME",
+            "Value": "${{ vars.S3_BUCKET_NAME }}"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "NEXT_PUBLIC_FRONTEND_URL",
+            "Value": "$PUBLIC_APP_URL"
+          }
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "NEXT_PUBLIC_BACKEND_FULL_URL",
+            "Value": "$DEPLOYED_BACKEND_URL"
+          }
+        ]
+        EOF
+
+        # Print JSON file for debugging purposes (should automatically hide the secret variables)
+        echo "Generated eb-env-settings.json:"
+        cat eb-env-settings.json
+    # Step to set environment variables directly in AWS EB (more secure than adding .env directly in the .zip deployment)
+    # The JSON file is generated in the previous step
+    - name: Set AWS EB Environment Variables
+      run: |
+        aws elasticbeanstalk update-environment --environment-name "${{ vars.EB_ENV_NAME }}" \
+          --option-settings file://eb-env-settings.json
         
     # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
     # This is not done in the project structure since it is a more logical place in the infrastructure folder
@@ -88,11 +161,7 @@ jobs:
     # This command now only adds the specified files to avoid unnecessary files
     - name: Package Application with Docker Compose
       run: |
-        zip -r "${{ inputs.APP_NAME }}.zip" .env docker-compose.yml .platform/
-    
-    # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
-    - name: Delete .env File After Use
-      run: rm -f .env
+        zip -r "${{ inputs.APP_NAME }}.zip" docker-compose.yml .platform/
     
     # Upload the application to S3 bucket (use the name of the bucket created with Terraform)
     # First save variable for this workflow and then upload to S3
