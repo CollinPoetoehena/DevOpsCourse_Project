@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useAuth } from 'react-oidc-context';
+import { useAuth as useOidcAuth } from "react-oidc-context";
 
 const UnProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const auth = useAuth();
+  const auth = useOidcAuth();
   const router = useRouter();
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
 

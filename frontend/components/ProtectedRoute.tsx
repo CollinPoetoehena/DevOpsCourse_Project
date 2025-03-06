@@ -1,15 +1,16 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useAuth } from 'react-oidc-context';
+import { useAuth as useOidcAuth } from "react-oidc-context";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const auth = useAuth();
+  const auth = useOidcAuth();
   const router = useRouter();
   const hasAuthCode = Boolean(router.query.code);
 
   useEffect(() => {
     // Only redirect if there is no authentication code in the URL
     if (!auth.isAuthenticated && !hasAuthCode) {
+      // Use AWS Cognito library to redirect to the Managed Login page to handle login/register
       auth.signinRedirect();
     }
   }, [auth.isAuthenticated, hasAuthCode]);

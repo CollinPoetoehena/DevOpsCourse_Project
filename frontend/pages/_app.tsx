@@ -18,34 +18,17 @@ import { VehicleProvider } from '@/VehicleContext';
 
 // TODO: change to different more pretty format later, now just test this
 import { AuthProvider as OidcAuthProvider } from 'react-oidc-context';
-const cognitoAuthConfig = {
-  // Authority is the static url, but then with the region replaced and after the / the ID of the User pool
-  authority: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_VVebgtNmw",
-  client_id: "3q7iimb5obea8ik0bb1aiv2bao",
-  // Must be present in callback_urls specified, otherwise it errors with something like "redirect_mismatch" 
-  // Uses specific page for the callback to handle the callback after the login/signup
-  redirect_uri: "http://localhost:3000/auth/callback",
-  response_type: "code",
-  scope: "phone openid email",
-};
-
+import config from "../lib/config";
 
 const App = ({ Component, pageProps }: AppProps) => {
-  // const auth = useAuth();
   const router = useRouter();
 
   const isAuthPage = router.pathname.startsWith('/auth/');
 
-  const signOutRedirect = () => {
-    const clientId = "6rlmcfmgb4e8nr9i867ibu65c7";
-    const logoutUri = "<logout uri>";
-    const cognitoDomain = "https://eu-central-1xkvvo9drh.auth.eu-central-1.amazoncognito.com";
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
-  };
-
   return (
     <>
-    <OidcAuthProvider {...cognitoAuthConfig}>
+    {/* Wrap the components in the AuthProvider for authentication (this includes the AWS Cognito AuthProvider, see AuthContext.tsx) */}
+    <OidcAuthProvider {...config.cognito}>
       <AnimatePresence>
           <GarageProvider>
             <CarProvider>
@@ -74,6 +57,7 @@ const App = ({ Component, pageProps }: AppProps) => {
           </GarageProvider>
         </AnimatePresence>
       </OidcAuthProvider>
+
       {/* <AuthProvider {...cognitoAuthConfig}>
         <AnimatePresence>
           <GarageProvider>

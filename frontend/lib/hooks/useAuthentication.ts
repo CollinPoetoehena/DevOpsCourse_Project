@@ -1,15 +1,15 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import config from "../config";
-import { useNotification } from "./useNotification";
+import { useAuth as useOidcAuth } from "react-oidc-context";
 import { useAuth } from "@/AuthContext";
-import { Role, User } from "../types";
+import { useNotification } from "./useNotification";
+import { Role } from "../types";
 
 function useAuthentication() {
   const router = useRouter();
+  const auth = useOidcAuth();
 
-  const { onSuccess, onError } = useNotification()
+  const { onSuccess, onError } = useNotification();
   const { setIsAuthenticated, setRole } = useAuth();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -17,50 +17,25 @@ function useAuthentication() {
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
 
-  const baseUrl = config.user;
-
   useEffect(() => {
-    setToken(localStorage.getItem('token'));
-  }, []);
-
-  const register = async (username: string, email: string, password: string) => {
-    try {
-      setLoading(true);
-      const response = await axios.post(`${baseUrl}/register`, {
-        username,
-        email,
-        password,
-      });
-      const data = response.data;
-      localStorage.setItem('token', data);
-      setToken(data);
-      setIsAuth(true);
+    if (auth.isAuthenticated) {
+      setToken(auth.user?.access_token || null);
       setIsAuthenticated(true);
-      router.replace('/');
-      onSuccess('Registered successfully');
-    } catch (error) {
-      console.error('Registration failed:', error);
+      setIsAuth(true);
+      setRole(Role.user); // Update this based on your role logic
+      setLoadingAuth(false);
+    } else {
       setIsAuthenticated(false);
-      onError('Registration failed');
-    } finally {
-      setLoading(false);
+      setIsAuth(false);
+      setRole(Role.user);
+      setLoadingAuth(false);
     }
-  };
+  }, [auth.isAuthenticated]);
 
-  const login = async (identifier: string, password: string) => {
+  const login = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(`${baseUrl}/login`, {
-        identifier,
-        password,
-      });
-      const data = response.data;
-      localStorage.setItem('token', data);
-      setToken(data);
-      setIsAuth(true);
-      setIsAuthenticated(true);
-      router.replace('/');
-      onSuccess('Logged in successfully');
+      await auth.signinRedirect();
     } catch (error) {
       console.error('Authentication failed:', error);
       setIsAuthenticated(false);
@@ -72,53 +47,40 @@ function useAuthentication() {
 
   const logout = async () => {
     try {
-      localStorage.removeItem('token')
-      
+      await auth.signoutRedirect();
       setIsAuthenticated(false);
       setToken(null);
       setRole(Role.user);
       onSuccess('Logged out successfully');
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
-  const checkAuth = async (token: string | null = localStorage.getItem('token')) => {
+  const checkAuth = async () => {
     setLoadingAuth(true);
-    if (!token) {
+    if (!auth.isAuthenticated) {
       setIsAuthenticated(false);
       setLoadingAuth(false);
       return;
     }
     try {
-      setLoading(true);
-
-      const response = await axios.get(`${baseUrl}/verify`, {
-        headers: {
-          bearer: token,
-        },
-      });
-
-      const user: User = response.data;
-
-      setToken(token);
+      setToken(auth.user?.access_token || null);
       setIsAuthenticated(true);
       setIsAuth(true);
-      setRole(user.role);
+      setRole(Role.user); // Update this based on your role logic
     } catch (error) {
       setToken(null);
       setIsAuthenticated(false);
       setIsAuth(false);
       setRole(Role.user);
-
-      localStorage.removeItem('token');
     } finally {
       setLoadingAuth(false);
       setLoading(false);
     }
-  }
+  };
 
-  return { register, login, logout, checkAuth, isAuth, loading, loadingAuth, token };
+  return { login, logout, checkAuth, isAuth, loading, loadingAuth, token };
 }
 
 export default useAuthentication;
