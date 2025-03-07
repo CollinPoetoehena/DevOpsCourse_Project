@@ -28,7 +28,7 @@ const App = ({ Component, pageProps }: AppProps) => {
   return (
     <>
     {/* Wrap the components in the AuthProvider for authentication (this includes the AWS Cognito AuthProvider, see AuthContext.tsx) */}
-    <OidcAuthProvider {...config.cognito}>
+    <OidcAuthProvider {...config.cognitoAuthConfig}>
       <AnimatePresence>
           <GarageProvider>
             <CarProvider>

@@ -8,6 +8,20 @@ const Callback = () => {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("Is authenticated: ", auth.isAuthenticated);
+    console.log("Getting to callback...");
+
+    if (!auth.isAuthenticated) {
+      // TODO: remove later, but this can be used to add the token to the storage, etc., and replace the old mechanism of logging in.
+      console.log("email: ", auth.user?.profile.email);
+      console.log("ID Token: ", auth.user?.id_token);
+      console.log("Access Token: ", auth.user?.access_token);
+      console.log("Refresh Token: ", auth.user?.refresh_token);
+
+      // // Clean up the URL and redirect to the home page or desired page.
+      // router.replace('/');
+    }
+
     // The library should automatically process the code in the URL.
     if (auth.isAuthenticated) {
       // TODO: remove later, but this can be used to add the token to the storage, etc., and replace the old mechanism of logging in.

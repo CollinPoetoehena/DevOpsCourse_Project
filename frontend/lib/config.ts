@@ -18,10 +18,13 @@ const racUrl = process.env.NEXT_PUBLIC_BACKEND_FULL_URL || 'http://localhost:400
 //         responseType: 'code', // Use 'code' for Authorization Code Grant
 //     }
 // };
+const cognitoClientId = "3q7iimb5obea8ik0bb1aiv2bao";
+const cognitoDomain = "https://rac-main-user-pool-domain.auth.eu-central-1.amazoncognito.com";
+const cognitoLogoutUri = "http://localhost:3000/auth/logout";
 const cognitoAuthConfig = {
   // Authority is the static url, but then with the region replaced and after the / the ID of the User pool
   authority: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_VVebgtNmw",
-  client_id: "3q7iimb5obea8ik0bb1aiv2bao",
+  client_id: cognitoClientId,
   // Must be present in callback_urls specified, otherwise it errors with something like "redirect_mismatch" 
   // Uses specific page for the callback to handle the callback after the login/signup
   redirect_uri: "http://localhost:3000/auth/callback",
@@ -45,7 +48,10 @@ const config = {
     reservation: `${racUrl}/reservations`,
     vehicle: `${racUrl}/vehicles`,
     // Amazon Cognito configuration
-    cognito: cognitoAuthConfig,
+    cognitoAuthConfig: cognitoAuthConfig,
+    cognitoClientId: cognitoClientId,
+    cognitoDomain: cognitoDomain,
+    cognitoLogoutUri: cognitoLogoutUri,
 };
 
 export default config;

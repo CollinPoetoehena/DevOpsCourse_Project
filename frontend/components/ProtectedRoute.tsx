@@ -8,6 +8,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const hasAuthCode = Boolean(router.query.code);
 
   useEffect(() => {
+    if (!!!auth.isAuthenticated) {
+        // checkAuth();
+        console.log("In protected route getting to !!!auth");
+    }
+    console.log("Getting to protected route...");
+
     // Only redirect if there is no authentication code in the URL
     if (!auth.isAuthenticated && !hasAuthCode) {
       // Use AWS Cognito library to redirect to the Managed Login page to handle login/register

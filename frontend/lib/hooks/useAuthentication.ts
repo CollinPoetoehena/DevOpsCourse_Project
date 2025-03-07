@@ -4,6 +4,7 @@ import { useAuth as useOidcAuth } from "react-oidc-context";
 import { useAuth } from "@/AuthContext";
 import { useNotification } from "./useNotification";
 import { Role } from "../types";
+import config from "../config";
 
 function useAuthentication() {
   const router = useRouter();
@@ -47,14 +48,24 @@ function useAuthentication() {
 
   const logout = async () => {
     try {
-      await auth.signoutRedirect();
       setIsAuthenticated(false);
       setToken(null);
       setRole(Role.user);
+      // Sign out
+      signOutRedirect();
+
       onSuccess('Logged out successfully');
     } catch (error) {
       console.log(error);
     }
+  };
+
+  // Custom signout redirect for AWS Cognito
+  const signOutRedirect = () => {
+    const clientId = config.cognitoClientId;
+    const logoutUri = config.cognitoLogoutUri;
+    const cognitoDomain = config.cognitoDomain;
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   };
 
   const checkAuth = async () => {
