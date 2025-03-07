@@ -33,10 +33,19 @@ function useAuthentication() {
     }
   }, [auth.isAuthenticated]);
 
-  const login = async () => {
+  // Handle login after redirect to AWS Cognito
+  const handleLogin = async () => {
     try {
       setLoading(true);
-      await auth.signinRedirect();
+      // auth object should now have the user object in it, which contains the token
+      const token = auth.user?.access_token ? auth.user?.access_token : "";
+      localStorage.setItem('token', token);
+      setToken(token);
+      setIsAuth(true);
+      setIsAuthenticated(true);
+      // // Clean up the URL and redirect to the home page
+      router.replace('/');
+      onSuccess('Logged in successfully');
     } catch (error) {
       console.error('Authentication failed:', error);
       setIsAuthenticated(false);
@@ -91,7 +100,7 @@ function useAuthentication() {
     }
   };
 
-  return { login, logout, checkAuth, isAuth, loading, loadingAuth, token };
+  return { handleLogin, logout, checkAuth, isAuth, loading, loadingAuth, token };
 }
 
 export default useAuthentication;
