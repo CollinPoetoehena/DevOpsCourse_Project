@@ -23,7 +23,8 @@ function useAuthentication() {
       setToken(auth.user?.access_token || null);
       setIsAuthenticated(true);
       setIsAuth(true);
-      setRole(Role.user); // Update this based on your role logic
+      // Set role to the role of the user from the authentication
+      extractRoleFromCognitoUserProfile();
       setLoadingAuth(false);
     } else {
       setIsAuthenticated(false);
@@ -61,6 +62,7 @@ function useAuthentication() {
 
       setIsAuthenticated(false);
       setToken(null);
+      // Set role to user when logging out
       setRole(Role.user);
       // Sign out
       signOutRedirect();
@@ -90,7 +92,8 @@ function useAuthentication() {
       setToken(auth.user?.access_token || null);
       setIsAuthenticated(true);
       setIsAuth(true);
-      setRole(Role.user); // Update this based on your role logic
+      // Set role to the role of the user from the authentication
+      extractRoleFromCognitoUserProfile();
     } catch (error) {
       setToken(null);
       setIsAuthenticated(false);
@@ -99,6 +102,26 @@ function useAuthentication() {
     } finally {
       setLoadingAuth(false);
       setLoading(false);
+    }
+  };
+
+  // Custom function to extract the user role from the user profile from the AWS Cognito auth object
+  const extractRoleFromCognitoUserProfile = () => {
+    // Extract groups from auth.user object
+    const userGroups: string[] = auth.user?.profile["cognito:groups"] as string[] || [];
+    console.log("User groups: ", userGroups)
+
+    // Set role based on groups (give admin preference by checking that one first)
+    // If not admin or maintainer, then set to user
+    if (userGroups.includes("admin")) {
+      console.log("Setting admin role for user...")
+      setRole(Role.admin);
+    } else if (userGroups.includes("maintainer")) {
+      console.log("Setting maintainer role for user...")
+      setRole(Role.maintainer);
+    } else {
+      console.log("Setting admin user for user...")
+      setRole(Role.user);
     }
   };
 

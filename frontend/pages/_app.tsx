@@ -57,34 +57,6 @@ const App = ({ Component, pageProps }: AppProps) => {
           </GarageProvider>
         </AnimatePresence>
       </OidcAuthProvider>
-
-      {/* <AuthProvider {...cognitoAuthConfig}>
-        <AnimatePresence>
-          <GarageProvider>
-            <CarProvider>
-              <VehicleProvider>
-                <ReservationProvider>
-                  <Toaster position="bottom-left" />
-                  {isAuthPage ? (
-                    <>
-                      <UnProtectedRoute>
-                        <Component {...pageProps} />
-                      </UnProtectedRoute>
-                    </>
-                  ) : (
-                    <>
-                      <ProtectedRoute>
-                        <Navbar />
-                        <Component {...pageProps} />
-                      </ProtectedRoute>
-                    </>
-                  )}
-                </ReservationProvider>
-              </VehicleProvider>
-            </CarProvider>
-          </GarageProvider>
-        </AnimatePresence>
-      </AuthProvider> */}
     </>
   );
 };

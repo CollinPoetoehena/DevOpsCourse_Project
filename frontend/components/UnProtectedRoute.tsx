@@ -8,6 +8,8 @@ const UnProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children })
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // No need to checkAuth() here, will otherwise lead to having to click logout twice before actual logout
+
     console.log("Getting to unprotected route...");
     if (auth.isAuthenticated) {
       router.push('/');
