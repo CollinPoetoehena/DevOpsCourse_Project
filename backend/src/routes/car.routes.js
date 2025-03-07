@@ -56,6 +56,10 @@ router.post('/', auth, async (req, res) => {
 // Get a single car by ID
 router.get('/:id', async (req, res) => {
     try {
+        // TODO: remove this part later, just used for testing right now with token from frontend
+        const token = req.headers["bearer"];
+        console.log("***Token: ", token);
+        
         const car = await getCarById(req.params.id);
         if (!car) {
             return res.status(404).json({ error: 'Car not found' });

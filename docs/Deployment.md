@@ -5,6 +5,8 @@ TODO: explain how the application is deployed using Docker
 TODO: explain that AWS EB automatically runs the docker-compose.yml, which pulls the images. 
 TODO: explain: a custom prebuild script 01-docker-login.sh is executed beforehand to login to docker with the necessary credentials to allow docker-compose.yml to pull images from the private Docker Hub repository.
 TODO: also explain added security group rule to allow TCP port 4001 inbound traffic to allow frontend to access backend.
+TODO: The user automatically becomes a user. We manage this by only having a maintainer and admin group in AWS Cognito, where if the user is part of the maintainer group, the maintainer role is assigned for example. If not part of any of those groups, the user has the user role. This optimizes storage and efficiency, since we now only have two groups, and all other users automatically get the user role.
+
 
 
 

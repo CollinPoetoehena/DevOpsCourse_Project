@@ -61,3 +61,17 @@ resource "aws_cognito_user_pool_client" "main_user_pool_client" {
     aws_cognito_user_pool.main_user_pool
   ]
 }
+
+// User groups in the user pool (used for assigning roles in our application). 
+// No need to add custom AWS IAM roles, these are just used inside our application
+resource "aws_cognito_user_group" "cog_user_group_maintainer" {
+  name         = var.cog_user_group_maintainer
+  user_pool_id = aws_cognito_user_pool.main_user_pool.id
+  description  = "Maintainer role in our application"
+}
+
+resource "aws_cognito_user_group" "cog_user_group_admin" {
+  name         = var.cog_user_group_admin
+  user_pool_id = aws_cognito_user_pool.main_user_pool.id
+  description  = "Admin role in our application"
+}

@@ -80,6 +80,12 @@ const getUserFromToken = async (token) => {
     }
 };
 
+// TODO: create extract role from JWT function, role is:
+// if user in group maintainer -> maintainer, if user in admin group -> admin, otherwise, user
+// Group example from JWT: "cognito:groups": ["maintainer"]
+// TODO: then change checkMaintainer and checkAdmin to use the result of this new function of the role.
+// TODO: frontend needs roles as well, so maybe do something with that as well?
+
 module.exports = {
     encryptToken,
     auth,
