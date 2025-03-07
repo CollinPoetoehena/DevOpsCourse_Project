@@ -57,6 +57,8 @@ function useAuthentication() {
 
   const logout = async () => {
     try {
+      localStorage.removeItem('token')
+
       setIsAuthenticated(false);
       setToken(null);
       setRole(Role.user);
