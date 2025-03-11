@@ -4,6 +4,8 @@ require('dotenv').config();
 // Verifier for JWTs from AWS Cognito
 const { verifier, cognitoOAuthAPI } = require('../config/cognito');
 const axios = require('axios');
+// Import user model
+const User = require("../models/user.model");
 
 const { SECRET_KEY } = process.env;
 
@@ -88,7 +90,6 @@ const getUserFromToken = async (token) => {
 
         // Verify token
         const decoded = await verifyToken(token);
-        console.log("Decoded: ", decoded);
         // Get user info with token
         const response = await axios.get(`${cognitoOAuthAPI}/userInfo`, {
             headers: {
@@ -96,16 +97,40 @@ const getUserFromToken = async (token) => {
                 Authorization: `Bearer ${token}`,
             },
         });
-        // Merge decoded token data (contains group, which is the role of the user) with user info data from the response
-        const user = {
-            ...response.data,
-            // Extract groups from decoded token
-            groups: decoded["cognito:groups"] || [],
-        };
-        console.log("User: ", user);
+        console.log("Decoded: ", decoded);
+        console.log("Response data: ", response.data);
+
+        // Create a user object with the user model based on the above user information
+        const user = User.create({
+            username: response.data.username,
+            email: response.data.email,
+            // Extract groups from decoded token if present, otherwise use an empty list
+            role: extractRoleFromCognitoUserGroups(decoded["cognito:groups"] || [])
+        });
+        // Return the user
         return user;
     } catch (err) {
+        console.error("Error getting user: ", err);
         return null;
+    }
+};
+
+// Custom function to extract the user role from the user groups from the AWS Cognito auth object
+const extractRoleFromCognitoUserGroups = (groups) => {
+    // Extract groups from auth.user object
+    console.log("User groups: ", groups)
+
+    // Set role based on groups (give admin preference by checking that one first)
+    // If not admin or maintainer, then set to user
+    if (groups.includes("admin")) {
+        console.log("Using admin role for user...")
+        return "admin";
+    } else if (groups.includes("maintainer")) {
+        console.log("Using maintainer role for user...")
+        return "maintainer";
+    } else {
+        console.log("Using user role for user...")
+        return "user";
     }
 };
 

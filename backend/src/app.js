@@ -35,7 +35,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // New Routes
-app.use(`${API_VERSION}/users`, require('./routes/user.routes'));
+// app.use(`${API_VERSION}/users`, require('./routes/user.routes'));
 app.use(`${API_VERSION}/cars`, require('./routes/car.routes'));
 app.use(`${API_VERSION}/garages`, require('./routes/garage.routes'));
 app.use(`${API_VERSION}/reservations`, require('./routes/reservation.routes'));

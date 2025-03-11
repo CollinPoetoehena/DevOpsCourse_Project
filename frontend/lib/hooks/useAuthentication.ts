@@ -120,7 +120,7 @@ function useAuthentication() {
       console.log("Setting maintainer role for user...")
       setRole(Role.maintainer);
     } else {
-      console.log("Setting admin user for user...")
+      console.log("Setting user role for user...")
       setRole(Role.user);
     }
   };
