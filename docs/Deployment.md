@@ -78,7 +78,6 @@ And add the following environment variables:
 - EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
 - NEXT_PUBLIC_FRONTEND_URL: Frontend base URL including version
 - NEXT_PUBLIC_BACKEND_FULL_URL: Backend URL including version
+TODO: more for frontend and backend, see dummy.env files.
 
-
-TODO: more?
 This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.
