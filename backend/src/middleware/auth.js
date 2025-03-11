@@ -7,18 +7,18 @@ const axios = require('axios');
 // Import user model
 const User = require("../models/user.model");
 
-const { SECRET_KEY } = process.env;
+// const { SECRET_KEY } = process.env;
 
-// Encrypt Token
-const encryptToken = (token) => {
-    return CryptoJS.AES.encrypt(token, SECRET_KEY).toString();
-};
+// // Encrypt Token
+// const encryptToken = (token) => {
+//     return CryptoJS.AES.encrypt(token, SECRET_KEY).toString();
+// };
 
-// Decrypt Token
-const decryptToken = (encryptedToken) => {
-    const decryptedBytes = CryptoJS.AES.decrypt(encryptedToken, SECRET_KEY);
-    return decryptedBytes.toString(CryptoJS.enc.Utf8);
-};
+// // Decrypt Token
+// const decryptToken = (encryptedToken) => {
+//     const decryptedBytes = CryptoJS.AES.decrypt(encryptedToken, SECRET_KEY);
+//     return decryptedBytes.toString(CryptoJS.enc.Utf8);
+// };
 
 // Verify Token using AWS verification steps (since SECRET_KEY is not accessible): https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
 // Specifically this uses: https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
@@ -48,6 +48,7 @@ const auth = async (req, res, next) => {
     try {
         const user = await getUserFromToken(token);
         console.log("User: ", user);
+        // Add the user to the request to make it useable for further processing
         req.user = user;
     } catch (err) {
         return res.status(401).send("Error: Authorization failed.");
@@ -77,17 +78,9 @@ const checkMaintainer = async (req, res, next) => {
     return next();
 };
 
-// Extract User from Token
+// Get User from Token and AWS Cognito user info
 const getUserFromToken = async (token) => {
     try {
-        // if (token.startsWith('ey')) {
-        //     return await verifyToken(token);
-        // }
-        // // TODO: decrypt token not necessary anymore, so these two lines can be ignored, and only verifyToken can be done, removing if with 'ey' probably.
-        // // TODO: add here getting user from decoded JWT if possible. Otherwise, use the userInfo endpoint: https://docs.aws.amazon.com/cognito/latest/developerguide/userinfo-endpoint.html
-        // const decryptedToken = decryptToken(token);
-        // return await verifyToken(decryptedToken);
-
         // Verify token
         const decoded = await verifyToken(token);
         // Get user info with token
@@ -134,14 +127,11 @@ const extractRoleFromCognitoUserGroups = (groups) => {
     }
 };
 
-// TODO: create extract role from JWT function, role is:
-// if user in group maintainer -> maintainer, if user in admin group -> admin, otherwise, user
-// Group example from JWT: "cognito:groups": ["maintainer"]
-// TODO: then change checkMaintainer and checkAdmin to use the result of this new function of the role.
-// TODO: See frontend for how it is done there to assign the roles, can use the similar if statements to extract the roles.
+// TODO: remove .env values that are not used anymore, such as SECRET_KEY, and other information, such as ROLE, etc.
+// TODO: now change all the models and services and test the changes. 
+// Need to replace user attributes (now linked to ObjectId) to username from AWS Cognito, since this is unique
 
 module.exports = {
-    encryptToken,
     auth,
     checkAdmin,
     checkMaintainer,
