@@ -52,8 +52,8 @@ jobs:
         echo "PUBLIC_APP_URL=http://$PUBLIC_APP_DOMAIN" >> $GITHUB_ENV
         echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_APP_DOMAIN:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV
         
-        echo "DEPLOYED_CALLBACK_URL_COGNITO=http://$PUBLIC_APP_DOMAIN/auth/callback" >> $GITHUB_ENV
-        echo "DEPLOYED_LOGOUT_URL_COGNITO=http://$PUBLIC_APP_DOMAIN/auth/logout" >> $GITHUB_ENV
+        echo "DEPLOYED_CALLBACK_URL_COGNITO=https://www.rent-a-car-cloud.click/auth/callback" >> $GITHUB_ENV
+        echo "DEPLOYED_LOGOUT_URL_COGNITO=https://www.rent-a-car-cloud.click/auth/logout" >> $GITHUB_ENV
     # Step to confirm variables (can only use variables saved to $GITHUB_ENV in a new step)
     - name: Print Application Environment Variables
       run: |

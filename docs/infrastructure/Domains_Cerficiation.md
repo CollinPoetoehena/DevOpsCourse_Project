@@ -1,5 +1,5 @@
 # Domains & Certification
-This document explains how to create a domain with AWS Route 53 and get a certificate for this domain with AWS Certificate Manager (ACM).
+This document explains how to create a domain with AWS Route 53 and get a certificate for this domain with AWS Certificate Manager (ACM). This document explains how you can manually set everything up. This is now changed to mostly Terraform (see Terraform.md), with the only manually required step being setting up the domain name with AWS Route 53. However, this document gives an explanation of the required steps to gain a better understanding how everything works in the background.
 
 ## Creating a domain with AWS Route 53 (DNS service)
 Full documentation: https://docs.aws.amazon.com/route53/

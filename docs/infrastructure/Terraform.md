@@ -56,6 +56,14 @@ If costs are less important or you are not in the situation where you need to pe
 ## Additional Manual Steps
 Unfortunately, not all steps can be automated. The following manual steps can still be done:
 
+### AWS Route 53 purchase domain name
+The first step is to purchase a domain name. See Domains_Cerficiation.md and then the first step, where a domain name is created with AWS Route 53. The second and all subsequent sections and steps can be skipped, since the rest is created with Terraform. Create a domain name (if not done already) for: rent-a-car-cloud.click
+
+This has to be done before running the Terraform command to create the infrastructure, since this is used by the Terraform modules.
+
+Terraform further creates the record for Route 53, certificate and listener for the load balancer, among other things.
+
+
 ### AWS Cognito Domain Setup
 The AWS Cognito resource is setup with a domain for the login page, however, this is not the best design. To add a new design using the new Managed Login feature, follow these steps:
 
