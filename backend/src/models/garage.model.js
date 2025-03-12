@@ -9,10 +9,13 @@ const garageSchema = new mongoose.Schema({
         trim: true,
     },
     // Reference to the maintainer (User) who manages this garage
+    // Maintainer is now just a username (string) instead of an ObjectId reference with the new AWS Cognito implementation
     maintainer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
         required: true,
+        // Ensure consistency in storage
+        trim: true,
+        lowercase: true, 
     },
 }, { timestamps: true });
 

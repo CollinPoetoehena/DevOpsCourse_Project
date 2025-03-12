@@ -4,10 +4,13 @@ const pictureSchema = require('./picture.model');
 const db = require("../config/db");
 
 const reservationSchema = new mongoose.Schema({
+    // User is now just a username (string) instead of an ObjectId reference with the new AWS Cognito implementation
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
         required: true,
+        // Ensure consistency in storage
+        trim: true,
+        lowercase: true, 
     },
     car: {
         type: mongoose.Schema.Types.ObjectId,
