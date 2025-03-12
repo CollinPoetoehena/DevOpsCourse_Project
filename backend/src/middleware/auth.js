@@ -51,7 +51,7 @@ const auth = async (req, res, next) => {
         // Add the user to the request to make it useable for further processing
         req.user = user;
     } catch (err) {
-        return res.status(401).send("Error: Authorization failed.");
+        return res.status(401).send(`Error: Authorization failed: ${err.message}`);
     }
     return next();
 };
@@ -103,8 +103,10 @@ const getUserFromToken = async (token) => {
         // Return the user
         return user;
     } catch (err) {
+        // Print error for debugging purposes
         console.error("Error getting user: ", err);
-        return null;
+        // Return error, could be JWT expired for example
+        throw new Error(`Error getting user: ${err.message}`);
     }
 };
 

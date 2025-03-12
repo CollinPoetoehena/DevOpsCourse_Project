@@ -3,7 +3,7 @@ const Car = require('../models/car.model');
 
 async function createReservation(reservationData, user) {
     const newReservation = await Reservation.create({
-        user: user.id,
+        user: user.username,
         car: reservationData.car,
         startDate: reservationData.startDate,
         endDate: reservationData.endDate,
@@ -45,7 +45,7 @@ async function updateReservation(reservationId, updateData, user) {
     if (!reservation) {
         throw new Error('Reservation not found');
     }
-    if (user.role !== 'maintainer' && !reservation.user.equals(user.id)) {
+    if (user.role !== 'maintainer' && reservation.user !== user.username) {
         throw new Error('Unauthorized to update this reservation');
     }
     const updatedReservation = await Reservation.findByIdAndUpdate(reservationId, updateData, { new: true });
@@ -61,7 +61,7 @@ async function deleteReservation(reservationId, user) {
     if (!reservation) {
         throw new Error('Reservation not found');
     }
-    if (user.role !== 'maintainer' && !reservation.user.equals(user.id)) {
+    if (user.role !== 'maintainer' && reservation.user !== user.username) {
         throw new Error('Unauthorized to delete this reservation');
     }
     await Car.findByIdAndUpdate(reservation.car, { status: 'available' });
@@ -73,7 +73,7 @@ async function requestReturn(reservationId, user) {
     if (!reservation) {
         throw new Error('Reservation not found');
     }
-    if (user.role !== 'maintainer' && !reservation.user.equals(user.id)) {
+    if (user.role !== 'maintainer' && reservation.user !== user.username) {
         throw new Error('Unauthorized to request return');
     }
     reservation.requestReturn();

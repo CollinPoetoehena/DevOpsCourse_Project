@@ -61,7 +61,7 @@ async function updateCar(carId, updateData, user) {
     }
 
     // For maintainers, verify that the car's garage matches the user's garage.
-    if (user.role !== 'maintainer' || (!car.garage || car.garage.maintainer != user.username)) {
+    if (user.role !== 'maintainer' || (!car.garage || car.garage.maintainer !== user.username)) {
         throw new Error('Unauthorized to update this car');
     }
 
@@ -76,7 +76,7 @@ async function deleteCar(carId, user) {
     }
 
     // For maintainers, verify that the car's garage matches the user's garage.
-    if (user.role !== 'maintainer' || (!car.garage || car.garage.maintainer != user.username)) {
+    if (user.role !== 'maintainer' || (!car.garage || car.garage.maintainer !== user.username)) {
         throw new Error('Unauthorized to update this car');
     }
 

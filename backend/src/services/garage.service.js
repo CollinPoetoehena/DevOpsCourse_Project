@@ -58,7 +58,7 @@ async function updateGarage(garageId, updateData, user) {
         throw new Error('Garage not found');
     }
     // Only the assigned maintainer or an admin can update
-    if (user.role !== 'admin' && garage.maintainer != user.username) {
+    if (user.role !== 'admin' && garage.maintainer !== user.username) {
         throw new Error('Unauthorized to update this garage');
     }
     const updatedGarage = await Garage.findByIdAndUpdate(garageId, updateData, { new: true });
