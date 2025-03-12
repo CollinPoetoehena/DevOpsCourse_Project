@@ -38,8 +38,6 @@ It is a best practice to separate them, however, depending on the specific appli
 
 
 # GitHub Secrets and Variables
-
-
 In GitHub, you can create secrets and variables for GitHub Actions in Settings > Security > Secrets and variables > Actions for example:
 - https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions
 - https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables 
@@ -73,8 +71,15 @@ And add the following environment variables:
 - S3_BUCKET_NAME: AWS S3 bucket name (created with Terraform)
 - EB_APP_NAME: AWS Elastic Beanstalk application name (created with Terraform)
 - EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
+- COGNITO_APP_CLIENT_ID: client id of the application created with the AWS Cognito user pool
+- COGNITO_USER_POOL_ID: AWS Cognito user pool id
+- COGNITO_DOMAIN: AWS Cognito user pool domain
 - NEXT_PUBLIC_FRONTEND_URL: Frontend base URL including version
 - NEXT_PUBLIC_BACKEND_FULL_URL: Backend URL including version
-TODO: more for frontend and backend, see dummy.env files.
+- NEXT_PUBLIC_COGNITO_AUTHORITY: AWS Cognito user pool authority, used for the frontend
+- NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN: AWS Cognito user pool sign in redirect URL
+- NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT: AWS Cognito user pool sign out redirect URL
+
+Not all environment variables in the dummy.env are present here (such as for the frontend), since some variables are reused. For example, the COGNITO_APP_CLIENT_ID is used in the backend and frontend, but can be only one variable in the GitHub environment, and there the NEXT_PUBLIC_ prefix is specific to the Next.js frontend, since this is required to access the environment variable.
 
 This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.

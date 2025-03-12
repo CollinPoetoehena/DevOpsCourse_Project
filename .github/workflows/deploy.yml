@@ -72,8 +72,17 @@ jobs:
         echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
         echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
+        echo "COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
+        echo "COGNITO_USER_POOL_ID=${{ vars.COGNITO_USER_POOL_ID }}" >> .env
+        echo "COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
         echo "NEXT_PUBLIC_FRONTEND_URL=$PUBLIC_APP_URL" >> .env
         echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_BACKEND_URL" >> .env
+        echo "NEXT_PUBLIC_AWS_REGION=${{ vars.AWS_REGION }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_AUTHORITY=${{ vars.NEXT_PUBLIC_COGNITO_AUTHORITY }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN=$PUBLIC_APP_URL/auth/callback" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT=$PUBLIC_APP_URL/auth/logout" >> .env
         
     # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
     # This is not done in the project structure since it is a more logical place in the infrastructure folder

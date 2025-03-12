@@ -72,12 +72,21 @@ jobs:
         echo "FRONTEND_URL=${{ vars.FRONTEND_URL }}" >> .env
         echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
+        echo "COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
+        echo "COGNITO_USER_POOL_ID=${{ vars.COGNITO_USER_POOL_ID }}" >> .env
+        echo "COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
     # Create a different .env file for the frontend
     - name: Create .env file (frontend)
       if: matrix.service == 'frontend'
       run: |
         echo "NEXT_PUBLIC_FRONTEND_URL=${{ vars.NEXT_PUBLIC_FRONTEND_URL }}" >> .env
         echo "NEXT_PUBLIC_BACKEND_FULL_URL=${{ vars.NEXT_PUBLIC_BACKEND_FULL_URL }}" >> .env
+        echo "NEXT_PUBLIC_AWS_REGION=${{ vars.AWS_REGION }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_AUTHORITY=${{ vars.NEXT_PUBLIC_COGNITO_AUTHORITY }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN=${{ vars.NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT=${{ vars.NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT }}" >> .env
     # Step to run Docker container
     # Run docker in detached mode (-d) to run the container in the background
     # Use the .env file just created, since -e caused the docker run command to crash, specifically MONGO_URI for backend
