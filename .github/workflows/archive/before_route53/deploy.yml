@@ -40,8 +40,6 @@ jobs:
     # Step to get the environment url of the AWS EB environment (=public URL used) and save it for later jobs/steps
     # Firstly, it sets the deployment environment URLs for the frontend and backend. It also sets other environment variables, 
     # such as the AWS Cognito callback and logout URLs.
-    # TODO: explain here callback and logout urls are done with https and the Route 53 domain name, however, the frontend and backend urls
-    # are done with the domain of the AWS EB environment, since this is better for internal communication, this can be over http and the domain of EB.
     - name: Get Deployed Application Environment URLs
       run: |
         PUBLIC_APP_DOMAIN=$(aws elasticbeanstalk describe-environments \

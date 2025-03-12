@@ -1,0 +1,144 @@
+# CI: Continuous Integration (for building, testing and pushing the Docker image)
+name: Build, Test and Push Docker
+
+# Specify this workflow can be called by another workflow using workflow_call: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_call
+on:
+  workflow_call:
+    # Input variables
+    inputs:
+      BE_IMAGE_NAME:
+        required: true
+        type: string
+      FE_IMAGE_NAME:
+        required: true
+        type: string
+      DOCKER_REGISTRY:
+        required: true
+        type: string
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+    # Use the main environment from GitHub to load environment variables
+    environment: main
+    # Use strategy to run this step multiple times with the possible services
+    # Documentation: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
+    strategy:
+      matrix:
+        service: [backend, frontend]  # Runs for both services
+    steps:
+    # Checkout repository
+    - uses: actions/checkout@v2
+
+    # Step to set IMAGE_TAG environment variable
+    - name: Set Image Tag
+      # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
+      run: |
+        IMAGE_TAG="${{ inputs.DOCKER_REGISTRY }}/rac-${{ matrix.service }}:latest"
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+    # Step to confirm IMAGE_TAG
+    - name: Print IMAGE_TAG
+      run: echo "Using IMAGE_TAG=${IMAGE_TAG}"
+    
+    # Step to login to Docker Hub
+    - name: Login to Docker Container Registry
+      uses: docker/login-action@v1
+      with:
+        # Use repository secrets from GitHub for Docker Hub username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        # Use repository secrets from GitHub for Docker Hub access token: https://docs.docker.com/security/for-developers/access-tokens/
+        password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+    
+    # Step to build Docker container
+    - name: Build Docker Image
+      run: |
+        cd ${{ matrix.service }}
+        docker build --build-arg NAME="rac-${{ matrix.service }}" -t "${IMAGE_TAG}" .
+    # If builds fail, stop execution before testing (has to be done manually since it is in between steps here, not jobs)
+    - name: Fail if builds fail
+      if: failure()
+      run: exit 1
+    
+    # Manually create a .env file in this job with the environment variables for each service
+    # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
+    # Names must be exactly the same as the dummy.env files, otherwise the variables cannot be found by the source code
+    - name: Create .env file (backend)
+      if: matrix.service == 'backend'
+      run: |
+        echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
+        echo "API_NAME=${{ vars.API_NAME }}" >> .env
+        echo "API_PORT=${{ vars.API_PORT }}" >> .env
+        echo "API_VERSION=${{ vars.API_VERSION }}" >> .env
+        echo "FRONTEND_URL=${{ vars.FRONTEND_URL }}" >> .env
+        echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
+        echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
+        echo "COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
+        echo "COGNITO_USER_POOL_ID=${{ vars.COGNITO_USER_POOL_ID }}" >> .env
+        echo "COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
+    # Create a different .env file for the frontend
+    - name: Create .env file (frontend)
+      if: matrix.service == 'frontend'
+      run: |
+        echo "NEXT_PUBLIC_FRONTEND_URL=${{ vars.NEXT_PUBLIC_FRONTEND_URL }}" >> .env
+        echo "NEXT_PUBLIC_BACKEND_FULL_URL=${{ vars.NEXT_PUBLIC_BACKEND_FULL_URL }}" >> .env
+        echo "NEXT_PUBLIC_AWS_REGION=${{ vars.AWS_REGION }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_AUTHORITY=${{ vars.NEXT_PUBLIC_COGNITO_AUTHORITY }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN=${{ vars.NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT=${{ vars.NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT }}" >> .env
+    # Step to run Docker container
+    # Run docker in detached mode (-d) to run the container in the background
+    # Use the .env file just created, since -e caused the docker run command to crash, specifically MONGO_URI for backend
+    # Select the correct port using the service
+    - name: Run Container with Environment Variables
+      run: |
+        if [ "${{ matrix.service }}" == "backend" ]; then
+          PORT=${{ vars.API_PORT }}
+        else
+          PORT=${{ vars.FRONTEND_PORT }}
+        fi
+
+        docker run -d \
+          --env-file .env \
+          -p $PORT:$PORT \
+          --name rac-${{ matrix.service }} \
+          $IMAGE_TAG
+    # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
+    - name: Delete .env File After Use
+      run: rm -f .env
+    
+    # Step to wait for the container to be ready and running tests
+    # "until curl -s" silently tries to fetch the backend URL, retrying every 2 seconds 
+    # and timing out after 15 seconds
+    - name: Wait for Container to Start
+      run: |
+        if [ "${{ matrix.service }}" == "backend" ]; then
+          CONTAINER_URL=${{ vars.BACKEND_URL }}
+        else
+          CONTAINER_URL=${{ vars.FRONTEND_URL }}
+        fi
+
+        echo "Waiting for container $IMAGE_TAG to be ready at $CONTAINER_URL..."
+        timeout 15 sh -c "until curl -s $CONTAINER_URL; do sleep 2; done"
+        echo "Container is ready!"
+        
+    # Step to run `npm run test` inside the running container
+    # (environment variables should already be present in the docker container, as they are set in the docker run step)
+    - name: Run Container Tests
+      run: |
+        if [ "${{ matrix.service }}" == "backend" ]; then
+          IMAGE_NAME=${{ inputs.BE_IMAGE_NAME }}
+        else
+          IMAGE_NAME=${{ inputs.FE_IMAGE_NAME }}
+        fi
+
+        docker exec $IMAGE_NAME npm run test
+    # If tests fail, stop execution before pushing (has to be done manually since it is in between steps here, not jobs)
+    - name: Fail if tests fail
+      if: failure()
+      run: exit 1
+    
+    # Push image to Docker Hub if builds and tests were successful
+    - name: Push Docker Image to Docker Hub
+      run: docker push "${IMAGE_TAG}"

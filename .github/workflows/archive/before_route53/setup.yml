@@ -1,0 +1,55 @@
+name: Setup Dependencies
+
+# Specify this workflow can be called by another workflow using workflow_call: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_call
+on:
+  workflow_call:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    # Use the main environment from GitHub to load environment variables
+    environment: main
+    steps:
+    # Checkout repository
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    # https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+    # apt was not possible, as previously it failed with awscli not present in packages
+    # Install or update AWS CLI
+    - name: Install or Update AWS CLI
+      # First get the path where aws is installed, if empty, it is not installed
+      # Depending on this result, install or update it and print the aws version at the end to verify installation
+      # Unzip with -q flag to unzip quietly (avoids printing all zip files in the logs)
+      run: |
+        echo "Searching for installed aws location (if any)"
+        AWS_PATH=$(which aws)
+
+        echo "Download awscli files..."
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip -q awscliv2.zip
+
+        if [ -n "$AWS_PATH" ]; then
+          echo "AWS CLI is already installed at $AWS_PATH"
+          INSTALL_DIR=$(ls -l "$AWS_PATH" | awk '{print $NF}' | sed 's|/aws$||')
+
+          echo "Updating AWS CLI at $INSTALL_DIR"
+          sudo ./aws/install --bin-dir "$AWS_PATH" --install-dir "$INSTALL_DIR" --update
+        else
+          echo "AWS CLI is not installed. Installing..."
+          sudo ./aws/install
+        fi
+
+        aws --version
+
+    # Step to login to Docker Hub
+    # This also tests authentication with Docker Hub account (these variables are used by AWS to pull images in the deploy step)
+    - name: Login to Docker Container Registry
+      uses: docker/login-action@v1
+      with:
+        # Use repository secrets from GitHub for Docker Hub username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        # Use repository secrets from GitHub for Docker Hub access token: https://docs.docker.com/security/for-developers/access-tokens/
+        password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+        # Avoid logging out afterwards so that it can be used in other jobs
+        logout: false
