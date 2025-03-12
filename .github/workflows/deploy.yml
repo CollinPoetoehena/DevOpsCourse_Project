@@ -64,6 +64,7 @@ jobs:
 
     # Set callback and logout URLs in Cognito user pool. This adds localhost (default) and deployed URLs 
     # to the user pool. It uses JSON format, such as \"\" to correctly set the values
+    # You can view the callback and logout URLs in the AWS Cognito user pool in Applications > App Clients > your app client > Login pages.
     - name: Set Callback and Logout URLs in AWS Cognito User Pool
       run: |
         aws cognito-idp update-user-pool-client \
