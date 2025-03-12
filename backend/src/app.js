@@ -20,10 +20,10 @@ const corsOptions = {
   port: process.env.PORT || process.env.API_PORT || 4001,
 };
 
-// Rate limiting configuration: limit to 20 requests per minute per IP
+// Rate limiting configuration: limit to 60 requests per minute per IP
 const limiter = rateLimit({
   windowMs: 60000, // 1 minute
-  max: 20, // max 20 requests per minute
+  max: 60, // max 60 requests per minute
   message: "Too many requests, please try again later.",
 });
 
