@@ -1,5 +1,5 @@
 # Domains & Certification
-This document explains how to create a domain with AWS Route 53 and get a certificate for this domain with AWS Certificate Manager (ACM). This document explains how you can manually set everything up. This is now changed to mostly Terraform (see Terraform.md), with the only manually required step being setting up the domain name with AWS Route 53. However, this document gives an explanation of the required steps to gain a better understanding how everything works in the background.
+This document explains how to create a domain with AWS Route 53 and get a certificate for this domain with AWS Certificate Manager (ACM). This document explains how you can manually set everything up. Some steps of the infrastructure are done with Terraform (see Terraform.md). However, this document gives an explanation of the required steps for domains and certification specifically to gain a better understanding how everything works in the background.
 
 ## Creating a domain with AWS Route 53 (DNS service)
 Full documentation: https://docs.aws.amazon.com/route53/
@@ -26,6 +26,15 @@ The created record should be visible as CNAME in the records for the AWS Route 5
 
 
 ## Manually adding listener to Elastic Load Balancer to allow HTTPS
+First, add an inbound rule to the security group of the load balancer:
+1. Go to Load Balancers > Select the load balancer
+2. Go to the Security tab > select the security group
+3. Add an inbound rule with the following information:
+- Type: HTTPS
+- Protocol: TCP
+- Port range: 443
+- Source: Anywhere-IPv4
+
 After the previous steps, you can add a listener to the load balancer in the AWS Management Console with the following information:L
 - Listener protocol: HTTPS, port: 443 (typically the port of the incoming traffic)
 - Instance protocol: HTTP, port: 80 (the port of the EC2 instance)

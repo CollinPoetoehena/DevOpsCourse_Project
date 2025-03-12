@@ -57,11 +57,13 @@ If costs are less important or you are not in the situation where you need to pe
 Unfortunately, not all steps can be automated. The following manual steps can still be done:
 
 ### AWS Route 53 purchase domain name
-The first step is to purchase a domain name. See Domains_Cerficiation.md and then the first step, where a domain name is created with AWS Route 53. The second and all subsequent sections and steps can be skipped, since the rest is created with Terraform. Create a domain name (if not done already) for: rent-a-car-cloud.click
+The first step is to purchase a domain name. See Domains_Cerficiation.md and follow the first two sections (creating a domain name with Route 53 and getting a certificate with ACM). Create a domain name (if not done already) for: rent-a-car-cloud.click
 
-This has to be done before running the Terraform command to create the infrastructure, since this is used by the Terraform modules.
+Then create a certificate for it.
 
-Terraform further creates the record for Route 53, certificate and listener for the load balancer, among other things.
+These steps have to be done before running the Terraform command to create the infrastructure, since this is used by the Terraform modules.
+
+Finally, after following those steps and creating the infrastructure, add the 
 
 
 ### AWS Cognito Domain Setup
