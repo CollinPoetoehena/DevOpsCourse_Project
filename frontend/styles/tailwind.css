@@ -1621,10 +1621,6 @@ img {
 }
 
 @media (min-width: 1024px) {
-  .lg\:max-w-4xl {
-    max-width: 56rem;
-  }
-
   .lg\:max-w-sm {
     max-width: 24rem;
   }
