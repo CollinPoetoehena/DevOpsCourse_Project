@@ -16,7 +16,6 @@ import { ReservationProvider } from '@/ReservationContext';
 import { AuthProvider } from '@/AuthContext';
 import { VehicleProvider } from '@/VehicleContext';
 
-// TODO: change to different more pretty format later, now just test this
 import { AuthProvider as OidcAuthProvider } from 'react-oidc-context';
 import config from "../lib/config";
 

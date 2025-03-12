@@ -1,24 +1,9 @@
-const CryptoJS = require('crypto-js');
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 // Verifier for JWTs from AWS Cognito
 const { verifier, cognitoOAuthAPI } = require('../config/cognito');
 const axios = require('axios');
 // Import user model
 const User = require("../models/user.model");
-
-// const { SECRET_KEY } = process.env;
-
-// // Encrypt Token
-// const encryptToken = (token) => {
-//     return CryptoJS.AES.encrypt(token, SECRET_KEY).toString();
-// };
-
-// // Decrypt Token
-// const decryptToken = (encryptedToken) => {
-//     const decryptedBytes = CryptoJS.AES.decrypt(encryptedToken, SECRET_KEY);
-//     return decryptedBytes.toString(CryptoJS.enc.Utf8);
-// };
 
 // Verify Token using AWS verification steps (since SECRET_KEY is not accessible): https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
 // Specifically this uses: https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
@@ -129,12 +114,23 @@ const extractRoleFromCognitoUserGroups = (groups) => {
     }
 };
 
-// TODO: remove .env values that are not used anymore, such as SECRET_KEY, and other information, such as ROLE, etc.
-// TODO: now change all the models and services and test the changes. 
-// Need to replace user attributes (now linked to ObjectId) to username from AWS Cognito, since this is unique
-
 module.exports = {
     auth,
     checkAdmin,
     checkMaintainer,
 };
+
+// Old encrypt and decrypt code used before using AWS Cognito user pools
+// const CryptoJS = require('crypto-js');
+// const jwt = require('jsonwebtoken');
+// const { SECRET_KEY } = process.env;
+// // Encrypt Token
+// const encryptToken = (token) => {
+//     return CryptoJS.AES.encrypt(token, SECRET_KEY).toString();
+// };
+
+// // Decrypt Token
+// const decryptToken = (encryptedToken) => {
+//     const decryptedBytes = CryptoJS.AES.decrypt(encryptedToken, SECRET_KEY);
+//     return decryptedBytes.toString(CryptoJS.enc.Utf8);
+// };

@@ -59,9 +59,6 @@ The following repository secrets need to be created:
 
 For the environment secrets, create an environment called main and add the following secrets (see backend/dummy.env):
 - MONGO_URI: MongoDB connection string
-- SECRET_KEY: bcrypt secret key
-- FACTOR: bcrypt factor
-- ROLE: bcrypt role
 - AWS_ACCESS_KEY_ID: AWS access key id
 - AWS_SECRET_ACCESS_KEY: AWS access key secret
 And add the following environment variables:
