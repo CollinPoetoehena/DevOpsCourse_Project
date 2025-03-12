@@ -38,7 +38,9 @@ jobs:
         aws sts get-caller-identity
     
     # Step to get the environment url of the AWS EB environment (=public URL used) and save it for later jobs/steps
-    - name: Get Deployed Application Environment URL
+    # Firstly, it sets the deployment environment URLs for the frontend and backend. It also sets other environment variables, 
+    # such as the AWS Cognito callback and logout URLs.
+    - name: Get Deployed Application Environment URLs
       run: |
         PUBLIC_APP_DOMAIN=$(aws elasticbeanstalk describe-environments \
           --application-name "${{ vars.EB_APP_NAME }}" \
@@ -48,12 +50,27 @@ jobs:
 
         echo "Public App Domain: $PUBLIC_APP_DOMAIN"
         echo "PUBLIC_APP_URL=http://$PUBLIC_APP_DOMAIN" >> $GITHUB_ENV
-        echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_APP_DOMAIN:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV  
+        echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_APP_DOMAIN:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV
+        
+        echo "DEPLOYED_CALLBACK_URL_COGNITO=http://$PUBLIC_APP_DOMAIN/auth/callback" >> $GITHUB_ENV
+        echo "DEPLOYED_LOGOUT_URL_COGNITO=http://$PUBLIC_APP_DOMAIN/auth/logout" >> $GITHUB_ENV
     # Step to confirm variables (can only use variables saved to $GITHUB_ENV in a new step)
     - name: Print Application Environment Variables
       run: |
         echo "Public App URL: $PUBLIC_APP_URL"
         echo "Deployed Backend URL: $DEPLOYED_BACKEND_URL"
+        echo "Deployed Cognito callback URL: $DEPLOYED_CALLBACK_URL_COGNITO"
+        echo "Deployed Cognito logout URL: $DEPLOYED_LOGOUT_URL_COGNITO"
+
+    # Set callback and logout URLs in Cognito user pool. This adds localhost (default) and deployed URLs 
+    # to the user pool. It uses JSON format, such as \"\" to correctly set the values
+    - name: Set Callback and Logout URLs in AWS Cognito User Pool
+      run: |
+        aws cognito-idp update-user-pool-client \
+          --user-pool-id ${{ vars.COGNITO_USER_POOL_ID }} \
+          --client-id ${{ vars.COGNITO_APP_CLIENT_ID }} \
+          --callback-urls "[\"$DEPLOYED_CALLBACK_URL_COGNITO\", \"${{ vars.FRONTEND_URL }}/auth/callback\"]" \
+          --logout-urls "[\"$DEPLOYED_LOGOUT_URL_COGNITO\", \"${{ vars.FRONTEND_URL }}/auth/logout\"]"
 
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
@@ -81,8 +98,8 @@ jobs:
         echo "NEXT_PUBLIC_COGNITO_AUTHORITY=${{ vars.NEXT_PUBLIC_COGNITO_AUTHORITY }}" >> .env
         echo "NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
         echo "NEXT_PUBLIC_COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
-        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN=$PUBLIC_APP_URL/auth/callback" >> .env
-        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT=$PUBLIC_APP_URL/auth/logout" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN=$DEPLOYED_CALLBACK_URL_COGNITO" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT=$DEPLOYED_LOGOUT_URL_COGNITO" >> .env
         
     # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
     # This is not done in the project structure since it is a more logical place in the infrastructure folder
