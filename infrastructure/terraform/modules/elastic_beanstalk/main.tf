@@ -94,13 +94,31 @@ resource "aws_elastic_beanstalk_configuration_template" "app_template" {
   # Ensure security group exists before using it to avoid error of it not existing
   depends_on = [aws_security_group.eb_sg]
 
-  # By default, AWS EB uses a LoadBalanced environment, which creates additional resources
-  # However, this is not necessary, and we can suffice with a single (VM) instance 
+  # Use LoadBalanced environment for AWS EB
   setting {
     namespace = "aws:elasticbeanstalk:environment"
     name      = "EnvironmentType"
-    value     = "SingleInstance"
+    value     = "LoadBalanced"
   }
+  # Set min and max number of instances to 1 to always have 1 instance to avoid high costs for more instances, 
+  # but still the capabilities of a load balancer (e.g. HTTPS)
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MinSize"
+    value     = 1
+  }
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MaxSize"
+    value     = 1
+  }
+  # Old single instance before moving to LoadBalanced:
+  # The load balancer is not necessary, and we can suffice with a single (VM) instance 
+  # setting {
+  #   namespace = "aws:elasticbeanstalk:environment"
+  #   name      = "EnvironmentType"
+  #   value     = "SingleInstance"
+  # }
 
   # Use instance profile for IAM
   # Required for EB environment (will otherwise give error: Environment must have instance profile associated with it)
@@ -124,6 +142,7 @@ resource "aws_elastic_beanstalk_configuration_template" "app_template" {
     name      = "SecurityGroups"
     value     = aws_security_group.eb_sg.name
   }
+  # TODO: need to attach security group to load balancer?
 }
 
 # Environment (uses the template), used to run the actual application

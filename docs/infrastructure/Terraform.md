@@ -44,7 +44,7 @@ terraform apply \
 
 After creating your resources, you can view and monitor them in the AWS Management Console for example. You can also see potential errors there that might not be reported by Terraform, such as when creating the AWS Elastic Beanstalk environment, etc. Also, you can see the exact configuration of the resources there. You can use this to see if you might need to change some things in the Terraform code for example.
 
-Something that might help is reading the documentation of the resources extensively to get a good overview of how everything works. Also, manually following some steps in the AWS Management Console might also help you understand the creation and configuration steps (do NOT forget to cancel/delete afterwards).
+Something that might help is reading the documentation of the resources extensively to get a good overview of how everything works. Also, manually following some steps in the AWS Management Console might also help you understand the creation and configuration steps (do NOT forget to cancel/delete afterwards). For example, if you first manually create and test some resources, you can understand how it works and then when it works you can make the same resources and configuration of those resources with Terraform (this is what I did with Route 53 and ACM for certification with the Elastic Load Balancer for the AWS Elastic Beanstalk environment for example).
 
 **VERY IMPORTANT:** Try to always destroy the infrastructure after you are done, such as at the end of each day (or more often after testing an application deployment for example, as these also use resources in the background, or you can stop the instance running in the Management Console, etc.), to avoid unexpected and unnecessary costs! The only exceptions is if you are sure that resources are free and you need them multiple days after each other, such as for a presentation, etc. You can comment out resources in the main.tf file to exclude some resources, e.g., when you only want to test one or a selection of resources.
 
@@ -55,6 +55,14 @@ If costs are less important or you are not in the situation where you need to pe
 
 ## Additional Manual Steps
 Unfortunately, not all steps can be automated. The following manual steps can still be done:
+
+### AWS Route 53 purchase domain name
+The first step is to purchase a domain name. See Domains_Cerficiation.md and then the first step, where a domain name is created with AWS Route 53. The second and all subsequent sections and steps can be skipped, since the rest is created with Terraform. Create a domain name (if not done already) for: rent-a-car-cloud.click
+
+This has to be done before running the Terraform command to create the infrastructure, since this is used by the Terraform modules.
+
+Terraform further creates the record for Route 53, certificate and listener for the load balancer, among other things.
+
 
 ### AWS Cognito Domain Setup
 The AWS Cognito resource is setup with a domain for the login page, however, this is not the best design. To add a new design using the new Managed Login feature, follow these steps:
