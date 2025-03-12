@@ -22,9 +22,9 @@ const cognitoAuthConfig = {
 };
 
 // Log variables for debugging purposes
-console.log("NEXT_PUBLIC_FRONTEND_URL:", baseUrl);
-console.log("NEXT_PUBLIC_BACKEND_FULL_URL:", racUrl);
-console.log("NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT:", cognitoLogoutUri);
+// console.log("NEXT_PUBLIC_FRONTEND_URL:", baseUrl);
+// console.log("NEXT_PUBLIC_BACKEND_FULL_URL:", racUrl);
+// console.log("NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT:", cognitoLogoutUri);
 
 const config = {
     title,

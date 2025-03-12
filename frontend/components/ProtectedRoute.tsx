@@ -13,9 +13,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     // Add check auth for if the isAuthenticated has a value. 
     if (!!!auth.isAuthenticated) {
         checkAuth();
-        console.log("In protected route getting to !!!auth");
     }
-    console.log("Getting to protected route...");
 
     // Only login if there is no authentication code in the URL and the user is not authenticated
     if (!auth.isAuthenticated && !hasAuthCode) {

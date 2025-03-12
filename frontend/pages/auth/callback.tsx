@@ -10,9 +10,6 @@ const Callback = () => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("Is authenticated: ", auth.isAuthenticated);
-    console.log("Getting to callback...");
-
     // The library should automatically process the code in the URL received after logging in.
     // If the user is authenticated now, handle the login further.
     if (auth.isAuthenticated) {

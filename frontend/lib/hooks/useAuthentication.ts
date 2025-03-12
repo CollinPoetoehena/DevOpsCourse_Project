@@ -109,18 +109,14 @@ function useAuthentication() {
   const extractRoleFromCognitoUserProfile = () => {
     // Extract groups from auth.user object
     const userGroups: string[] = auth.user?.profile["cognito:groups"] as string[] || [];
-    console.log("User groups: ", userGroups)
 
     // Set role based on groups (give admin preference by checking that one first)
     // If not admin or maintainer, then set to user
     if (userGroups.includes("admin")) {
-      console.log("Setting admin role for user...")
       setRole(Role.admin);
     } else if (userGroups.includes("maintainer")) {
-      console.log("Setting maintainer role for user...")
       setRole(Role.maintainer);
     } else {
-      console.log("Setting user role for user...")
       setRole(Role.user);
     }
   };

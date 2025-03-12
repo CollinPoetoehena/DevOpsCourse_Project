@@ -26,8 +26,6 @@ const Navbar = () => {
         if (token) {
             getGarage();
         }
-        console.log('garageState', garageState);
-
     }, [token]);
 
     return (

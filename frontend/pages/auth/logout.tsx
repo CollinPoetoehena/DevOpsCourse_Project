@@ -9,9 +9,6 @@ const Logout = () => {
   const hasAuthCode = Boolean(router.query.code);
 
   useEffect(() => {
-    console.log("Is authenticated: ", auth.isAuthenticated);
-    console.log("Getting to logout...");
-
     // When the user logs out, redirect back to the login/signup page
     // Only redirect if there is no authentication code in the URL
     if (!auth.isAuthenticated && !hasAuthCode) {

@@ -15,7 +15,6 @@ const verifyToken = (token) => {
         try {
             // const decoded = jwt.verify(token, SECRET_KEY);
             const decoded = verifier.verify(token);
-            console.log("Token is valid.");
             resolve(decoded);
         } catch (err) {
             reject("Invalid Token");
@@ -32,7 +31,6 @@ const auth = async (req, res, next) => {
     }
     try {
         const user = await getUserFromToken(token);
-        console.log("User: ", user);
         // Add the user to the request to make it useable for further processing
         req.user = user;
     } catch (err) {
@@ -75,8 +73,6 @@ const getUserFromToken = async (token) => {
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log("Decoded: ", decoded);
-        console.log("Response data: ", response.data);
 
         // Create a user object with the user model based on the above user information
         const user = User.create({
@@ -95,23 +91,15 @@ const getUserFromToken = async (token) => {
     }
 };
 
-// Custom function to extract the user role from the user groups from the AWS Cognito auth object
+// Extracts the user role from AWS Cognito user groups
 const extractRoleFromCognitoUserGroups = (groups) => {
-    // Extract groups from auth.user object
-    console.log("User groups: ", groups)
-
-    // Set role based on groups (give admin preference by checking that one first)
-    // If not admin or maintainer, then set to user
     if (groups.includes("admin")) {
-        console.log("Using admin role for user...")
         return "admin";
-    } else if (groups.includes("maintainer")) {
-        console.log("Using maintainer role for user...")
-        return "maintainer";
-    } else {
-        console.log("Using user role for user...")
-        return "user";
     }
+    if (groups.includes("maintainer")) {
+        return "maintainer";
+    }
+    return "user";
 };
 
 module.exports = {
