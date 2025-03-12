@@ -40,7 +40,15 @@ const Navbar = () => {
                     </Link>
                     <div className="flex items-center space-x-2 md:order-2">
 
-                        {isAuthenticated && role == Role.maintainer && garageState.userGarage === null && router.pathname === '/' && (
+                        {isAuthenticated && (role == Role.user || (role == Role.maintainer && garageState.userGarage) || role == Role.admin) && router.pathname === '/' && (
+                            <ActionButton
+                                text={`${role == Role.user ? 'My' : 'See'} Reservations`}
+                                href='/reservation'
+                                customClasses='bg-brand text-white'
+                            />
+                        )}
+
+                        {isAuthenticated && role == Role.maintainer && !garageState.userGarage && router.pathname === '/' && (
                             <ActionButton
                                 text='Add Location'
                                 href='/garage/create'
@@ -48,7 +56,7 @@ const Navbar = () => {
                             />
                         )}
 
-                        {isAuthenticated && role == Role.maintainer && garageState.userGarage !== null && router.pathname === '/' && (
+                        {isAuthenticated && role == Role.maintainer && garageState.userGarage && router.pathname === '/' && (
                             <ActionButton
                                 text='Add Car'
                                 href='/car/create'

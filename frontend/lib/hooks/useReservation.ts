@@ -9,7 +9,7 @@ import { useState } from 'react';
 const useReservation = () => {
     const { onError } = useNotification();
     const { token } = useAuthentication();
-    const { setReservationState } = useReservationContext();
+    const { setReservationsState } = useReservationContext();
     const [loading, setLoading] = useState<boolean>(false);
 
     // Create a new reservation
@@ -37,10 +37,10 @@ const useReservation = () => {
                     bearer: token,
                 },
             });
-            setReservationState((prevState: any) => ({
+            setReservationsState((prevState: any) => ({
                 ...prevState,
                 reservations: result.data,
-            }));
+            }));            
         } catch (error: any) {
             console.error(error);
             onError('Failed to fetch reservations.');

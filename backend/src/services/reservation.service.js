@@ -1,5 +1,6 @@
 const Reservation = require('../models/reservation.model');
 const Car = require('../models/car.model');
+const Garage = require('../models/garage.model');
 
 async function createReservation(reservationData, user) {
     const newReservation = await Reservation.create({
@@ -15,12 +16,43 @@ async function createReservation(reservationData, user) {
 
 async function getReservations(user) {
     let reservations;
+
     if (user.role === 'maintainer') {
+        // Find the maintainer's garage
+        const garage = await Garage.findOne({ maintainer: user.username });
+
+        if (!garage) {
+            throw new Error('You do not own a garage.');
+        }
+
+        // Get all reservations where the car belongs to the maintainer's garage
         reservations = await Reservation.find()
-            .populate('user', 'username email')
-            .populate('car');
-    } else {
-        reservations = await Reservation.find({ user: user.id }).populate('car');
+            .populate({
+                path: 'car',
+                match: { garage: garage._id }, // Only cars from the maintainer's garage
+                populate: { path: 'garage', select: 'name' }
+            })
+            .populate('user', 'username email');
+
+        // Filter out reservations that have no valid car (i.e., not in their garage)
+        reservations = reservations.filter(reservation => reservation.car);
+    } 
+    else if (user.role === 'admin') {
+        // Admin gets all reservations from all garages
+        reservations = await Reservation.find()
+            .populate({
+                path: 'car',
+                populate: { path: 'garage', select: 'name' }
+            })
+            .populate('user', 'username email');
+    } 
+    else {
+        // Regular user gets only their own reservations
+        reservations = await Reservation.find({ user: user.username })
+            .populate({
+                path: 'car',
+                populate: { path: 'garage', select: 'name' }
+            });
     }
     return reservations;
 }
