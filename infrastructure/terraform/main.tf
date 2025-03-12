@@ -32,4 +32,6 @@ module "cognito" {
   cog_user_pool_name = "rac-main-user-pool"
   cog_user_pool_domain = "rac-main-user-pool-domain"
   cog_user_pool_client = "rac-main-user-pool-app-client"
+  cog_user_group_maintainer = "maintainer"
+  cog_user_group_admin = "admin"
 }

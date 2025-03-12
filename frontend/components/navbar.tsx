@@ -16,7 +16,7 @@ const Navbar = () => {
     const isDetailPage = (asPath: string, baseRoute: any) => {
         const regex = new RegExp(`^/${baseRoute}/[^/]+$`);
         return regex.test(asPath);
-    };          
+    };
 
     return (
         <>

@@ -5,6 +5,8 @@ TODO: explain how the application is deployed using Docker
 TODO: explain that AWS EB automatically runs the docker-compose.yml, which pulls the images. 
 TODO: explain: a custom prebuild script 01-docker-login.sh is executed beforehand to login to docker with the necessary credentials to allow docker-compose.yml to pull images from the private Docker Hub repository.
 TODO: also explain added security group rule to allow TCP port 4001 inbound traffic to allow frontend to access backend.
+TODO: The user automatically becomes a user. We manage this by only having a maintainer and admin group in AWS Cognito, where if the user is part of the maintainer group, the maintainer role is assigned for example. If not part of any of those groups, the user has the user role. This optimizes storage and efficiency, since we now only have two groups, and all other users automatically get the user role.
+
 
 
 
@@ -57,9 +59,6 @@ The following repository secrets need to be created:
 
 For the environment secrets, create an environment called main and add the following secrets (see backend/dummy.env):
 - MONGO_URI: MongoDB connection string
-- SECRET_KEY: bcrypt secret key
-- FACTOR: bcrypt factor
-- ROLE: bcrypt role
 - AWS_ACCESS_KEY_ID: AWS access key id
 - AWS_SECRET_ACCESS_KEY: AWS access key secret
 And add the following environment variables:
@@ -76,7 +75,6 @@ And add the following environment variables:
 - EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
 - NEXT_PUBLIC_FRONTEND_URL: Frontend base URL including version
 - NEXT_PUBLIC_BACKEND_FULL_URL: Backend URL including version
+TODO: more for frontend and backend, see dummy.env files.
 
-
-TODO: more?
 This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.

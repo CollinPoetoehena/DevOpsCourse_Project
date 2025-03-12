@@ -20,3 +20,24 @@ First 2,000 general purpose buckets per account / Month	-> Free
 Over 2,000 general purpose buckets per account / Month	-> $0.02 per additional general purpose bucket
 ```
 So, if you have more than 2000 general purpose buckets open at an account, you will not get charged. However, if you have 2001 or more buckets open at one point in time on your account, you will be charged $0.02 per month per bucket you have open over 2000. This does not mean the total number of buckets created, this is about the total number of buckets currently open for an account, so not the total number of buckets created (verified by chatbot from AWS). For example, if you have created 5000 buckets in your account and also deleted 3000 of them (so you do not have more than 2000 general purpose buckets currently open in your account), you will not be charged. Note: this is just an example, the exact pricing for each resource varies over time and per resource!
+
+## Monitoring Usage and Costs in AWS
+You should actively monitor your costs of your cloud resources, like explained in the above section. Below are steps to view overall costs and costs of the free tier.
+
+Keep in mind: when you first create your AWS account it takes some time before the dashboards are shown, since AWS needs to make some forecasts, so be patient before it shows, can even take some days. And make sure to select the Global region for these dashboard, since otherwise not all costs could be shown.
+
+You can view your total costs in the AWS Management Console by following these steps
+1. Go to Billing and Cost Management
+
+2. Billing and Payments > Bills (example URL: https://us-east-1.console.aws.amazon.com/billing/home#/bills)
+
+3. Then you can view your costs. The "Charges by service" is a useful section, where you can see all your charges per service and expand a couple (or use the "Expand all" tab for example), such as:
+![Bills Charges by Service Example](../assets/AWSBills_ChargesByServiceExample.png)
+
+You can view the free tier usage in the AWS Management Console by following these steps:
+1. Go to Billing and Cost Management
+
+2. Cost and Usage Analysis > Free Tier (example URL: https://us-east-1.console.aws.amazon.com/billing/home#/freetier)
+
+3. View your usage for the free tier, such as:
+![Free Tier Example](../assets/AWSFreeTierExample.png)

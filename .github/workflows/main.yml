@@ -1,4 +1,3 @@
-# TODO: fix below with reusing steps:
 name: CI/CD Pipeline Orchestration
 
 # Trigger on push or pull request to the main branch
