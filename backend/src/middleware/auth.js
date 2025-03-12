@@ -39,6 +39,14 @@ const auth = async (req, res, next) => {
     return next();
 };
 
+// Check only user
+const checkUser = async (req, res, next) => {
+    if (!req.user || req.user.role !== 'user') {
+        return res.status(403).send("Access denied. Users only.");
+    }
+    return next();
+};
+
 // Check Admin Permission
 const checkAdmin = async (req, res, next) => {
     if (!req.user || req.user.role !== 'admin') {
@@ -81,7 +89,6 @@ const getUserFromToken = async (token) => {
             // Extract groups from decoded token if present, otherwise use an empty list
             role: extractRoleFromCognitoUserGroups(decoded["cognito:groups"] || [])
         });
-        // Return the user
         return user;
     } catch (err) {
         // Print error for debugging purposes
@@ -106,6 +113,7 @@ module.exports = {
     auth,
     checkAdmin,
     checkMaintainer,
+    checkUser
 };
 
 // Old encrypt and decrypt code used before using AWS Cognito user pools
