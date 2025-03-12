@@ -3,6 +3,7 @@ import { Garage } from './lib/types';
 
 interface GarageState {
     garage: Garage | null;
+    userGarage: Garage | null;
 }
 
 interface GaragesState {
@@ -22,7 +23,10 @@ interface GarageContextProps {
 const GarageContext = createContext<GarageContextProps>({} as GarageContextProps);
 
 export const GarageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [garageState, setGarageState] = useState<GarageState>({ garage: null });
+    const [garageState, setGarageState] = useState<GarageState>({
+        garage: null,
+        userGarage: null,
+    });
     const [garagesState, setGaragesState] = useState<GaragesState>({
         garages: [],
         savedGarages: [],

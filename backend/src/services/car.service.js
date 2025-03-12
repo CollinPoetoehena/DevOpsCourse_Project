@@ -22,9 +22,8 @@ async function addCar(carData, user) {
     return newCar;
 }
 
-
 async function getAllCars() {
-    const cars = await Car.find().populate('garage', 'name');
+    const cars = await Car.find().populate('garage', 'name').sort({ make: 1 });
     return cars;
 }
 

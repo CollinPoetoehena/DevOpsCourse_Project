@@ -52,11 +52,10 @@ async function getGarageById(garageId) {
     return garageObject;
 }
 
-async function userHasGarage(userId) {
-    const garage = await Garage.exists({ maintainer: userId });
-    return !!garage;
+async function getGarageByUsername(username) {
+    const garage = await Garage.findOne({ maintainer: username });
+    return garage;
 }
-
 
 async function updateGarage(garageId, updateData, user) {
     const garage = await Garage.findById(garageId);
@@ -80,7 +79,7 @@ module.exports = {
     createGarage,
     getAllGarages,
     getGarageById,
-    userHasGarage,
+    getGarageByUsername,
     updateGarage,
     deleteGarage
 };

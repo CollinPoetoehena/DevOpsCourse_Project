@@ -74,6 +74,25 @@ const useGarage = () => {
         }
     };
 
+    // Check if the user has a garage.
+    const getGarage = async (): Promise<void> => {
+        try {
+            const result: AxiosResponse<boolean> = await axios.get(`${config.garage}/user`, {
+                headers: {
+                    bearer: token,
+                },
+            });
+            setGarageState((prevState: any) => ({
+                ...prevState,
+                userGarage: result.data,
+            }));
+        } catch (error: any) {
+            console.error(error);
+            onError('Failed to check if user has garage.');
+            throw error;
+        }
+    };
+
     // Update a garage by ID.
     const updateGarageById = async (id: string, garageData: Garage): Promise<Garage> => {
         try {
@@ -109,6 +128,7 @@ const useGarage = () => {
         createGarage,
         getAllGarages,
         getGarageById,
+        getGarage,
         updateGarageById,
         deleteGarageById,
         setLoading,
