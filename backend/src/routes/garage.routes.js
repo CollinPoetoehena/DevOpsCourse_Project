@@ -5,6 +5,7 @@ const {
     createGarage,
     getAllGarages,
     getGarageById,
+    userHasGarage,
     updateGarage,
     deleteGarage
 } = require('../services/garage.service');
@@ -38,6 +39,16 @@ router.get('/:id', async (req, res) => {
         if (!garage) {
             return res.status(404).json({ error: 'Garage not found' });
         }
+        res.status(200).json(garage);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get a single garage by ID using the service
+router.get('/user/:id', async (req, res) => {
+    try {
+        const garage = await userHasGarage(req.params.id);
         res.status(200).json(garage);
     } catch (error) {
         res.status(500).json({ error: error.message });

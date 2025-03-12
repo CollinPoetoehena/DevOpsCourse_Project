@@ -43,6 +43,12 @@ async function getGarageById(garageId) {
     return garageObject;
 }
 
+async function userHasGarage(userId) {
+    const garage = await Garage.exists({ maintainer: userId });
+    return !!garage;
+}
+
+
 async function updateGarage(garageId, updateData, user) {
     const garage = await Garage.findById(garageId);
     if (!garage) {
@@ -65,6 +71,7 @@ module.exports = {
     createGarage,
     getAllGarages,
     getGarageById,
+    userHasGarage,
     updateGarage,
     deleteGarage
 };
