@@ -34,6 +34,49 @@ resource "aws_iam_instance_profile" "eb_instance_profile" {
   role = aws_iam_role.eb_instance_role.name
 }
 
+# Security group: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
+resource "aws_security_group" "eb_sg" {
+  name        = var.app_sg_name
+  description = "Security group for Elastic Beanstalk to allow HTTP and backend traffic"
+  # Leave vpc_id empty, it will then default to the default VPC of the region, which is what we want
+
+  tags = {
+    Name = var.app_sg_name
+  }
+}
+
+# Rule for security group to allow inbound HTTP traffic on port 80 (frontend)
+resource "aws_vpc_security_group_ingress_rule" "inbound_frontend" {
+  security_group_id = aws_security_group.eb_sg.id
+  # Allow inbound HTTP traffic on port 80 (frontend)
+  cidr_ipv4   = "0.0.0.0/0" # Open to all
+  from_port   = 80
+  ip_protocol = "tcp"
+  to_port     = 80
+}
+
+# Rule for security group to allow inbound backend traffic on port 4001 (ensure the frontend and others can access the backend)
+# Without this rule, the frontend would not be able to access the backend and it would time out or say not accessible in the console, this fixed that problem
+resource "aws_vpc_security_group_ingress_rule" "inbound_backend" {
+  security_group_id = aws_security_group.eb_sg.id
+  # Allow inbound HTTP traffic on port 80 (frontend)
+  cidr_ipv4   = "0.0.0.0/0" # Open to all (Can be restricted later for security for example, but good for now)
+  from_port   = 4001
+  ip_protocol = "tcp"
+  to_port     = 4001
+}
+
+# Rule for security group to allow all outbound traffic
+resource "aws_vpc_security_group_egress_rule" "all_outbound" {
+  security_group_id = aws_security_group.eb_sg.id
+  # Allow all outbound traffic
+  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 0
+  ip_protocol = "tcp"
+  to_port     = 0
+}
+
+
 # Application
 resource "aws_elastic_beanstalk_application" "app" {
   name        = var.app_name
@@ -48,6 +91,9 @@ resource "aws_elastic_beanstalk_configuration_template" "app_template" {
   application         = aws_elastic_beanstalk_application.app.name
   solution_stack_name = var.app_sol_stack_name
 
+  # Ensure security group exists before using it to avoid error of it not existing
+  depends_on = [aws_security_group.eb_sg]
+
   # By default, AWS EB uses a LoadBalanced environment, which creates additional resources
   # However, this is not necessary, and we can suffice with a single (VM) instance 
   setting {
@@ -61,6 +107,7 @@ resource "aws_elastic_beanstalk_configuration_template" "app_template" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
+    # Provide name instead of id of the security group (id caused error "The security group 'sg-...' does not exist")
     value     = aws_iam_instance_profile.eb_instance_profile.name
   }
 
@@ -69,6 +116,13 @@ resource "aws_elastic_beanstalk_configuration_template" "app_template" {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "InstanceType"
     value     = "t2.micro"
+  }
+
+  # Attach the custom security group
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "SecurityGroups"
+    value     = aws_security_group.eb_sg.name
   }
 }
 

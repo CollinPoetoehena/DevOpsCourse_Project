@@ -93,6 +93,7 @@ jobs:
           --output text)
     
         echo "Public App URL: http://$PUBLIC_APP_URL"
+        echo "PUBLIC_APP_URL=$PUBLIC_APP_URL" >> $GITHUB_ENV
         echo "DEPLOYED_BACKEND_URL=$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV  
         echo "Backend URL: $DEPLOYED_BACKEND_URL"
     

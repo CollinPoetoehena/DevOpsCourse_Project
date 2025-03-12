@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Create a new garage (accessible by authenticated users)
+// Create a new garage (maintainer-only)
 // The creator will automatically be assigned as the maintainer
 router.post('/', auth, async (req, res) => {
     try {

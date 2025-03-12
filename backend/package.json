@@ -12,6 +12,7 @@
   "author": "Devran & Duong & Dylan & Collin",
   "license": "ISC",
   "dependencies": {
+    "aws-jwt-verify": "^5.0.0",
     "axios": "^1.7.9",
     "backend": "file:",
     "bcrypt": "^5.1.1",

@@ -16,6 +16,8 @@ import { ReservationProvider } from '@/ReservationContext';
 import { AuthProvider } from '@/AuthContext';
 import { VehicleProvider } from '@/VehicleContext';
 
+import { AuthProvider as OidcAuthProvider } from 'react-oidc-context';
+import config from "../lib/config";
 
 const App = ({ Component, pageProps }: AppProps) => {
   const router = useRouter();
@@ -24,33 +26,36 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <>
+    {/* Wrap the components in the AuthProvider for authentication (this includes the AWS Cognito AuthProvider, see AuthContext.tsx) */}
+    <OidcAuthProvider {...config.cognitoAuthConfig}>
       <AnimatePresence>
-        <GarageProvider>
-          <CarProvider>
-            <VehicleProvider>
-              <ReservationProvider>
-                <AuthProvider>
-                  <Toaster position="bottom-left" />
-                  {isAuthPage ? (
-                    <>
-                      <UnProtectedRoute>
-                        <Component {...pageProps} />
-                      </UnProtectedRoute>
-                    </>
-                  ) : (
-                    <>
-                      <ProtectedRoute>
-                        <Navbar />
-                        <Component {...pageProps} />
-                      </ProtectedRoute>
-                    </>
-                  )}
-                </AuthProvider>
-              </ReservationProvider>
-            </VehicleProvider>
-          </CarProvider>
-        </GarageProvider>
-      </AnimatePresence>
+          <GarageProvider>
+            <CarProvider>
+              <VehicleProvider>
+                <ReservationProvider>
+                  <AuthProvider>
+                    <Toaster position="bottom-left" />
+                    {isAuthPage ? (
+                      <>
+                        <UnProtectedRoute>
+                          <Component {...pageProps} />
+                        </UnProtectedRoute>
+                      </>
+                    ) : (
+                      <>
+                        <ProtectedRoute>
+                          <Navbar />
+                          <Component {...pageProps} />
+                        </ProtectedRoute>
+                      </>
+                    )}
+                  </AuthProvider>
+                </ReservationProvider>
+              </VehicleProvider>
+            </CarProvider>
+          </GarageProvider>
+        </AnimatePresence>
+      </OidcAuthProvider>
     </>
   );
 };

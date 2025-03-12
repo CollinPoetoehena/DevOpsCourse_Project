@@ -3,6 +3,14 @@ name: Deploy to AWS Elastic Beanstalk
 # Specify this workflow can be called by another workflow using workflow_call: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_call
 on:
   workflow_call:
+    # Input variables
+    inputs:
+      APP_NAME:
+        required: true
+        type: string
+      APP_NAME_VERSION:
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -30,17 +38,39 @@ jobs:
         aws sts get-caller-identity
     
     # Step to get the environment url of the AWS EB environment (=public URL used) and save it for later jobs/steps
-    - name: Get Deployed Application Environment URL
+    # Firstly, it sets the deployment environment URLs for the frontend and backend. It also sets other environment variables, 
+    # such as the AWS Cognito callback and logout URLs.
+    - name: Get Deployed Application Environment URLs
       run: |
-        PUBLIC_APP_URL=$(aws elasticbeanstalk describe-environments \
+        PUBLIC_APP_DOMAIN=$(aws elasticbeanstalk describe-environments \
           --application-name "${{ vars.EB_APP_NAME }}" \
           --environment-names "${{ vars.EB_ENV_NAME }}" \
           --query "Environments[0].CNAME" \
           --output text)
 
-        echo "Public App URL: http://$PUBLIC_APP_URL"
-        echo "DEPLOYED_BACKEND_URL=$PUBLIC_APP_URL:${{ vars.API_PORT }}" >> $GITHUB_ENV  
-        echo "Backend URL: $DEPLOYED_BACKEND_URL"
+        echo "Public App Domain: $PUBLIC_APP_DOMAIN"
+        echo "PUBLIC_APP_URL=http://$PUBLIC_APP_DOMAIN" >> $GITHUB_ENV
+        echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_APP_DOMAIN:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV
+        
+        echo "DEPLOYED_CALLBACK_URL_COGNITO=http://$PUBLIC_APP_DOMAIN/auth/callback" >> $GITHUB_ENV
+        echo "DEPLOYED_LOGOUT_URL_COGNITO=http://$PUBLIC_APP_DOMAIN/auth/logout" >> $GITHUB_ENV
+    # Step to confirm variables (can only use variables saved to $GITHUB_ENV in a new step)
+    - name: Print Application Environment Variables
+      run: |
+        echo "Public App URL: $PUBLIC_APP_URL"
+        echo "Deployed Backend URL: $DEPLOYED_BACKEND_URL"
+        echo "Deployed Cognito callback URL: $DEPLOYED_CALLBACK_URL_COGNITO"
+        echo "Deployed Cognito logout URL: $DEPLOYED_LOGOUT_URL_COGNITO"
+
+    # Set callback and logout URLs in Cognito user pool. This adds localhost (default) and deployed URLs 
+    # to the user pool. It uses JSON format, such as \"\" to correctly set the values
+    - name: Set Callback and Logout URLs in AWS Cognito User Pool
+      run: |
+        aws cognito-idp update-user-pool-client \
+          --user-pool-id ${{ vars.COGNITO_USER_POOL_ID }} \
+          --client-id ${{ vars.COGNITO_APP_CLIENT_ID }} \
+          --callback-urls "[\"$DEPLOYED_CALLBACK_URL_COGNITO\", \"${{ vars.FRONTEND_URL }}/auth/callback\"]" \
+          --logout-urls "[\"$DEPLOYED_LOGOUT_URL_COGNITO\", \"${{ vars.FRONTEND_URL }}/auth/logout\"]"
 
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
@@ -50,9 +80,6 @@ jobs:
     - name: Create .env file
       run: |
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
-        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-        echo "FACTOR=${{ secrets.FACTOR }}" >> .env
-        echo "ROLE=${{ secrets.ROLE }}" >> .env
         echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
         echo "DOCKER_ACCESS_TOKEN=${{ secrets.DOCKER_ACCESS_TOKEN }}" >> .env
         echo "API_NAME=${{ vars.API_NAME }}" >> .env
@@ -62,8 +89,17 @@ jobs:
         echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
         echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
+        echo "COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
+        echo "COGNITO_USER_POOL_ID=${{ vars.COGNITO_USER_POOL_ID }}" >> .env
+        echo "COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
         echo "NEXT_PUBLIC_FRONTEND_URL=$PUBLIC_APP_URL" >> .env
         echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_BACKEND_URL" >> .env
+        echo "NEXT_PUBLIC_AWS_REGION=${{ vars.AWS_REGION }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_AUTHORITY=${{ vars.NEXT_PUBLIC_COGNITO_AUTHORITY }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN=$DEPLOYED_CALLBACK_URL_COGNITO" >> .env
+        echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT=$DEPLOYED_LOGOUT_URL_COGNITO" >> .env
         
     # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
     # This is not done in the project structure since it is a more logical place in the infrastructure folder
@@ -75,7 +111,7 @@ jobs:
     # This command now only adds the specified files to avoid unnecessary files
     - name: Package Application with Docker Compose
       run: |
-        zip -r "${{ env.APP_NAME }}.zip" .env docker-compose.yml .platform/
+        zip -r "${{ inputs.APP_NAME }}.zip" .env docker-compose.yml .platform/
     
     # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
     - name: Delete .env File After Use
@@ -85,14 +121,14 @@ jobs:
     # First save variable for this workflow and then upload to S3
     - name: Upload Application to S3
       run: |
-        aws s3 cp "${{ env.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ env.APP_NAME_VERSION }}.zip"
+        aws s3 cp "${{ inputs.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ inputs.APP_NAME_VERSION }}.zip"
     
     # Deploy application to an existing AWS EB application
     - name: Deploy Application to AWS Elastic Beanstalk
       run: |
         aws elasticbeanstalk create-application-version --application-name "${{ vars.EB_APP_NAME }}" \
-          --version-label "${{ env.APP_NAME_VERSION }}" \
-          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ env.APP_NAME_VERSION }}.zip"
+          --version-label "${{ inputs.APP_NAME_VERSION }}" \
+          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ inputs.APP_NAME_VERSION }}.zip"
 
         aws elasticbeanstalk update-environment --environment-name ${{ vars.EB_ENV_NAME }} \
-          --version-label "${{ env.APP_NAME_VERSION }}"
+          --version-label "${{ inputs.APP_NAME_VERSION }}"

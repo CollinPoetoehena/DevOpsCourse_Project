@@ -1,34 +1,24 @@
-const mongoose = require('mongoose');
+// Plain JavaScript object with validation rules and transformations (user is handled in AWS Cognito, so no need to save it in our db)
+const User = {
+    // Create function to create a user (default role is user)
+    create({ username, email, role = "user" }) {
+        // Input validation and transformations
+        if (!username || typeof username !== "string" || username.length > 30) {
+            throw new Error("Invalid username");
+        }
+        if (!email || typeof email !== "string" || email.length > 50) {
+            throw new Error("Invalid email");
+        }
+        if (!["user", "maintainer", "admin"].includes(role)) {
+            throw new Error("Invalid role");
+        }
 
-const db = require("../config/db");
+        return {
+            username: username.toLowerCase().trim(),
+            email: email.toLowerCase().trim(),
+            role
+        };
+    }
+};
 
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        unique: true,
-        required: true,
-        trim: true,
-        set: (value) => value.toLowerCase(),
-        maxlength: 30,
-    },
-    password: {
-        type: String,
-        required: true,
-        maxlength: 256,
-    },
-    email: {
-        type: String,
-        unique: true,
-        required: true,
-        trim: true,
-        set: (value) => value.toLowerCase(),
-        maxlength: 50,
-    },
-    role: {
-        type: String,
-        enum: ['user', 'maintainer', 'admin'],
-        default: 'user',
-    },
-}, { timestamps: true });
-
-module.exports = db.model("User", userSchema);
+module.exports = User;

@@ -1,20 +1,29 @@
 const Garage = require('../models/garage.model');
 const Car = require('../models/car.model');
-const User = require('../models/user.model');
+// const User = require('../models/user.model');
 
 async function createGarage(garageData, creator) {
-    // Automatically assign the creator as the maintainer
-    garageData.maintainer = creator._id;
-
-    // If the creator isn't already a maintainer, update their role accordingly
+    // Only a maintainer can create garages
     if (creator.role !== 'maintainer') {
-        await User.findByIdAndUpdate(creator._id, { role: 'maintainer' });
-        creator.role = 'maintainer';
+        throw new Error('Unauthorized to create garages');
     }
+    
+    // Automatically assign the creator as the maintainer
+    garageData.maintainer = creator.username;
+
+    // TODO: this is not possible anymore, since the users are now in AWS Cognito groups for their role
+    // // If the creator isn't already a maintainer, update their role accordingly
+    // if (creator.role !== 'maintainer') {
+    //     await User.findByIdAndUpdate(creator._id, { role: 'maintainer' });
+    //     creator.role = 'maintainer';
+    // }
+
+    // Create the garage
     const newGarage = await Garage.create(garageData);
 
-    // Update the user document to reference the new garage
-    await User.findByIdAndUpdate(creator._id, { garage: newGarage._id });
+    // TODO: this is not possible anymore, since the users are now in AWS Cognito groups for their role
+    // // Update the user document to reference the new garage
+    // await User.findByIdAndUpdate(creator._id, { garage: newGarage._id });
 
     return newGarage;
 }
@@ -55,7 +64,7 @@ async function updateGarage(garageId, updateData, user) {
         throw new Error('Garage not found');
     }
     // Only the assigned maintainer or an admin can update
-    if (user.role !== 'admin' && !garage.maintainer.equals(user._id)) {
+    if (user.role !== 'admin' && garage.maintainer !== user.username) {
         throw new Error('Unauthorized to update this garage');
     }
     const updatedGarage = await Garage.findByIdAndUpdate(garageId, updateData, { new: true });

@@ -22,11 +22,16 @@ module "elastic_beanstalk" {
   # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html
   app_sol_stack_name = "64bit Amazon Linux 2023 v4.4.4 running Docker"
   app_env_name = "rac-app-env"
+  app_sg_name = "rac-app-env-sg"
 }
 
 # References Cognito module
 module "cognito" {
   source = "./modules/cognito"
   # Variables with values passed to the module
-  cog_user_pool_name = "main_user_pool"
+  cog_user_pool_name = "rac-main-user-pool"
+  cog_user_pool_domain = "rac-main-user-pool-domain"
+  cog_user_pool_client = "rac-main-user-pool-app-client"
+  cog_user_group_maintainer = "maintainer"
+  cog_user_group_admin = "admin"
 }
