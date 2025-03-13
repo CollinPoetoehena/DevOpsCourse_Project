@@ -35,12 +35,19 @@ First, add an inbound rule to the security group of the load balancer:
 - Port range: 443
 - Source: Anywhere-IPv4
 
-After the previous steps, you can add a listener to the load balancer in the AWS Management Console with the following information:L
+After the previous steps, you can add a listener to the load balancer in the AWS Management Console with the following information, see: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/configuring-https-elb.html
+
+Classic Load Balancer
 - Listener protocol: HTTPS, port: 443 (typically the port of the incoming traffic)
 - Instance protocol: HTTP, port: 80 (the port of the EC2 instance)
 - Security policy can stay the default selected
 - Default SSL/TLS certificate: select the certificate created in the previous step
 - Cookie stickiness: Disabled
+
+Application Load Balancer
+- For Port, type the incoming traffic port, typically 443
+- For Protocol, choose HTTPS
+- For SSL certificate, select the certificate created in the previous step
 
 This can look like this for example:
 ![alt text](../assets/AWS_ELB_ListenersHTTPS.png)

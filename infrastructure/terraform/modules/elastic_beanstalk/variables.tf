@@ -2,6 +2,10 @@ variable "app_name" {
   type = string
 }
 
+variable "app_env_name" {
+  type = string
+}
+
 variable "app_desc" {
   type = string
 }
@@ -15,14 +19,6 @@ variable "app_frontend_env_name" {
 }
 
 variable "app_backend_env_name" {
-  type = string
-}
-
-variable "app_sg_name" {
-  type = string
-}
-
-variable "app_elb_sg_name" {
   type = string
 }
 
