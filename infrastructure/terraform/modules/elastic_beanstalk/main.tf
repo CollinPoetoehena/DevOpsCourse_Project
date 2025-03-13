@@ -28,8 +28,8 @@ resource "aws_elastic_beanstalk_application" "app" {
 # Elastic Beanstalk environments for the application
 module "environments" {
   source = "./environments"
-  app_backend_env_name = "${var.app_env_name}-fe"
-  app_frontend_env_name = "${var.app_env_name}-be"
+  app_backend_env_name = "${var.app_env_name}-be"
+  app_frontend_env_name = "${var.app_env_name}-fe"
   app_sol_stack_name = var.app_sol_stack_name
   app_certificate_arn = var.app_certificate_arn
 

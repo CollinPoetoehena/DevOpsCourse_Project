@@ -83,7 +83,7 @@ resource "aws_elastic_beanstalk_environment" "frontend" {
 
 # Environment for the backend to run
 resource "aws_elastic_beanstalk_environment" "backend" {
-  name                = var.app_frontend_env_name
+  name                = var.app_backend_env_name
   application         = var.aws_created_eb_app_name
   solution_stack_name = var.app_sol_stack_name
 
