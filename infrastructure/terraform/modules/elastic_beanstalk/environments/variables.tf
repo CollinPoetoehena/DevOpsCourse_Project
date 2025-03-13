@@ -10,17 +10,17 @@ variable "app_backend_env_name" {
   type = string
 }
 
-variable "app_elb_sg_name" {
+variable "app_elb_sg" {
   description = "The name of the ELB security group"
   type        = string
 }
 
-variable "app_frontend_sg_name" {
+variable "app_frontend_sg" {
   description = "The name of the frontend security group"
   type        = string
 }
 
-variable "app_backend_sg_name" {
+variable "app_backend_sg" {
   description = "The name of the backend security group"
   type        = string
 }
@@ -38,4 +38,8 @@ variable "eb_instance_profile_name" {
 variable "aws_created_eb_app_name" {
   description = "Name of the created AWS EB application"
   type = string
+}
+
+variable "route53_zone_id" {
+  type        = string
 }

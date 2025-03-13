@@ -17,3 +17,11 @@ variable "app_sol_stack_name" {
 variable "app_certificate_arn" {
   type = string
 }
+
+variable "route53_zone_id" {
+  type        = string
+}
+
+variable "route53_domain_name" {
+  type        = string
+}

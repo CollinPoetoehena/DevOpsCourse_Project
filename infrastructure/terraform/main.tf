@@ -23,6 +23,10 @@ module "elastic_beanstalk" {
   app_sol_stack_name = "64bit Amazon Linux 2023 v4.4.4 running Docker"
   # ARN of the certificate from ACM, see in AWS Management Console
   app_certificate_arn = "arn:aws:acm:eu-central-1:650251718669:certificate/319cab6b-0cca-4a09-ae35-219f325e246f"
+  # Hosted zone of Route 53 domain
+  route53_zone_id = var.route53_zone_id
+  # Main domain name
+  route53_domain_name = var.route53_domain_name
 }
 
 # References Cognito module

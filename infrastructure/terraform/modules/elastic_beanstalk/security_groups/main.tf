@@ -32,14 +32,11 @@ resource "aws_vpc_security_group_ingress_rule" "inbound_frontend" {
 #   ip_protocol = "tcp"
 #   to_port     = 4001
 # }
-# Rule for security group to allow all outbound traffic, should include backend and load balancer
-resource "aws_vpc_security_group_egress_rule" "all_outbound" {
+# Allow all outbound traffic from the frontend
+resource "aws_vpc_security_group_egress_rule" "fe_all_outbound" {
   security_group_id = aws_security_group.eb_sg_frontend.id
-  # Allow all outbound traffic
-  cidr_ipv4   = "0.0.0.0/0" # Open to all
-  from_port   = 0
-  ip_protocol = "tcp"
-  to_port     = 0
+  cidr_ipv4         = "0.0.0.0/0" # Open to all
+  ip_protocol       = "-1" # Allow all protocols
 }
 
 # Security group for the Elastic Load Balancer (ELB)
@@ -61,6 +58,12 @@ resource "aws_vpc_security_group_ingress_rule" "inbound_https" {
   ip_protocol = "tcp"
   to_port     = 443
 }
+# Allow all outbound traffic from the Load Balancer
+resource "aws_vpc_security_group_egress_rule" "elb_all_outbound" {
+  security_group_id = aws_security_group.eb_sg_elb.id
+  cidr_ipv4         = "0.0.0.0/0" # Open to all
+  ip_protocol       = "-1" # Allow all protocols
+}
 
 # Security group for the backend
 resource "aws_security_group" "eb_sg_backend" {
@@ -80,6 +83,12 @@ resource "aws_vpc_security_group_ingress_rule" "all_inbound" {
   from_port   = 0
   ip_protocol = "tcp"
   to_port     = 0
+}
+# Allow all outbound traffic from the backend
+resource "aws_vpc_security_group_egress_rule" "be_all_outbound" {
+  security_group_id = aws_security_group.eb_sg_backend.id
+  cidr_ipv4         = "0.0.0.0/0" # Open to all
+  ip_protocol       = "-1" # Allow all protocols
 }
 
 # # Allow EB Instances to Respond to Load Balancer

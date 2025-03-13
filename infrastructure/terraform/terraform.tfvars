@@ -1,7 +1,5 @@
 /*
 Specifies actual values for variables
 
-Actual values of the variables in file variables.tf
+Actual values of the variables in file variables.tf. Can be used if you do not want to use the default.
 */
-app_name = "my-eb-app"
-env_name = "my-eb-env"
