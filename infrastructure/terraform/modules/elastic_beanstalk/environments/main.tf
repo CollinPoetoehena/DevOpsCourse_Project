@@ -5,11 +5,11 @@
 # Specifically: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html
 resource "aws_elastic_beanstalk_environment" "frontend" {
   name                = var.app_frontend_env_name
-  application         = aws_elastic_beanstalk_application.app.name
+  application         = var.aws_created_eb_app_name
   solution_stack_name = var.app_sol_stack_name
 
-  # Ensure security group exists before using it to avoid error of it not existing
-  depends_on = [aws_security_group.eb_sg_frontend]
+  # # Ensure security group exists before using it to avoid error of it not existing
+  # depends_on = [aws_security_group.eb_sg_frontend]
 
   # Use LoadBalanced environment for AWS EB
   setting {
@@ -42,7 +42,7 @@ resource "aws_elastic_beanstalk_environment" "frontend" {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
     # Provide name instead of id of the security group (id caused error "The security group 'sg-...' does not exist")
-    value     = aws_iam_instance_profile.eb_instance_profile.name
+    value     = var.eb_instance_profile_name
   }
 
   # Set InstanceType for free tier eligible
@@ -57,13 +57,13 @@ resource "aws_elastic_beanstalk_environment" "frontend" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "SecurityGroups"
-    value     = aws_security_group.eb_sg_frontend.name
+    value     = var.app_frontend_sg_name
   }
   # Add security group for the load balancer to the load balancer
   setting {
     namespace = "aws:elbv2:loadbalancer"
     name      = "SecurityGroups"
-    value     = aws_security_group.eb_sg_elb.name
+    value     = var.app_elb_sg_name
   }
 
   # Add additional listener for the Load Balancer
@@ -84,7 +84,7 @@ resource "aws_elastic_beanstalk_environment" "frontend" {
 # Environment for the backend to run
 resource "aws_elastic_beanstalk_environment" "backend" {
   name                = var.app_frontend_env_name
-  application         = aws_elastic_beanstalk_application.app.name
+  application         = var.aws_created_eb_app_name
   solution_stack_name = var.app_sol_stack_name
 
   # Use a single instance for the backend
@@ -100,7 +100,7 @@ resource "aws_elastic_beanstalk_environment" "backend" {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
     # Provide name instead of id of the security group (id caused error "The security group 'sg-...' does not exist")
-    value     = aws_iam_instance_profile.eb_instance_profile.name
+    value     = var.eb_instance_profile_name
   }
 
   # Set InstanceType for free tier eligible
@@ -113,6 +113,6 @@ resource "aws_elastic_beanstalk_environment" "backend" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "SecurityGroups"
-    value     = aws_security_group.eb_sg_backend.name
+    value     = var.app_backend_sg_name
   }
 }

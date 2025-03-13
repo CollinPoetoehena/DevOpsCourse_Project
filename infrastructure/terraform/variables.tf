@@ -8,11 +8,11 @@ Actual values are present in terraform.tfvars
 variable "app_name" {
   description = "Elastic Beanstalk Application Name"
   type = string
-  default = "my-eb-app"
+  default = "rac-app"
 }
 
-variable "env_name" {
+variable "app_env_name" {
   description = "Elastic Beanstalk Environment Name"
   type = string
-  default = "my-eb-env"
+  default = "rac-app-env"
 }
