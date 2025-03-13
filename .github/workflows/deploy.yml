@@ -8,6 +8,9 @@ on:
       APP_NAME:
         required: true
         type: string
+      DEPLOYED_FE_APP_DOMAIN:
+        required: true
+        type: string
       APP_NAME_VERSION:
         required: true
         type: string
@@ -42,38 +45,51 @@ jobs:
         aws sts get-caller-identity
     
     # Step to set EB_ENV_NAME environment variable (the current EB env name)
-    - name: Set EB_ENV_NAME
+    - name: Set EB_ENV_NAME and Compose File
       # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
       run: |
-        EB_ENV_NAME="${{ vars.EB_ENV_NAME_PREFIX }}-${{ matrix.service }}"
-        echo "EB_ENV_NAME=$EB_ENV_NAME" >> $GITHUB_ENV
+        # Determine the correct EB environment name
+        if [ "${{ matrix.service }}" == "frontend" ]; then
+          echo "EB_ENV_NAME=${{ vars.EB_ENV_NAME_PREFIX }}-fe" >> $GITHUB_ENV
+        else
+          echo "EB_ENV_NAME=${{ vars.EB_ENV_NAME_PREFIX }}-be" >> $GITHUB_ENV
+        fi
+        
+        # Determine the correct Docker Compose file
+        if [ "${{ matrix.service }}" == "frontend" ]; then
+          echo "COMPOSE_FILE=docker-compose.frontend.yml" >> $GITHUB_ENV
+        else
+          echo "COMPOSE_FILE=docker-compose.backend.yml" >> $GITHUB_ENV
+        fi
     # Step to confirm EB_ENV_NAME
-    - name: Print EB_ENV_NAME
-      run: echo "Using EB_ENV_NAME=${EB_ENV_NAME}"
+    - name: Print EB_ENV_NAME and Compose File
+      run: |
+        echo "Deploying to Elastic Beanstalk Environment: $EB_ENV_NAME"
+        echo "Using Compose File: $COMPOSE_FILE"
     
     # Step to get the environment url of the AWS EB environment (=public URL used) and save it for later jobs/steps
     # Firstly, it sets the deployment environment URLs for the frontend and backend. It also sets other environment variables, 
     # such as the AWS Cognito callback and logout URLs.
-    # TODO: explain here callback and logout urls are done with https and the Route 53 domain name, however, the frontend and backend urls
+    # The callback and logout urls are done with https and the Route 53 domain name, however, the frontend and backend urls
     # are done with the domain of the AWS EB environment, since this is better for internal communication, this can be over http and the domain of EB.
     - name: Get Deployed Application Environment URLs
       run: |
-        PUBLIC_APP_DOMAIN=$(aws elasticbeanstalk describe-environments \
+        # Get the domain of the backend EB environment
+        PUBLIC_BE_APP_DOMAIN=$(aws elasticbeanstalk describe-environments \
           --application-name "${{ vars.EB_APP_NAME }}" \
-          --environment-names "$EB_ENV_NAME" \
+          --environment-names "${{ vars.EB_ENV_NAME_PREFIX }}-be" \
           --query "Environments[0].CNAME" \
           --output text)
 
-        echo "Public App Domain: $PUBLIC_APP_DOMAIN"
-        echo "PUBLIC_APP_URL=http://$PUBLIC_APP_DOMAIN" >> $GITHUB_ENV
-        echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_APP_DOMAIN:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV
+        echo "Public BE App Domain: $PUBLIC_BE_APP_DOMAIN"
+        # USe HTTP, since this is the default setup and HTTPS is not setup and not necessary for now
+        echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_BE_APP_DOMAIN:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV
         
-        echo "DEPLOYED_CALLBACK_URL_COGNITO=https://www.rent-a-car-cloud.click/auth/callback" >> $GITHUB_ENV
-        echo "DEPLOYED_LOGOUT_URL_COGNITO=https://www.rent-a-car-cloud.click/auth/logout" >> $GITHUB_ENV
+        echo "DEPLOYED_CALLBACK_URL_COGNITO=${{ inputs.DEPLOYED_FE_APP_DOMAIN }}/auth/callback" >> $GITHUB_ENV
+        echo "DEPLOYED_LOGOUT_URL_COGNITO=${{ inputs.DEPLOYED_FE_APP_DOMAIN }}/auth/logout" >> $GITHUB_ENV
     # Step to confirm variables (can only use variables saved to $GITHUB_ENV in a new step)
     - name: Print Application Environment Variables
       run: |
-        echo "Public App URL: $PUBLIC_APP_URL"
         echo "Deployed Backend URL: $DEPLOYED_BACKEND_URL"
         echo "Deployed Cognito callback URL: $DEPLOYED_CALLBACK_URL_COGNITO"
         echo "Deployed Cognito logout URL: $DEPLOYED_LOGOUT_URL_COGNITO"
@@ -83,22 +99,34 @@ jobs:
     # Include additional variables for AWS EB, such as S3 and Docker Hub vars for authentication
     # Use the AWS EB domain URL for the frontend and backend url env vars now instead of localhost.
     # Set next js public environment variables for the frontend to connect to the deployed backend
-    - name: Create .env file
+    - name: Create .env file (backend)
+      if: matrix.service == 'backend'
       run: |
-        echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
+        # General environment variables
         echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
         echo "DOCKER_ACCESS_TOKEN=${{ secrets.DOCKER_ACCESS_TOKEN }}" >> .env
+        echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
+        # Specific backend environment variables
+        echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
         echo "API_NAME=${{ vars.API_NAME }}" >> .env
         echo "API_PORT=${{ vars.API_PORT }}" >> .env
         echo "API_VERSION=${{ vars.API_VERSION }}" >> .env
-        echo "FRONTEND_URL=${{ vars.FRONTEND_URL }}" >> .env
-        echo "BACKEND_URL=${{ vars.BACKEND_URL }}" >> .env
+        echo "FRONTEND_URL=${{ inputs.DEPLOYED_FE_APP_DOMAIN }}" >> .env
+        echo "BACKEND_URL=$DEPLOYED_BACKEND_URL" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
-        echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
         echo "COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
         echo "COGNITO_USER_POOL_ID=${{ vars.COGNITO_USER_POOL_ID }}" >> .env
         echo "COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
-        echo "NEXT_PUBLIC_FRONTEND_URL=$PUBLIC_APP_URL" >> .env
+    # Create a different .env file for the frontend
+    - name: Create .env file (frontend)
+      if: matrix.service == 'frontend'
+      run: |
+        # General environment variables
+        echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
+        echo "DOCKER_ACCESS_TOKEN=${{ secrets.DOCKER_ACCESS_TOKEN }}" >> .env
+        echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
+        # Specific frontend environment variables
+        echo "NEXT_PUBLIC_FRONTEND_URL=${{ inputs.DEPLOYED_FE_APP_DOMAIN }}" >> .env
         echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_BACKEND_URL" >> .env
         echo "NEXT_PUBLIC_AWS_REGION=${{ vars.AWS_REGION }}" >> .env
         echo "NEXT_PUBLIC_COGNITO_AUTHORITY=${{ vars.NEXT_PUBLIC_COGNITO_AUTHORITY }}" >> .env
@@ -112,12 +140,14 @@ jobs:
     # More folders, such as .ebextensions can be added accordingly
     - name: Move infrastructure/extension Folders to the Root
       run: |
-        mv infrastructure/extensions/.platform .platform
+        mv infrastructure/extensions/.platform ${{ matrix.service }}/.platform
     # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
     # This command now only adds the specified files to avoid unnecessary files
+    # Do this by using the COMPOSE_FILE variable to ensure the zip is created in the root and uses the compose file from 
+    # the current serivce
     - name: Package Application with Docker Compose
       run: |
-        zip -r "${{ inputs.APP_NAME }}.zip" .env docker-compose.yml .platform/
+        zip -r "${{ inputs.APP_NAME }}.zip" .env $COMPOSE_FILE .platform/
     
     # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
     - name: Delete .env File After Use
@@ -136,5 +166,5 @@ jobs:
           --version-label "${{ inputs.APP_NAME_VERSION }}" \
           --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ inputs.APP_NAME_VERSION }}.zip"
 
-        aws elasticbeanstalk update-environment --environment-name ${{ vars.EB_ENV_NAME }} \
+        aws elasticbeanstalk update-environment --environment-name $EB_ENV_NAME \
           --version-label "${{ inputs.APP_NAME_VERSION }}"
