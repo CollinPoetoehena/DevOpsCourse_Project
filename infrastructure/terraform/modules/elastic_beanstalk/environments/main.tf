@@ -75,8 +75,8 @@ resource "aws_elastic_beanstalk_environment" "frontend" {
   }
   # Certificate from ACM
   setting {
-    namespace = "aws:elb:listener:443"
-    name      = "SSLCertificateId"
+    namespace = "aws:elbv2:listener:443"
+    name      = "SSLCertificateArns"
     value     = var.app_certificate_arn
   }
 }
