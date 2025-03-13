@@ -45,9 +45,16 @@ jobs:
         aws sts get-caller-identity
     
     # Step to set EB_ENV_NAME environment variable (the current EB env name)
-    - name: Set EB_ENV_NAME and Compose File
+    - name: Set EB_ENV_NAME and Compose File and Other Variables
       # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
       run: |
+        # Set correct version label including the name of the service to avoid overlaps
+        if [ "${{ matrix.service }}" == "frontend" ]; then
+          echo "CURRENT_APP_VERSION=${{ inputs.APP_NAME_VERSION }}-fe" >> $GITHUB_ENV
+        else
+          echo "CURRENT_APP_VERSION=${{ inputs.APP_NAME_VERSION }}-be" >> $GITHUB_ENV
+        fi
+
         # Determine the correct EB environment name
         if [ "${{ matrix.service }}" == "frontend" ]; then
           echo "EB_ENV_NAME=${{ vars.EB_ENV_NAME_PREFIX }}-fe" >> $GITHUB_ENV
@@ -64,6 +71,7 @@ jobs:
     # Step to confirm EB_ENV_NAME
     - name: Print EB_ENV_NAME and Compose File
       run: |
+        echo "Deploying App Version: $CURRENT_APP_VERSION"
         echo "Deploying to Elastic Beanstalk Environment: $EB_ENV_NAME"
         echo "Using Compose File: $COMPOSE_FILE"
     
@@ -157,14 +165,14 @@ jobs:
     # First save variable for this workflow and then upload to S3
     - name: Upload Application to S3
       run: |
-        aws s3 cp "${{ inputs.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/${{ inputs.APP_NAME_VERSION }}.zip"
+        aws s3 cp "${{ inputs.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/$CURRENT_APP_VERSION.zip"
     
     # Deploy application to an existing AWS EB application
     - name: Deploy Application to AWS Elastic Beanstalk
       run: |
         aws elasticbeanstalk create-application-version --application-name "${{ vars.EB_APP_NAME }}" \
-          --version-label "${{ inputs.APP_NAME_VERSION }}" \
-          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="${{ inputs.APP_NAME_VERSION }}.zip"
+          --version-label "$CURRENT_APP_VERSION" \
+          --source-bundle S3Bucket="${{ vars.S3_BUCKET_NAME }}",S3Key="$CURRENT_APP_VERSION.zip"
 
         aws elasticbeanstalk update-environment --environment-name $EB_ENV_NAME \
-          --version-label "${{ inputs.APP_NAME_VERSION }}"
+          --version-label "$CURRENT_APP_VERSION"
