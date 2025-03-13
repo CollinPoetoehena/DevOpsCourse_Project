@@ -1,0 +1,17 @@
+# Docker Compose file used for deployment (should be called docker-compose.yml, as this is used by AWS directly)
+# This now uses only one container, but that is fine for Docker Compose, as this allows for easy configuration and setup
+
+services:
+  # Frontend service
+  frontend:
+    # Use the image from the Docker Hub
+    image: poetoecuva/rac-frontend:latest
+    # Define ports: "HOST_PORT:CONTAINER_PORT": https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/
+    ports:
+      # This forwards any traffic send through port 80 (default incoming traffic port for AWS EB) to container port 3000 (frontend container)
+      - "80:3000"
+    # Load a .env file with the container for the frontend
+    env_file:
+      # Use .env file from the root of the project
+      # (Here the .env file is loaded all at once in the deployed environment, so can just be .env in root now)
+      - .env

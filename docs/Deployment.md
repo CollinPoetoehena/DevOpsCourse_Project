@@ -34,6 +34,8 @@ Therefore:
 
 It is a best practice to separate them, however, depending on the specific application it can also be possible to combine them into one service to optimize costs and simplicity for example.
 
+TODO: explain here new version, using two separate EB environments, since it was hell to debug and access logs, etc. This allowed for a better decomposition into a more modularized approach, with the frontend and backend having its own EB environment. This allows for scaling separately when needed and better debugging and fault localization when necessary.
+
 
 
 ## GitHub Secrets and Variables
@@ -69,7 +71,7 @@ And add the following environment variables:
 - AWS_REGION: AWS region used
 - S3_BUCKET_NAME: AWS S3 bucket name (created with Terraform)
 - EB_APP_NAME: AWS Elastic Beanstalk application name (created with Terraform)
-- EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
+- EB_ENV_NAME_PREFIX: AWS Elastic Beanstalk environment name prefix, can be extended with frontend or backend (created with Terraform)
 - COGNITO_APP_CLIENT_ID: client id of the application created with the AWS Cognito user pool
 - COGNITO_USER_POOL_ID: AWS Cognito user pool id
 - COGNITO_DOMAIN: AWS Cognito user pool domain

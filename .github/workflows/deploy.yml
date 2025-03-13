@@ -17,10 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     # Use the main environment from GitHub to load environment variables
     environment: main
+    # Use strategy to run this step multiple times with the possible services
+    # Documentation: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
+    strategy:
+      matrix:
+        service: [backend, frontend]  # Runs for both services
     steps:
     # Checkout repository
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
     # Configure AWS Credentials for this workflow
     - name: Configure AWS Credentials
@@ -37,6 +41,16 @@ jobs:
       run: |
         aws sts get-caller-identity
     
+    # Step to set EB_ENV_NAME environment variable (the current EB env name)
+    - name: Set EB_ENV_NAME
+      # This will set a variable in the $GITHUB_ENV file, which is available within this specific job 
+      run: |
+        EB_ENV_NAME="${{ vars.EB_ENV_NAME_PREFIX }}-${{ matrix.service }}"
+        echo "EB_ENV_NAME=$EB_ENV_NAME" >> $GITHUB_ENV
+    # Step to confirm EB_ENV_NAME
+    - name: Print EB_ENV_NAME
+      run: echo "Using EB_ENV_NAME=${EB_ENV_NAME}"
+    
     # Step to get the environment url of the AWS EB environment (=public URL used) and save it for later jobs/steps
     # Firstly, it sets the deployment environment URLs for the frontend and backend. It also sets other environment variables, 
     # such as the AWS Cognito callback and logout URLs.
@@ -46,7 +60,7 @@ jobs:
       run: |
         PUBLIC_APP_DOMAIN=$(aws elasticbeanstalk describe-environments \
           --application-name "${{ vars.EB_APP_NAME }}" \
-          --environment-names "${{ vars.EB_ENV_NAME }}" \
+          --environment-names "$EB_ENV_NAME" \
           --query "Environments[0].CNAME" \
           --output text)
 

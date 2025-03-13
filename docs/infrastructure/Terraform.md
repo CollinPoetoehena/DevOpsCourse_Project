@@ -25,7 +25,7 @@ terraform destroy -auto-approve
 
 # To remove specific infrastructure resources, you can at a target to destroy, such as only the aws eb environment:
 terraform destroy \
-  -target="module.elastic_beanstalk.aws_elastic_beanstalk_environment.app_env" \
+  -target="module.elastic_beanstalk.module.environments.aws_elastic_beanstalk_environment.frontend" \
   -auto-approve
 # The whole module
 terraform destroy \
@@ -33,13 +33,14 @@ terraform destroy \
   -auto-approve
 # The targets are referenced by main.tf in the root of Terraform, from there you can select the targets (you can add more targets)
 # OR: you can comment out parts of your infrastructure and do apply (it will remove the commented parts)
-# For example, you can comment out whole modules, or just a part of a module in its main.tf, such as aws_elastic_beanstalk_environment.app_env
+# For example, you can comment out whole modules, or just a part of a module in its main.tf, such as aws_elastic_beanstalk_environment.frontend, or you can even add modules to create more resources temporarily, such as another AWS Cognito user pool by copying and renaming the module, etc.
 terraform apply -auto-approve
 
-# You can do the same with apply, such as only applying a specific module
+# You can do the same with apply for all the above commands, such as only applying a specific module
 terraform apply \
   -target="module.cognito" \
   -auto-approve
+# But it is handy to use whole modules, such as module.elastic_beanstalk, since Terraform will automatically apply the missing configurations and resources of that module with apply, etc., instead of applying small modules or resources, since this could lead to missing resources, such as the load balancer not attached to the Route 53 domain record if only applying the frontend EB environment resource for example 
 ```
 
 After creating your resources, you can view and monitor them in the AWS Management Console for example. You can also see potential errors there that might not be reported by Terraform, such as when creating the AWS Elastic Beanstalk environment, etc. Also, you can see the exact configuration of the resources there. You can use this to see if you might need to change some things in the Terraform code for example.
@@ -63,7 +64,7 @@ Then create a certificate for it.
 
 These steps have to be done before running the Terraform command to create the infrastructure, since this is used by the Terraform modules.
 
-Finally, after following those steps and creating the infrastructure, add the 
+Finally, run the infrastructure apply command with Terraform, this should now do the other steps from Domains_Cerficiation.md, which is for example creating the listeners and security group rules for the load balancer, and creating a record in the Route 53 domain to attach to the load balancer of the AWS EB environment.
 
 
 ### AWS Cognito Domain Setup
