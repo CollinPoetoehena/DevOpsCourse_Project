@@ -63,7 +63,7 @@ jobs:
         echo "Deployed Backend URL: $DEPLOYED_BACKEND_URL"
         echo "Deployed Cognito callback URL: $DEPLOYED_CALLBACK_URL_COGNITO"
         echo "Deployed Cognito logout URL: $DEPLOYED_LOGOUT_URL_COGNITO"
-        
+
     # Manually create a .env file in this job with the environment variables
     # > creates (or overwrites) the file .env, and >> appends to the file (adds content to an existing file)
     # Include additional variables for AWS EB, such as S3 and Docker Hub vars for authentication
