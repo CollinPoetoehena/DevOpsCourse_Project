@@ -10,14 +10,22 @@ variable "app_sol_stack_name" {
   type = string
 }
 
-variable "app_env_name" {
+variable "app_frontend_env_name" {
   type = string
 }
 
-variable "app_conf_templ_name" {
+variable "app_backend_env_name" {
   type = string
 }
 
 variable "app_sg_name" {
+  type = string
+}
+
+variable "app_elb_sg_name" {
+  type = string
+}
+
+variable "app_certificate_arn" {
   type = string
 }

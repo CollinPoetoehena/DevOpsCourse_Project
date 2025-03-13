@@ -18,11 +18,14 @@ module "elastic_beanstalk" {
   # Variables with values passed to the module
   app_name = "rac-app"
   app_desc = "rent a car application"
-  app_conf_templ_name = "rac-app-conf-templ"
   # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html
   app_sol_stack_name = "64bit Amazon Linux 2023 v4.4.4 running Docker"
-  app_env_name = "rac-app-env"
+  app_frontend_env_name = "rac-app-env-frontend"
+  app_backend_env_name = "rac-app-env-backend"
   app_sg_name = "rac-app-env-sg"
+  app_elb_sg_name  = "rac-app-env-elb-sg"
+  # ARN of the certificate from ACM, see in AWS Management Console
+  app_certificate_arn = "arn:aws:acm:eu-central-1:650251718669:certificate/319cab6b-0cca-4a09-ae35-219f325e246f"
 }
 
 # References Cognito module
