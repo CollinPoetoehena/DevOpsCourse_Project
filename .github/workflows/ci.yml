@@ -79,7 +79,7 @@ jobs:
     - name: Create .env file (frontend)
       if: matrix.service == 'frontend'
       run: |
-        echo "NEXT_PUBLIC_FRONTEND_URL=${{ vars.NEXT_PUBLIC_FRONTEND_URL }}" >> .env
+        echo "NEXT_PUBLIC_FRONTEND_URL=${{ vars.NEXT_PUBLIC_FRONTEND_URL }}" > .env
         echo "NEXT_PUBLIC_BACKEND_FULL_URL=${{ vars.NEXT_PUBLIC_BACKEND_FULL_URL }}" >> .env
         echo "NEXT_PUBLIC_AWS_REGION=${{ vars.AWS_REGION }}" >> .env
         echo "NEXT_PUBLIC_COGNITO_AUTHORITY=${{ vars.NEXT_PUBLIC_COGNITO_AUTHORITY }}" >> .env
