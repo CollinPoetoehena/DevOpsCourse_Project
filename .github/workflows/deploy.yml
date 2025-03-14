@@ -64,9 +64,9 @@ jobs:
         
         # Determine the correct Docker Compose file
         if [ "${{ matrix.service }}" == "frontend" ]; then
-          echo "COMPOSE_FILE=docker-compose.frontend.yml" >> $GITHUB_ENV
+          echo "COMPOSE_FILE=${{ matrix.service }}/docker-compose.yml" >> $GITHUB_ENV
         else
-          echo "COMPOSE_FILE=docker-compose.backend.yml" >> $GITHUB_ENV
+          echo "COMPOSE_FILE=${{ matrix.service }}/docker-compose.yml" >> $GITHUB_ENV
         fi
     # Step to confirm EB_ENV_NAME
     - name: Print EB_ENV_NAME and Compose File
@@ -148,14 +148,14 @@ jobs:
     # More folders, such as .ebextensions can be added accordingly
     - name: Move infrastructure/extension Folders to the Root
       run: |
-        mv infrastructure/extensions/.platform ${{ matrix.service }}/.platform
+        mv infrastructure/extensions/.platform .platform
     # Create a zip of the application, excluding not necessary files, such as .gitignore and node_modules
     # This command now only adds the specified files to avoid unnecessary files
     # Do this by using the COMPOSE_FILE variable to ensure the zip is created in the root and uses the compose file from 
     # the current serivce
     - name: Package Application with Docker Compose
       run: |
-        zip -r "${{ inputs.APP_NAME }}.zip" .env $COMPOSE_FILE .platform/
+        zip -r "$CURRENT_APP_VERSION.zip" .env $COMPOSE_FILE .platform/
     
     # Delete the .env file just to be sure (probably also done automatically, but for security reasons manually delete it as well)
     - name: Delete .env File After Use
@@ -165,7 +165,7 @@ jobs:
     # First save variable for this workflow and then upload to S3
     - name: Upload Application to S3
       run: |
-        aws s3 cp "${{ inputs.APP_NAME }}.zip" "s3://${{ vars.S3_BUCKET_NAME }}/$CURRENT_APP_VERSION.zip"
+        aws s3 cp "$CURRENT_APP_VERSION.zip" "s3://${{ vars.S3_BUCKET_NAME }}/$CURRENT_APP_VERSION.zip"
     
     # Deploy application to an existing AWS EB application
     - name: Deploy Application to AWS Elastic Beanstalk
