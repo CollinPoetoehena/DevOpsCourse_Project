@@ -80,7 +80,11 @@ And add the following environment variables:
 - NEXT_PUBLIC_COGNITO_AUTHORITY: AWS Cognito user pool authority, used for the frontend
 - NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN: AWS Cognito user pool sign in redirect URL
 - NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT: AWS Cognito user pool sign out redirect URL
+- DEPLOYED_FE_APP_DOMAIN_URL: domain of Route 53 and URL of the deployed frontend, such as https://www.rent-a-car-cloud.click 
+- DEPLOYED_BE_APP_DOMAIN_URL: domain  of Route 53 and URL of the deployed backend, such as https://api.rent-a-car-cloud.click
 
 Not all environment variables in the dummy.env are present here (such as for the frontend), since some variables are reused. For example, the COGNITO_APP_CLIENT_ID is used in the backend and frontend, but can be only one variable in the GitHub environment, and there the NEXT_PUBLIC_ prefix is specific to the Next.js frontend, since this is required to access the environment variable.
 
 This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.
+
+In real world scenarios, you can create environments per stage, such as dev, test and prod, etc. Then in the GitHub Actions you can reference the corresponding environment for each workflow to use the correct environment, such as deploying to dev or prod, etc.

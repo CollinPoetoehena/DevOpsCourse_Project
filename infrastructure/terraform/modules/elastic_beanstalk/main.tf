@@ -52,12 +52,15 @@ module "domain_record" {
 
   # Route 53 Hosted Zone ID (for example: example.com)
   route53_zone_id = var.route53_zone_id
-  # Set subdomain using the 
-  route53_subdomain = "www.${var.route53_domain_name}"
+  # Set subdomains using the main domain
+  route53_subdomain_fe = "www.${var.route53_domain_name}" # frontend uses www.
+  route53_subdomain_be = "api.${var.route53_domain_name}" # backend uses api.
 
   # Pass ALB DNS Name & Zone ID from environments module
   frontend_lb_dns_name = module.environments.frontend_lb_dns_name
   frontend_lb_zone_id  = module.environments.frontend_lb_zone_id
+  backend_lb_dns_name = module.environments.backend_lb_dns_name
+  backend_lb_zone_id  = module.environments.backend_lb_zone_id
 
   # Ensures environments are created first
   depends_on = [

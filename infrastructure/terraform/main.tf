@@ -22,7 +22,7 @@ module "elastic_beanstalk" {
   # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html
   app_sol_stack_name = "64bit Amazon Linux 2023 v4.4.4 running Docker"
   # ARN of the certificate from ACM, see in AWS Management Console
-  app_certificate_arn = "arn:aws:acm:eu-central-1:650251718669:certificate/319cab6b-0cca-4a09-ae35-219f325e246f"
+  app_certificate_arn = "arn:aws:acm:eu-central-1:650251718669:certificate/ee9b8035-3aca-4308-a2e6-865b168d23d2"
   # Hosted zone of Route 53 domain
   route53_zone_id = var.route53_zone_id
   # Main domain name
