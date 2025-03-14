@@ -1,0 +1,49 @@
+name: CI/CD Pipeline Orchestration
+
+# Trigger on push or pull request to the main branch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main  
+
+# These permissions are needed to interact with GitHub's OIDC Token endpoint for AWS Credentials step in setup.yml
+# These must be set in this main.yml file, otherwise, it will error with "The nested job 'setup' is requesting 'id-token: write', but is only allowed 'id-token: none'."
+permissions:
+  id-token: write
+  contents: read
+
+# Jobs to execute for this workflow
+# This reuses workflows, for more information see: https://docs.github.com/en/actions/sharing-automations/reusing-workflows
+# Unfortunately, folders are not supported yet, so all files need to be in .github/workflows
+jobs:
+  # Step 1: Install dependencies
+  setup:
+    # Use secrets inherit to ensure secrets are also available in called jobs from main
+    secrets: inherit
+    uses: ./.github/workflows/setup.yml
+  
+  # Step 2: CI - Build, Test and Push Docker Images (if previous steps succeeded)
+  build-test-push:
+    needs: setup
+    secrets: inherit
+    uses: ./.github/workflows/ci.yml
+    # Add variables
+    with:
+      BE_IMAGE_NAME: rac-backend
+      FE_IMAGE_NAME: rac-frontend
+      DOCKER_REGISTRY: docker.io/poetoecuva
+  
+  # Step 5: CD - Deploy to AWS EB (if previous steps succeeded)
+  deploy:
+    needs: build-test-push
+    secrets: inherit
+    uses: ./.github/workflows/deploy.yml
+    # Add variables
+    with:
+      APP_NAME: rac-app
+      # Application name and version. Use Git commit id to create unique uploads and link back to commits
+      APP_NAME_VERSION: "rac-app-${{ github.sha }}"
+      # TODO: find something else for version, since github.sha is not really a good one.

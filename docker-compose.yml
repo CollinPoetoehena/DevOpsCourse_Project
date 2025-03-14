@@ -1,3 +1,5 @@
+# Old: removed when switching to two separate EB environments for frontend and backend, 
+# now this file is present in the backend and frontend folders respectively
 # Docker Compose file used for deployment (should be called docker-compose.yml, as this is used by AWS directly)
 
 services:

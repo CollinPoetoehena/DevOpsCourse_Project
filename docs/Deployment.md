@@ -4,11 +4,38 @@ TODO: explain how the application is deployed using Docker
 
 TODO: explain that AWS EB automatically runs the docker-compose.yml, which pulls the images. 
 TODO: explain: a custom prebuild script 01-docker-login.sh is executed beforehand to login to docker with the necessary credentials to allow docker-compose.yml to pull images from the private Docker Hub repository.
-TODO: also explain added security group rule to allow TCP port 4001 inbound traffic to allow frontend to access backend.
 TODO: The user automatically becomes a user. We manage this by only having a maintainer and admin group in AWS Cognito, where if the user is part of the maintainer group, the maintainer role is assigned for example. If not part of any of those groups, the user has the user role. This optimizes storage and efficiency, since we now only have two groups, and all other users automatically get the user role.
 
+TODO: explain how deployment works with load balancers, etc. Add the drawio figure here as well.
 
 
+## Cost Comparison: Single vs. Separate Elastic Beanstalk Services for Frontend and Backend
+You can use Docker Compose to run both services in a single AWS EB service, or you can use two separate AWS EB services. Both have their advantages and disadvantages:
+
+| Factor | **Single EB Service (Multi-Container in One EB Env)** | **Two Separate EB Services (Frontend & Backend in Different Envs)** |
+|--------|--------------------------------------------------|------------------------------------------------------|
+| **EC2 Instances** | ✅ **Shares the same EC2 instance** → Uses fewer resources. | ❌ **Each service gets its own EC2 instance** → More expensive. |
+| **Load Balancer** | ✅ **One ELB (Elastic Load Balancer) for both** → Lower cost. | ❌ **Each service may require a separate ELB** → Doubles the cost. |
+| **Scaling** | ❌ Both frontend and backend scale **together**, which may not be efficient. | ✅ Each service scales independently, optimizing costs for traffic patterns. |
+| **Data Transfer** | ✅ Inter-service communication **is internal** (free inside AWS VPC). | ❌ Services communicate over the internet (potentially extra cost). |
+| **Elastic IPs & DNS** | ✅ Only one Elastic Beanstalk domain. | ❌ Two separate Elastic Beanstalk domains. |
+| **Operational Costs** | ✅ Easier to manage and deploy → Less maintenance overhead. | ❌ More complex → More DevOps work, possible higher labor costs. |
+
+In summary:
+| Deployment Method | Pros | Cons |
+|------------------|------|------|
+| **Single EB Service (Docker Compose via `Dockerrun.aws.json`)** | ✅ Easier deployment, both services scale together, simple setup. | ❌ Less flexibility, both services share resources. |
+| **Separate EB Services (One for Frontend, One for Backend)** | ✅ Can scale frontend & backend independently, better fault isolation. | ❌ More complex, needs manual service linking. |
+
+Therefore: 
+
+✅ **Using a single Elastic Beanstalk service with Docker Compose is more cost-effective**, especially for small applications.
+
+❌ **Using two separate services is better for scaling independently but increases costs significantly** due to additional EC2 instances, load balancers, and potential inter-service data transfer costs.
+
+It is a best practice to separate them, however, depending on the specific application it can also be possible to combine them into one service to optimize costs and simplicity for example.
+
+TODO: explain here new version, using two separate EB environments, since it was hell to debug and access logs, etc. This allowed for a better decomposition into a more modularized approach, with the frontend and backend having its own EB environment. This allows for scaling separately when needed and better debugging and fault localization when necessary.
 
 
 
@@ -38,14 +65,14 @@ And add the following environment variables:
 - API_NAME: Name of the API
 - API_PORT: Port of the API
 - FRONTEND_PORT: Port of the frontend
-- API_VERSION: Version of the API
+- API_VERSION: Version of the API (should be numerical only, since the deployed environment already uses api. in the domain, such as /v1)
 - FRONTEND_URL: Frontend URL
 - BACKEND_URL: Backend URL
 - VEHICLE_URL: URL of the vehicle API
 - AWS_REGION: AWS region used
 - S3_BUCKET_NAME: AWS S3 bucket name (created with Terraform)
 - EB_APP_NAME: AWS Elastic Beanstalk application name (created with Terraform)
-- EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
+- EB_ENV_NAME_PREFIX: AWS Elastic Beanstalk environment name prefix, can be extended with frontend or backend (created with Terraform)
 - COGNITO_APP_CLIENT_ID: client id of the application created with the AWS Cognito user pool
 - COGNITO_USER_POOL_ID: AWS Cognito user pool id
 - COGNITO_DOMAIN: AWS Cognito user pool domain
@@ -54,7 +81,11 @@ And add the following environment variables:
 - NEXT_PUBLIC_COGNITO_AUTHORITY: AWS Cognito user pool authority, used for the frontend
 - NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN: AWS Cognito user pool sign in redirect URL
 - NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT: AWS Cognito user pool sign out redirect URL
+- DEPLOYED_FE_APP_DOMAIN_URL: domain of Route 53 and URL of the deployed frontend, such as https://www.rent-a-car-cloud.click 
+- DEPLOYED_BE_APP_DOMAIN_URL: domain  of Route 53 and URL of the deployed backend, such as https://api.rent-a-car-cloud.click
 
 Not all environment variables in the dummy.env are present here (such as for the frontend), since some variables are reused. For example, the COGNITO_APP_CLIENT_ID is used in the backend and frontend, but can be only one variable in the GitHub environment, and there the NEXT_PUBLIC_ prefix is specific to the Next.js frontend, since this is required to access the environment variable.
 
 This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.
+
+In real world scenarios, you can create environments per stage, such as dev, test and prod, etc. Then in the GitHub Actions you can reference the corresponding environment for each workflow to use the correct environment, such as deploying to dev or prod, etc.
