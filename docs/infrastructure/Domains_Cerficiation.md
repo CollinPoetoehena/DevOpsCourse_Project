@@ -18,7 +18,9 @@ Full documentation: https://docs.aws.amazon.com/acm/
 
 After following the previous steps, you can get a certificate for the domain, see: https://docs.aws.amazon.com/acm/latest/userguide/acm-public-certificates.html
 
-You will request a public certificate, for example for the above domain record, use DNS validation. After requesting the certificate, click on "Create record in Route 53" and select the above created domain. Then after a few minutes, you should see a success and issued status:
+You will request a public certificate, for example for the above domain record, use DNS validation. You should use a wildcard in front of the domain name created with Route 53 so that this certificate can be reused for different services, such as: *.rent-a-car-cloud.click. Then you can use www.rent-a-car-cloud.click for the frontend and api.rent-a-car-cloud.click for the backend for example.
+
+After requesting the certificate, click on "Create record in Route 53" and select the above created domain. Then after a few minutes, you should see a success and issued status:
 ![alt text](../assets/AWS_ACM_ReqPubCert.png)
 
 The created record should be visible as CNAME in the records for the AWS Route 53 domain:
