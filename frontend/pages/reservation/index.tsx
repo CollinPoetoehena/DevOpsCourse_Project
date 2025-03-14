@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAuth } from "@/AuthContext";
 import { useGarageContext } from "@/GarageContext";
 import useReservation from "@/lib/hooks/useReservation";
-import { Reservation, Role } from "@/lib/types";
+import { Reservation, ReservationStatus, Role } from "@/lib/types";
 import { motion } from "framer-motion";
 import ActionButton from "@/components/common/actionButton";
 import { useRouter } from "next/router";
@@ -27,7 +27,7 @@ export default function ReservationsPage() {
         if (token) {
             getReservations()
         }
-    }, [token]);    
+    }, [token]);
 
     // Modal state for delete confirmation (or similar actions)
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -131,7 +131,7 @@ export default function ReservationsPage() {
                                             className="px-6 py-4 font-semibold text-gray-900 whitespace-nowrap"
                                         >
                                             <Link href={`/reservation/${reservation._id}`}>
-                                                {reservation.car.make} {reservation.car.model}
+                                                {reservation.car.make} {reservation.car.model} ({reservation.car.firstRegistration})
                                             </Link>
                                         </motion.th>
                                         {role !== Role.user && (
@@ -153,23 +153,24 @@ export default function ReservationsPage() {
                                         </td>
                                         <td className="px-6 py-4">{reservation.status}</td>
                                         <td className="flex items-center justify-end px-3 py-2 space-x-2">
-                                            {role != Role.user && (
+                                            {role !== Role.user && (
                                                 <>
-                                                    {/* <ActionButton
-                                                        onClick={() => router.push(`/reservation/${reservation._id}/details`)}
-                                                        icon="M5 13l4 4L19 7"
-                                                        item={reservation}
-                                                    /> */}
                                                     <ActionButton
                                                         onClick={() => {
-                                                            toggleModal(reservation);
+                                                            if (reservation.status === ReservationStatus.completed) {
+                                                                toggleModal(reservation);
+                                                            }
                                                         }}
                                                         icon="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
                                                         item={reservation}
+                                                        disabled={reservation.status !== ReservationStatus.completed} // Disable if not completed
+                                                        customClasses={`${reservation.status !== ReservationStatus.completed ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
+                                                            }`}
                                                     />
                                                 </>
                                             )}
                                         </td>
+
                                     </tr>
                                 ))}
                             </tbody>

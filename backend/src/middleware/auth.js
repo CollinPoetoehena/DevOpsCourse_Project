@@ -2,8 +2,9 @@ require('dotenv').config();
 // Verifier for JWTs from AWS Cognito
 const { verifier, cognitoOAuthAPI } = require('../config/cognito');
 const axios = require('axios');
-// Import user model
+// Import user and garage model
 const User = require("../models/user.model");
+const Garage = require("../models/garage.model");
 
 // Verify Token using AWS verification steps (since SECRET_KEY is not accessible): https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
 // Specifically this uses: https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
@@ -55,18 +56,34 @@ const checkAdmin = async (req, res, next) => {
     return next();
 };
 
-// Check Garage Maintainer Permission (Can Manage Only Their Own Garage)
+// Middleware to Check if a Maintainer Owns the Garage
 const checkMaintainer = async (req, res, next) => {
-    if (!req.user || (req.user.role !== 'maintainer' && req.user.role !== 'admin')) {
-        return res.status(403).send("Access denied. Garage maintainers or admins only.");
+    if (!req.user || (req.user.role !== "maintainer" && req.user.role !== "admin")) {
+        return res.status(403).json({ error: "Access denied. Only maintainers or admins are allowed." });
     }
 
-    // Ensure maintainers can only modify their assigned garage
-    if (req.user.role === 'maintainer' && req.body.garageId && req.body.garageId !== req.user.garageId) {
-        return res.status(403).send("Access denied. You can only manage your assigned garage.");
+    // Admins have full access
+    if (req.user.role === "admin") {
+        return next();
     }
 
-    return next();
+    try {
+        // Find the garage by ID from the request
+        const garage = await Garage.findById(req.body.garageId || req.params.garageId);
+
+        if (!garage) {
+            return res.status(404).json({ error: "Garage not found." });
+        }
+
+        // Check if the logged-in maintainer is the owner of the garage
+        if (garage.maintainer !== req.user.username) {
+            return res.status(403).json({ error: "Access denied. You can only manage your own garage." });
+        }
+
+        next();
+    } catch (error) {
+        return res.status(500).json({ error: "Server error. Please try again." });
+    }
 };
 
 // Get User from Token and AWS Cognito user info

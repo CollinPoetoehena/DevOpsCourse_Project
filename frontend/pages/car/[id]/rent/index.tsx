@@ -1,13 +1,15 @@
 import Head from "next/head";
 import { ChangeEvent, useEffect, useState } from "react";
 import useCar from "@/lib/hooks/useCar";
-import { Car } from "@/lib/types";
+import { Car, Reservation } from "@/lib/types";
 import config from "@/lib/config";
 import useAuthentication from "@/lib/hooks/useAuthentication";
 import { useRouter } from "next/router";
 import { useCarContext } from "@/CarContext";
 import { useAuth } from "@/AuthContext";
 import ActionButton from "@/components/common/actionButton";
+import useReservation from "@/lib/hooks/useReservation";
+import { useNotification } from "@/lib/hooks/useNotification";
 
 // Helper functions to format dates as YYYY-MM-DD
 const getTodayDate = (): string => {
@@ -35,6 +37,9 @@ const RentCar = () => {
   const { carState: { car }, setCarState } = useCarContext();
   const { isAuthenticated } = useAuth();
   const { token } = useAuthentication();
+
+  const { createReservation } = useReservation();
+  const { onError } = useNotification();
 
   // Compute today's date for default & min value
   const todayDate = getTodayDate();
@@ -72,11 +77,33 @@ const RentCar = () => {
 
   const handleRentCar = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Here you would call your reservation service to create a rental reservation.
-    console.log("Creating reservation for:", car, rentalInfo);
-    // Redirect to a confirmation page or show a success message.
-    router.push("/reservations/confirmation");
-  };
+
+    if (!car || !rentalInfo.startDate || !rentalInfo.endDate) {
+        console.error("Missing required reservation data");
+        onError("Please select rental dates.");
+        return;
+    }
+
+    try {
+        const reservationData: Partial<Reservation> = {
+            car: car._id?.toString(),
+            startDate: rentalInfo.startDate,
+            endDate: rentalInfo.endDate,
+        };
+
+        // Call API to create reservation
+        const reservation = await createReservation(reservationData);
+
+        console.log("Reservation created:", reservation);
+
+        // Redirect to reservation details page
+        router.push(`/reservation/${reservation._id}`);
+
+    } catch (error) {
+        console.error("Error creating reservation:", error);
+    }
+};
+
 
   return (
     <>

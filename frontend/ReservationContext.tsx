@@ -1,4 +1,3 @@
-// src/ReservationContext.tsx
 import { createContext, useContext, ReactNode, useState, Dispatch, SetStateAction } from 'react';
 import { Reservation } from './lib/types';
 
@@ -31,8 +30,7 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     return (
         <ReservationContext.Provider
-            value={{ reservationState, setReservationState, reservationsState, setReservationsState }}
-        >
+            value={{ reservationState, setReservationState, reservationsState, setReservationsState }}>
             {children}
         </ReservationContext.Provider>
     );

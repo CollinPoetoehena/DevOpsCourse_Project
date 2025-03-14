@@ -60,17 +60,26 @@ async function getReservations(user) {
 async function getReservationById(reservationId, user) {
     const reservation = await Reservation.findById(reservationId)
         .populate('user', 'username email')
-        .populate('car');
+        .populate({
+            path: 'car',
+            populate: {
+                path: 'garage',
+                select: 'name maintainer'
+            }
+        });
 
     if (!reservation) {
         throw new Error('Reservation not found');
     }
 
-    if (user.role !== 'maintainer' && !reservation.user._id.equals(user.id)) {
+    // Check if the user is authorized to access this reservation
+    if (user.role !== 'maintainer' && user.role !== 'admin' && reservation.user !== user.username) {
         throw new Error('Unauthorized access');
     }
+
     return reservation;
 }
+
 
 async function updateReservation(reservationId, updateData, user) {
     const reservation = await Reservation.findById(reservationId);
@@ -96,7 +105,6 @@ async function deleteReservation(reservationId, user) {
     if (user.role !== 'maintainer' && reservation.user !== user.username) {
         throw new Error('Unauthorized to delete this reservation');
     }
-    await Car.findByIdAndUpdate(reservation.car, { status: 'available' });
     await Reservation.findByIdAndDelete(reservationId);
 }
 

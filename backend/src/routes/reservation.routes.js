@@ -10,7 +10,7 @@ const {
     approveReturn,
     rejectReturn
 } = require('../services/reservation.service');
-const { auth, checkUser } = require('../middleware/auth');
+const { auth, checkUser, checkMaintainer } = require('../middleware/auth');
 
 /**
  * GET /reservations
