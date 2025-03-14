@@ -64,7 +64,7 @@ And add the following environment variables:
 - API_NAME: Name of the API
 - API_PORT: Port of the API
 - FRONTEND_PORT: Port of the frontend
-- API_VERSION: Version of the API
+- API_VERSION: Version of the API (should be numerical only, since the deployed environment already uses api. in the domain, such as /v1)
 - FRONTEND_URL: Frontend URL
 - BACKEND_URL: Backend URL
 - VEHICLE_URL: URL of the vehicle API

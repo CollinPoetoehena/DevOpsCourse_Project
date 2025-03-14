@@ -72,20 +72,30 @@ jobs:
         echo "Deploying to Elastic Beanstalk Environment: $EB_ENV_NAME"
         echo "Using Compose File: $COMPOSE_FILE"
     
-    # Step to get the environment urls and verify them for later jobs/steps
-    # This sets the deployment environment URLs for the frontend using Cognito, such as the AWS Cognito callback and logout URLs.
+    # Step to get the environment url of the AWS EB environment (=public URL used) and save it for later jobs/steps
+    # Firstly, it sets the deployment environment URLs for the frontend and backend. It also sets other environment variables, 
+    # such as the AWS Cognito callback and logout URLs.
     # The callback and logout urls are done with https and the Route 53 domain name, however, the frontend and backend urls
     # are done with the domain of the AWS EB environment, since this is better for internal communication, this can be over http and the domain of EB.
     - name: Get Deployed Application Environment URLs
       run: |
+        # Get the domain of the backend EB environment
+        PUBLIC_BE_APP_DOMAIN=$(aws elasticbeanstalk describe-environments \
+          --application-name "${{ vars.EB_APP_NAME }}" \
+          --environment-names "${{ vars.EB_ENV_NAME_PREFIX }}-be" \
+          --query "Environments[0].CNAME" \
+          --output text)
+
+        echo "Public BE App Domain: $PUBLIC_BE_APP_DOMAIN"
+        # USe HTTP, since this is the default setup and HTTPS is not setup and not necessary for now
+        echo "DEPLOYED_BACKEND_URL=http://$PUBLIC_BE_APP_DOMAIN:${{ vars.API_PORT }}${{ vars.API_VERSION }}" >> $GITHUB_ENV
+        
         echo "DEPLOYED_CALLBACK_URL_COGNITO=${{ vars.DEPLOYED_FE_APP_DOMAIN_URL }}/auth/callback" >> $GITHUB_ENV
         echo "DEPLOYED_LOGOUT_URL_COGNITO=${{ vars.DEPLOYED_FE_APP_DOMAIN_URL }}/auth/logout" >> $GITHUB_ENV
-
-        echo "DEPLOYED_FULL_BACKEND_URL=${{ vars.DEPLOYED_BE_APP_DOMAIN_URL }}${{ vars.API_VERSION }}" >> $GITHUB_ENV
     # Step to confirm variables (can only use variables saved to $GITHUB_ENV in a new step)
     - name: Print Application Environment Variables
       run: |
-        echo "Deployed Backend URL: $DEPLOYED_FULL_BACKEND_URL"
+        echo "Deployed Backend URL: $DEPLOYED_BACKEND_URL"
         echo "Deployed Cognito callback URL: $DEPLOYED_CALLBACK_URL_COGNITO"
         echo "Deployed Cognito logout URL: $DEPLOYED_LOGOUT_URL_COGNITO"
 
@@ -107,7 +117,7 @@ jobs:
         echo "API_PORT=${{ vars.API_PORT }}" >> .env
         echo "API_VERSION=${{ vars.API_VERSION }}" >> .env
         echo "FRONTEND_URL=${{ vars.DEPLOYED_FE_APP_DOMAIN_URL }}" >> .env
-        echo "BACKEND_URL=$DEPLOYED_FULL_BACKEND_URL" >> .env
+        echo "BACKEND_URL=$DEPLOYED_BACKEND_URL" >> .env
         echo "VEHICLE_URL=${{ vars.VEHICLE_URL }}" >> .env
         echo "COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env
         echo "COGNITO_USER_POOL_ID=${{ vars.COGNITO_USER_POOL_ID }}" >> .env
@@ -122,7 +132,7 @@ jobs:
         echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
         # Specific frontend environment variables
         echo "NEXT_PUBLIC_FRONTEND_URL=${{ vars.DEPLOYED_FE_APP_DOMAIN_URL }}" >> .env
-        echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_FULL_BACKEND_URL" >> .env
+        echo "NEXT_PUBLIC_BACKEND_FULL_URL=$DEPLOYED_BACKEND_URL" >> .env
         echo "NEXT_PUBLIC_AWS_REGION=${{ vars.AWS_REGION }}" >> .env
         echo "NEXT_PUBLIC_COGNITO_AUTHORITY=${{ vars.NEXT_PUBLIC_COGNITO_AUTHORITY }}" >> .env
         echo "NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${{ vars.COGNITO_APP_CLIENT_ID }}" >> .env

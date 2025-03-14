@@ -44,8 +44,6 @@ jobs:
     # Add variables
     with:
       APP_NAME: rac-app
-      # Deployed application domain name from Route 53, such as: https://www.rent-a-car-cloud.click/
-      DEPLOYED_FE_APP_DOMAIN: https://www.rent-a-car-cloud.click
       # Application name and version. Use Git commit id to create unique uploads and link back to commits
       APP_NAME_VERSION: "rac-app-${{ github.sha }}"
       # TODO: find something else for version, since github.sha is not really a good one.
