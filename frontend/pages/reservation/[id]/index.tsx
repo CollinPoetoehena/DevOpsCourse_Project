@@ -48,14 +48,15 @@ const ReservationDetails = () => {
         try {
             const formData = new FormData();
             images.forEach((file) => formData.append("images", file));
-
-            const response = await axios.post(`${config?.uploadUrl}/upload-images`, formData, {
+    
+            // Send a POST request to upload images
+            const response = await axios.post(`${config.image}/upload-images`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     bearer: token,
                 },
             });
-
+    
             return response.data.imageUrls;
         } catch (error) {
             console.error("Image upload failed:", error);
@@ -71,8 +72,8 @@ const ReservationDetails = () => {
         }
 
         try {
-            // const imageUrls = await uploadImages();
-            const imageUrls = [];
+            const imageUrls = await uploadImages();
+            // const imageUrls = [];
             await requestReturn(id as string, { pictures: imageUrls });
 
             router.back();

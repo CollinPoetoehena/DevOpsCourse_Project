@@ -40,6 +40,7 @@ app.use(`${API_VERSION}/cars`, require('./routes/car.routes'));
 app.use(`${API_VERSION}/garages`, require('./routes/garage.routes'));
 app.use(`${API_VERSION}/reservations`, require('./routes/reservation.routes'));
 app.use(`${API_VERSION}/vehicles`, require('./routes/vehicle.routes'));
+app.use(`${API_VERSION}/images`, require('./routes/image.routes'));
 
 async function init() {
   try {
