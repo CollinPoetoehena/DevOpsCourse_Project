@@ -36,6 +36,7 @@ const config = {
     garage: `${racUrl}/garages`,
     reservation: `${racUrl}/reservations`,
     vehicle: `${racUrl}/vehicles`,
+    image: `${racUrl}/images`,
     // Amazon Cognito configuration
     cognitoAuthConfig: cognitoAuthConfig,
     cognitoClientId: cognitoClientId,

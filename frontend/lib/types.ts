@@ -138,7 +138,7 @@ export type Reservation = {
     status: ReservationStatus;
     createdAt: string;
     updatedAt: string;
-    pictures?: string[];
+    pictures?: Picture[];
     mileage?: number;
 };
 
@@ -164,4 +164,16 @@ export type Make = {
  */
 export type Model = {
     name: string;
+};
+
+/**
+ * Picture model type.
+ * - url: The URL of the uploaded image.
+ * - version: The version of the image (default = 1).
+ * - uploadedAt: Timestamp of when the image was uploaded.
+ */
+export type Picture = {
+    url: string;
+    version: number;
+    uploadedAt: string; // Stored as ISO 8601 date string
 };
