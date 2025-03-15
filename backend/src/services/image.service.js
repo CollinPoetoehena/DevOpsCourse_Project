@@ -22,13 +22,14 @@ const uploadImage = async (fileBuffer, originalName, mimeType) => {
             Key: fileKey, // The unique key (filename) for the stored image
             Body: fileBuffer, // The actual file data (binary buffer)
             ContentType: mimeType, // The file type (e.g., image/png, image/jpeg)
-            ACL: "public-read", // Set access control: 'public-read' allows public access to images
+            // Access Control Lists (ACLs) are not needed anymore, this is done with Bucket policies, see Terraform S3 module
         };
 
         // Upload the file to S3 using the PutObjectCommand
         await s3Client.send(new PutObjectCommand(params));
 
         // Construct and return the public URL of the uploaded image
+        // This is the "Object URL" you see in the S3 bucket of the uploaded object
         return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
 
     } catch (error) {

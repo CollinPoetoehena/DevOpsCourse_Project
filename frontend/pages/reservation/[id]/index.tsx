@@ -105,6 +105,8 @@ const ReservationDetails = () => {
 
     const imagess: any[] = [
 
+        // TODO: this needs to be the images from the reservation
+
         "https://media.oneweb.mercedes-benz.com/images/dynamic/europe/NL/192382/805_055/iris.webp?q=COSY-EU-100-1713d0VXqrWFqtyO67PobzIr3eWsrrCsdRRzwQZUTBZbMw3SGtGyjtsd2HdcUfpMqXGEjnmJ0leYhOB2sB5bApUPlI5uGmIQC3aMrkzNH%25km7j8h3hKVkKw%25vqeUDyLRsQyYaxUkdrH1zJln8w78foiZK%25ZM4FvsJTg9wtn6PDGkqSeW0KUtsdBvDcUf8XNXGEH97J0lweOOB2AQ1bAp57pI5gZ8lXhRjwQZgkRUuEuoQ3pE7EJxJeRB5PVsRiD4Nhc8An&IMGT=W27&POV=BE000&BKGND=9&uni=m&cp=o1Yw6tbhjdvotoOJyaA8nQ&imwidth=1920"
         ,
 
