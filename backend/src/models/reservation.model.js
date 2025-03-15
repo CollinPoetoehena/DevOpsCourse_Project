@@ -52,6 +52,7 @@ reservationSchema.pre('save', function (next) {
 
 // Pre-save hook to automatically increment picture versions for new pictures
 reservationSchema.pre('save', function (next) {
+    // TODO: what does this do? This lets the pictures have version 2,3,4...till 6 for all the uploaded pictures, but why? Can be deleted?
     // Only run if the pictures array was modified
     if (this.isModified('pictures')) {
         let maxVersion = 0;

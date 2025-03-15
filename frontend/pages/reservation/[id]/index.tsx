@@ -73,7 +73,7 @@ const ReservationDetails = () => {
 
         try {
             const imageUrls = await uploadImages();
-            // const imageUrls = [];
+            // Request return, pass image URLs as string, the backend handles further processing of other values of the picture model
             await requestReturn(id as string, { pictures: imageUrls });
 
             router.back();
@@ -102,24 +102,6 @@ const ReservationDetails = () => {
             onError("Failed to reject return.");
         }
     };
-
-    const imagess: any[] = [
-
-        // TODO: this needs to be the images from the reservation
-
-        "https://media.oneweb.mercedes-benz.com/images/dynamic/europe/NL/192382/805_055/iris.webp?q=COSY-EU-100-1713d0VXqrWFqtyO67PobzIr3eWsrrCsdRRzwQZUTBZbMw3SGtGyjtsd2HdcUfpMqXGEjnmJ0leYhOB2sB5bApUPlI5uGmIQC3aMrkzNH%25km7j8h3hKVkKw%25vqeUDyLRsQyYaxUkdrH1zJln8w78foiZK%25ZM4FvsJTg9wtn6PDGkqSeW0KUtsdBvDcUf8XNXGEH97J0lweOOB2AQ1bAp57pI5gZ8lXhRjwQZgkRUuEuoQ3pE7EJxJeRB5PVsRiD4Nhc8An&IMGT=W27&POV=BE000&BKGND=9&uni=m&cp=o1Yw6tbhjdvotoOJyaA8nQ&imwidth=1920"
-        ,
-
-        "https://media.oneweb.mercedes-benz.com/images/dynamic/europe/NL/192382/805_055/iris.webp?q=COSY-EU-100-1713d0VXqrWFqtyO67PobzIr3eWsrrCsdRRzwQZUTBZbMw3SGtGyjtsd2HdcUfpMqXGEjnmJ0leYhOB2sB5bApUPlI5uGmIQC3aMrkzNH%25km7j8h3hKVkKw%25vqm6ayLRsGWYaxUkYrH1Gmfn8w7O2oiZKiEM4FvSlTg9LY96PDaGbSeWFXMtsdBhxcUfAL0XGE5adJ0l4OVOB2iWvbApFvdI5uCmZQC3zv3kze94pOy1qFm9eh10N2NTmj32v2bwbU15zsRG1gdPVyJ4CM&IMGT=W27&POV=BE090&BKGND=9&uni=m&cp=o1Yw6tbhjdvotoOJyaA8nQ&imwidth=1920"
-        ,
-
-        "https://media.oneweb.mercedes-benz.com/images/dynamic/europe/NL/192382/805_055/iris.webp?q=COSY-EU-100-1713d0VXqrWFqtyO67PobzIr3eWsrrCsdRRzwQZUTBZbMw3SGtGyjtsd2HdcUfpMqXGEjnmJ0leYhOB2sB5bApUPlI5uGmIQC3aMrkzNH%25km7j8h3hKVkKw%25vqm6ayLRsGWYaxUkYrH1Gmfn8w7O2oiZKiEM4FvSlTg9LY96PDaGbSeWFXMtsdBhxcUfAL0XGE5adJ0l4OVOB2iWvbApFvdI5uCmZQC3zv3kze94pOy1qFm9eh10N2NTmj32v2bwbU15zsRG1gdPVyJ4CM&IMGT=W27&POV=BE270&BKGND=9&uni=m&cp=o1Yw6tbhjdvotoOJyaA8nQ&imwidth=1920"
-        ,
-
-        "https://media.oneweb.mercedes-benz.com/images/dynamic/europe/NL/192382/805_055/iris.webp?q=COSY-EU-100-1713d0VXqrWFqtyO67PobzIr3eWsrrCsdRRzwQZUTBZbMw3SGtGyjtsd2HdcUfpMqXGEjnmJ0leYhOB2sB5bApUPlI5uGmIQC3aMrkzNH%25km7j8h3hKVkKw%25vqm6ayLRsGWYaxUkYrH1Gmfn8w7O2oiZKiEM4FvSlTg9LY96PDaGbSeWFXMtsdBhxcUfAL0XGE5adJ0l4OVOB2iWvbApFvdI5uCmZQC3zv3kze94pOy1qFm9eh10N2NTmj32v2bwbU15zsRG1gdPVyJ4CM&IMGT=W27&POV=BE180&BKGND=9&uni=m&cp=o1Yw6tbhjdvotoOJyaA8nQ&imwidth=1920"
-        ,
-    ];
-
 
     return (
         <>
@@ -357,10 +339,10 @@ const ReservationDetails = () => {
 
                                 {/* 📸 Uploaded Images */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {imagess.length > 0 ? (
-                                        imagess.map((url, index) => (
+                                    {reservation?.pictures && reservation.pictures.length > 0 ? (
+                                        reservation.pictures.map((picture, index) => (
                                             <div key={index} className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
-                                                <img src={url} alt={`Return Image ${index + 1}`} className="rounded-lg w-full h-40 object-cover" />
+                                                <img src={picture.url} alt={`Return Image ${index + 1}`} className="rounded-lg w-full h-40 object-cover" />
                                             </div>
                                         ))
                                     ) : (
