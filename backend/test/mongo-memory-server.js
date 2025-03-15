@@ -6,7 +6,7 @@ let mongoServer;
 async function startDatabase() {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
-    console.log('MongoDB URI', mongoUri);
+    console.log('MongoDB URI (start)', mongoUri);
     process.env.MONGODB_URI = mongoUri;
 
     await mongoose.connect(mongoUri, {

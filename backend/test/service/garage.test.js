@@ -15,8 +15,9 @@ describe('Your backend tests', () => {
 
   // Your tests go here...
   it('should perform a test', async () => {
+    console.log('MONGODB_URI', process.env.MONGODB_URI);
     const allGarages = await getAllGarages();
     expect(allGarages).toHaveLength(0);
-    console.log("Get all garages", allGarages());
+    console.log("Get all garages", allGarages);
   });
 });
