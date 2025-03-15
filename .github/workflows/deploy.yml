@@ -101,6 +101,9 @@ jobs:
         echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env
         echo "DOCKER_ACCESS_TOKEN=${{ secrets.DOCKER_ACCESS_TOKEN }}" >> .env
         echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ vars.AWS_REGION }}" >> .env
         # Specific backend environment variables
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
         echo "API_NAME=${{ vars.API_NAME }}" >> .env
