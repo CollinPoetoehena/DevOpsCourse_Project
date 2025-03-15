@@ -132,7 +132,7 @@ jobs:
         echo "NEXT_PUBLIC_COGNITO_DOMAIN=${{ vars.COGNITO_DOMAIN }}" >> .env
         echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN=$DEPLOYED_CALLBACK_URL_COGNITO" >> .env
         echo "NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT=$DEPLOYED_LOGOUT_URL_COGNITO" >> .env
-        
+
     # Move infrastructure/extension folder to the root so that it is added in the root of the source bundle (required by AWS)
     # This is not done in the project structure since it is a more logical place in the infrastructure folder
     # More folders, such as .ebextensions can be added accordingly. The cp command copies it and places it in a new location.
