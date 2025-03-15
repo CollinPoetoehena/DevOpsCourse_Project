@@ -4,8 +4,9 @@ TODO: explain how the application is deployed using Docker
 
 TODO: explain that AWS EB automatically runs the docker-compose.yml, which pulls the images. 
 TODO: explain: a custom prebuild script 01-docker-login.sh is executed beforehand to login to docker with the necessary credentials to allow docker-compose.yml to pull images from the private Docker Hub repository.
+TODO: The user automatically becomes a user. We manage this by only having a maintainer and admin group in AWS Cognito, where if the user is part of the maintainer group, the maintainer role is assigned for example. If not part of any of those groups, the user has the user role. This optimizes storage and efficiency, since we now only have two groups, and all other users automatically get the user role.
 
-
+TODO: explain how deployment works with load balancers, etc. Add the drawio figure here as well.
 
 
 ## Cost Comparison: Single vs. Separate Elastic Beanstalk Services for Frontend and Backend
@@ -28,16 +29,17 @@ In summary:
 
 Therefore: 
 
-✅ **Using a single Elastic Beanstalk service with Docker Compose (`Dockerrun.aws.json`) is more cost-effective**, especially for small applications.
+✅ **Using a single Elastic Beanstalk service with Docker Compose is more cost-effective**, especially for small applications.
 
 ❌ **Using two separate services is better for scaling independently but increases costs significantly** due to additional EC2 instances, load balancers, and potential inter-service data transfer costs.
 
 It is a best practice to separate them, however, depending on the specific application it can also be possible to combine them into one service to optimize costs and simplicity for example.
 
+TODO: explain here new version, using two separate EB environments, since it was hell to debug and access logs, etc. This allowed for a better decomposition into a more modularized approach, with the frontend and backend having its own EB environment. This allows for scaling separately when needed and better debugging and fault localization when necessary.
 
-# GitHub Secrets and Variables
 
 
+## GitHub Secrets and Variables
 In GitHub, you can create secrets and variables for GitHub Actions in Settings > Security > Secrets and variables > Actions for example:
 - https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions
 - https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables 
@@ -50,33 +52,40 @@ getaddrinfo ENOTFOUND 'http
 This happened because the BACKEND_URL was inside '' in the GitHub environment variables. However, when removing the '' around it, it worked without problems.
 
 
-## Required variables and secrets for GitHub Actions
+### Required variables and secrets for GitHub Actions
 The following repository secrets need to be created:
 - DOCKER_USERNAME: Docker Hub username
 - DOCKER_ACCESS_TOKEN: Docker personal access token (with read, write and delete permission): https://docs.docker.com/security/for-developers/access-tokens/
 
 For the environment secrets, create an environment called main and add the following secrets (see backend/dummy.env):
 - MONGO_URI: MongoDB connection string
-- SECRET_KEY: bcrypt secret key
-- FACTOR: bcrypt factor
-- ROLE: bcrypt role
 - AWS_ACCESS_KEY_ID: AWS access key id
 - AWS_SECRET_ACCESS_KEY: AWS access key secret
 And add the following environment variables:
 - API_NAME: Name of the API
 - API_PORT: Port of the API
 - FRONTEND_PORT: Port of the frontend
-- API_VERSION: Version of the API
+- API_VERSION: Version of the API (should be numerical only, since the deployed environment already uses api. in the domain, such as /v1)
 - FRONTEND_URL: Frontend URL
 - BACKEND_URL: Backend URL
 - VEHICLE_URL: URL of the vehicle API
 - AWS_REGION: AWS region used
 - S3_BUCKET_NAME: AWS S3 bucket name (created with Terraform)
 - EB_APP_NAME: AWS Elastic Beanstalk application name (created with Terraform)
-- EB_ENV_NAME: AWS Elastic Beanstalk environment name (created with Terraform)
+- EB_ENV_NAME_PREFIX: AWS Elastic Beanstalk environment name prefix, can be extended with frontend or backend (created with Terraform)
+- COGNITO_APP_CLIENT_ID: client id of the application created with the AWS Cognito user pool
+- COGNITO_USER_POOL_ID: AWS Cognito user pool id
+- COGNITO_DOMAIN: AWS Cognito user pool domain
 - NEXT_PUBLIC_FRONTEND_URL: Frontend base URL including version
 - NEXT_PUBLIC_BACKEND_FULL_URL: Backend URL including version
+- NEXT_PUBLIC_COGNITO_AUTHORITY: AWS Cognito user pool authority, used for the frontend
+- NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_IN: AWS Cognito user pool sign in redirect URL
+- NEXT_PUBLIC_COGNITO_REDIRECT_SIGN_OUT: AWS Cognito user pool sign out redirect URL
+- DEPLOYED_FE_APP_DOMAIN_URL: domain of Route 53 and URL of the deployed frontend, such as https://www.rent-a-car-cloud.click 
+- DEPLOYED_BE_APP_DOMAIN_URL: domain  of Route 53 and URL of the deployed backend, such as https://api.rent-a-car-cloud.click
 
+Not all environment variables in the dummy.env are present here (such as for the frontend), since some variables are reused. For example, the COGNITO_APP_CLIENT_ID is used in the backend and frontend, but can be only one variable in the GitHub environment, and there the NEXT_PUBLIC_ prefix is specific to the Next.js frontend, since this is required to access the environment variable.
 
-TODO: more?
 This needs to be in one environment, as GitHub Actions does not support multiple environments being loaded at this time.
+
+In real world scenarios, you can create environments per stage, such as dev, test and prod, etc. Then in the GitHub Actions you can reference the corresponding environment for each workflow to use the correct environment, such as deploying to dev or prod, etc.

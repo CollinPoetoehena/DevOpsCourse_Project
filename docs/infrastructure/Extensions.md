@@ -1,6 +1,6 @@
 # Extensions
 
-The extensions folder defines additional files for setting up/deploying the AWS application, such as AWS Elastic Beanstalk platform hooks to execute before building.
+The infrastructure/extensions folder defines additional files for setting up/deploying the AWS application, such as AWS Elastic Beanstalk platform hooks to execute before building.
 The folders/files need to be compatible with the specific cloud provider, so specific names are used. See the files for additional documentation.
 
 Additional links:

@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 const CreateGarage = () => {
     const router = useRouter();
     const { isAuthenticated } = useAuth();
-    const { createGarage } = useGarage();
+    const { createGarage, getGarage } = useGarage();
 
     const [garage, setGarage] = useState<Partial<Garage>>({
         name: "",
@@ -28,6 +28,7 @@ const CreateGarage = () => {
 
         if (isAuthenticated && garage.name) {
             await createGarage(garage as Garage).then(() => router.back());
+            getGarage();
         }
     };
 
@@ -51,18 +52,20 @@ const CreateGarage = () => {
             </Head>
 
             <div className="flex flex-col md:flex-row pt-16 md:min-h-screen max-h-screen">
-                <div className="w-full relative overflow-x-auto p-4 lg:p-8 mx-auto lg:max-w-4xl">
+                <div className="w-full relative overflow-x-auto p-4 lg:p-8 mx-auto">
+                <h2 className="text-2xl font-semibold mb-6">Register a new <span className="text-brand">Location</span></h2>
+
                     <form className="w-full" onSubmit={handleCreateGarage}>
-                        {/* Garage Name */}
+                        {/* Garage Location */}
                         <div className="mb-6">
-                            <label htmlFor="garage-name" className="block mb-2 text-sm font-medium text-gray-900">
-                                Garage Name
+                            <label htmlFor="garage-location" className="block mb-2 text-sm font-medium text-gray-900">
+                                Location
                             </label>
                             <input
                                 type="text"
-                                id="garage-name"
+                                id="garage-location"
                                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                                placeholder="Enter garage name"
+                                placeholder="Enter Location"
                                 required
                                 name="name"
                                 value={garage.name}

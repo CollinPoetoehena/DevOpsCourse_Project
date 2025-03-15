@@ -10,7 +10,7 @@ const {
     approveReturn,
     rejectReturn
 } = require('../services/reservation.service');
-const { auth } = require('../middleware/auth');
+const { auth, checkUser, checkMaintainer } = require('../middleware/auth');
 
 /**
  * GET /reservations
@@ -31,7 +31,7 @@ router.get('/', auth, async (req, res) => {
  * - Create a new reservation for the logged-in user.
  * - Immediately update the associated car's status to "reserved".
  */
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, checkUser, async (req, res) => {
     try {
         const newReservation = await createReservation(req.body, req.user);
         res.status(201).json(newReservation);

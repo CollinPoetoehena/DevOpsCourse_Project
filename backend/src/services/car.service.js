@@ -5,7 +5,7 @@ const Reservation = require('../models/reservation.model');
 async function addCar(carData, user) {
     if (user.role === 'maintainer') {
         // Fetch the garage managed by this user
-        const managedGarage = await Garage.findOne({ maintainer: user.id || user._id });
+        const managedGarage = await Garage.findOne({ maintainer: user.username });
         if (!managedGarage) {
             throw new Error('No garage found for this maintainer');
         }
@@ -22,9 +22,16 @@ async function addCar(carData, user) {
     return newCar;
 }
 
-
 async function getAllCars() {
-    const cars = await Car.find().populate('garage', 'name');
+    const cars = await Car.find()
+        .populate('garage', 'name')
+        .sort({ 
+            make: 1,        // Sort by Make (A-Z)
+            model: 1,       // Then by Model (A-Z)
+            firstRegistration: -1, // Then by Year (Newest → Oldest)
+            mileage: 1,     // Then by Mileage (Lowest → Highest)
+        });
+
     return cars;
 }
 
@@ -61,7 +68,7 @@ async function updateCar(carId, updateData, user) {
     }
 
     // For maintainers, verify that the car's garage matches the user's garage.
-    if (user.role === 'maintainer' && (!car.garage || !car.garage.maintainer.equals(user.id))) {
+    if (user.role !== 'maintainer' || (!car.garage || car.garage.maintainer !== user.username)) {
         throw new Error('Unauthorized to update this car');
     }
 
@@ -75,9 +82,9 @@ async function deleteCar(carId, user) {
         throw new Error('Car not found');
     }
 
-    // For maintainers, verify that the car belongs to their garage.
-    if (user.role === 'maintainer' && (!car.garage || !car.garage.maintainer.equals(user.id))) {
-        throw new Error('Unauthorized to delete this car');
+    // For maintainers, verify that the car's garage matches the user's garage.
+    if (user.role !== 'maintainer' || (!car.garage || car.garage.maintainer !== user.username)) {
+        throw new Error('Unauthorized to update this car');
     }
 
     await Car.findByIdAndDelete(carId);

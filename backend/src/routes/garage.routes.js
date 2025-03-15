@@ -5,6 +5,7 @@ const {
     createGarage,
     getAllGarages,
     getGarageById,
+    getGarageByUsername,
     updateGarage,
     deleteGarage
 } = require('../services/garage.service');
@@ -19,7 +20,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Create a new garage (accessible by authenticated users)
+// Create a new garage (maintainer-only)
 // The creator will automatically be assigned as the maintainer
 router.post('/', auth, async (req, res) => {
     try {
@@ -31,8 +32,18 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
+// Retrieve the garage of the authenticated user
+router.get('/user', auth, async (req, res) => {        
+    try {
+        const garage = await getGarageByUsername(req.user.username);
+        res.status(200).json(garage);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Get a single garage by ID using the service
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
     try {
         const garage = await getGarageById(req.params.id);
         if (!garage) {
@@ -43,6 +54,7 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // Update a garage using the service (only the assigned maintainer or an admin can update)
 router.put('/:id', auth, async (req, res) => {

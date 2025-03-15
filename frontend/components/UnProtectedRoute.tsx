@@ -1,24 +1,22 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/AuthContext';
-import useAuthentication from '@/lib/hooks/useAuthentication';
+import { useAuth as useOidcAuth } from "react-oidc-context";
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { isAuthenticated } = useAuth();
-    const router = useRouter();
-    const { checkAuth } = useAuthentication();
-    const [isAuth, setIsAuth] = useState<boolean | null>(null);
-    
-    useEffect(() => {        
-        checkAuth();
-        if (isAuthenticated !== null && isAuthenticated) {
-            router.push('/');
-        } else if (isAuthenticated !== null && !isAuthenticated) {
-            setIsAuth(true);
-        }       
-    }, [isAuthenticated]);
+const UnProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const auth = useOidcAuth();
+  const router = useRouter();
+  const [isAuth, setIsAuth] = useState<boolean | null>(null);
 
-    return isAuth ? <>{children}</> : null;
+  useEffect(() => {
+    // No need to checkAuth() here, will otherwise lead to having to click logout twice before actual logout
+    if (auth.isAuthenticated) {
+      router.push('/');
+    } else if (auth.isAuthenticated === false) {
+      setIsAuth(true);
+    }
+  }, [auth.isAuthenticated]);
+
+  return isAuth ? <>{children}</> : null;
 };
 
-export default ProtectedRoute;
+export default UnProtectedRoute;

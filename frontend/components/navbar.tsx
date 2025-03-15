@@ -1,14 +1,18 @@
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect } from 'react';
 import useAuthentication from '@/lib/hooks/useAuthentication';
 import { useRouter } from 'next/router';
 import { Role } from '@/lib/types';
 import ActionButton from './common/actionButton';
 import { useAuth } from '@/AuthContext';
+import useGarage from '@/lib/hooks/useGarage';
+import { useGarageContext } from '@/GarageContext';
 
 const Navbar = () => {
-    const { logout } = useAuthentication();
+    const { logout, token } = useAuthentication();
     const { isAuthenticated, role } = useAuth();
+    const { getGarage } = useGarage();
+    const { garageState } = useGarageContext();
     const router = useRouter();
 
     const { id } = router.query;
@@ -16,7 +20,13 @@ const Navbar = () => {
     const isDetailPage = (asPath: string, baseRoute: any) => {
         const regex = new RegExp(`^/${baseRoute}/[^/]+$`);
         return regex.test(asPath);
-    };          
+    };
+
+    useEffect(() => {
+        if (token) {
+            getGarage();
+        }
+    }, [token]);
 
     return (
         <>
@@ -30,10 +40,26 @@ const Navbar = () => {
                     </Link>
                     <div className="flex items-center space-x-2 md:order-2">
 
-                        {isAuthenticated && role == Role.maintainer && router.pathname === '/' && (
+                        {isAuthenticated && (role == Role.user || (role == Role.maintainer && garageState.userGarage) || role == Role.admin) && router.pathname === '/' && (
+                            <ActionButton
+                                text={`${role == Role.user ? 'My' : 'See'} Reservations`}
+                                href='/reservation'
+                                customClasses='bg-brand text-white'
+                            />
+                        )}
+
+                        {isAuthenticated && role == Role.maintainer && !garageState.userGarage && router.pathname === '/' && (
                             <ActionButton
                                 text='Add Location'
                                 href='/garage/create'
+                                customClasses='bg-brand text-white'
+                            />
+                        )}
+
+                        {isAuthenticated && role == Role.maintainer && garageState.userGarage && router.pathname === '/' && (
+                            <ActionButton
+                                text='Add Car'
+                                href='/car/create'
                                 customClasses='bg-brand text-white'
                             />
                         )}

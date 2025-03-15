@@ -131,13 +131,15 @@ export enum GearType {
  */
 export type Reservation = {
     _id: string;
-    user: User; // or a string ID if not populated
-    car: Car;   // or a string ID if not populated
+    user: string;
+    car: Car | string;
     startDate: string;
     endDate: string;
     status: ReservationStatus;
     createdAt: string;
     updatedAt: string;
+    pictures?: string[];
+    mileage?: number;
 };
 
 /**
@@ -146,6 +148,8 @@ export type Reservation = {
 export enum ReservationStatus {
     ongoing = 'ongoing',
     expired = 'expired',
+    completed = 'completed',
+    return = 'return_requested',
 }
 
 /**

@@ -1,3 +1,5 @@
+# Old: removed when switching to two separate EB environments for frontend and backend, 
+# now this file is present in the backend and frontend folders respectively
 # Docker Compose file used for deployment (should be called docker-compose.yml, as this is used by AWS directly)
 
 services:
@@ -9,7 +11,7 @@ services:
     ports:
       # This forwards any traffic send through port 80 (main port on AWS EB instace) to container port 3000 (frontend container)
       - "80:3000"
-    # Load a .env file with the container for the backend
+    # Load a .env file with the container for the frontend
     env_file:
       # Use .env file from the root of the project
       # (Here the .env file is loaded all at once in the deployed environment, so can just be .env in root now)
