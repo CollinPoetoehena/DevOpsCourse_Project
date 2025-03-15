@@ -108,7 +108,7 @@ async function deleteReservation(reservationId, user) {
     await Reservation.findByIdAndDelete(reservationId);
 }
 
-async function requestReturn(reservationId, user) {    
+async function requestReturn(reservationId, user, pictures) {
     const reservation = await Reservation.findById(reservationId);
     if (!reservation) {
         throw new Error('Reservation not found');
@@ -116,7 +116,8 @@ async function requestReturn(reservationId, user) {
     if (user.role !== 'maintainer' && reservation.user !== user.username) {
         throw new Error('Unauthorized to request return');
     }
-    reservation.requestReturn();
+    // Request return (e.g. update status and update pictures)
+    reservation.requestReturn(pictures);
     await reservation.save();
     return reservation;
 }

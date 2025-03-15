@@ -76,9 +76,14 @@ reservationSchema.pre('save', function (next) {
 });
 
 // Instance methods for handling return requests
-reservationSchema.methods.requestReturn = function () {
+reservationSchema.methods.requestReturn = function (pictures) {
     if (this.status === 'ongoing') {
         this.status = 'return_requested';
+        // Set pictures
+        this.pictures = pictures.map(url => ({
+            url: url,
+            uploadedAt: new Date()
+        }));
     } else {
         throw new Error("Cannot request return unless reservation is ongoing.");
     }
