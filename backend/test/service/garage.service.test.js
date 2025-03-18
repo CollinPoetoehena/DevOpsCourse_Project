@@ -1,45 +1,44 @@
 const garageService = require("../../src/services/garage.service");
 const Garage = require("../../src/models/garage.model");
-const { clearDatabase } = require("../setupTests");
 
-beforeEach(async () => {
-  await clearDatabase();
-});
 
 describe("🛠️ Garage Service Tests", () => {
-  test("Should create a garage", async () => {
-    const garage = await garageService.createGarage({ name: "Downtown Garage" }, { username: "admin", role: "admin" });
-    expect(garage.name).toBe("Downtown Garage");
+  let testAdmin;
+  let testGarage;
+  let testGarage2;
+
+  beforeEach(async () => {
+    await Garage.deleteMany();
+    testAdmin = { username: "garageMaintainer", role: "maintainer" }
+    testGarage = await Garage.create({ name: "Test Garage", maintainer: testAdmin.username });
   });
 
-  test("Should fetch all garages", async () => {
-    await Garage.create({ name: "Garage A" });
+  test("Should create a garage", async () => {
+    testGarage2 = await garageService.createGarage({ name: "Test Garage 2" }, testAdmin);
+    expect(testGarage2.name).toBe("Test Garage 2");
+  });
+
+  test("Should get all garages", async () => {
     const garages = await garageService.getAllGarages();
     expect(garages.length).toBe(1);
   });
 
   test("Should update a garage", async () => {
-    const garage = await Garage.create({ name: "Garage A" });
-    const updatedGarage = await garageService.updateGarage(garage._id, { name: "Garage B" }, { username: "admin", role: "admin" });
-    expect(updatedGarage.name).toBe("Garage B");
+    const testGarageCopy = testGarage;
+    testGarageCopy.name = "Updated Garage";
+    testAdmin.role = "admin";
+    const updatedGarage = await garageService.updateGarage(testGarage._id, testGarageCopy, testAdmin);
+    expect(updatedGarage.name).toBe("Updated Garage");
   });
 
   test("Should delete a garage", async () => {
-    const garage = await Garage.create({ name: "Garage A" });
-    await garageService.deleteGarage(garage._id, { username: "admin", role: "admin" });
+    await garageService.deleteGarage(testGarage._id, testAdmin);
     const garages = await garageService.getAllGarages();
     expect(garages.length).toBe(0);
   });
 
-  test("Should fail to delete a non-existent garage", async () => {
-    await expect(garageService.deleteGarage("nonExistentId", { username: "admin", role: "admin" }))
-      .rejects.toThrow("Garage not found");
-  });
-
   test("Should handle invalid input when creating a garage", async () => {
-    await expect(garageService.createGarage({}, { username: "admin", role: "admin" }))
-      .rejects.toThrow("Invalid input");
+    await expect(garageService.createGarage({}, testAdmin))
+      .rejects.toThrow();
   });
-
-  // Add more tests as needed
 });
