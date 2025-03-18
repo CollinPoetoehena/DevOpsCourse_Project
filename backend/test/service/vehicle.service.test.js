@@ -1,4 +1,4 @@
-const vehicleService = require("../src/services/vehicle.service");
+const vehicleService = require("../../src/services/vehicle.service");
 const axios = require("axios");
 
 jest.mock("axios"); // Mock external API requests

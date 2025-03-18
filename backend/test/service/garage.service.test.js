@@ -1,6 +1,6 @@
-const garageService = require("../src/services/garage.service");
-const Garage = require("../src/models/garage.model");
-const { clearDatabase } = require("./setupTests");
+const garageService = require("../../src/services/garage.service");
+const Garage = require("../../src/models/garage.model");
+const { clearDatabase } = require("../setupTests");
 
 beforeEach(async () => {
   await clearDatabase();

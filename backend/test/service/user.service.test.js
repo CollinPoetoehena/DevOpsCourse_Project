@@ -1,7 +1,7 @@
-const userService = require("../src/services/user.service");
-const User = require("../src/models/user.model");
+const userService = require("../../src/services/user.service");
+const User = require("../../src/models/user.model");
 const bcrypt = require("bcrypt");
-const { clearDatabase } = require("./setupTests");
+const { clearDatabase } = require("../setupTests");
 
 beforeEach(async () => {
   await clearDatabase();

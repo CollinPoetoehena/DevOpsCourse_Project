@@ -1,7 +1,7 @@
-const reservationService = require("../src/services/reservation.service");
-const Reservation = require("../src/models/reservation.model");
-const Car = require("../src/models/car.model");
-const { clearDatabase } = require("./setupTests");
+const reservationService = require("../../src/services/reservation.service");
+const Reservation = require("../../src/models/reservation.model");
+const Car = require("../../src/models/car.model");
+const { clearDatabase } = require("../setupTests");
 
 beforeEach(async () => {
   await clearDatabase();
