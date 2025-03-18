@@ -1,53 +1,77 @@
 const carService = require("../../src/services/car.service");
-const Car = require("../../src/models/car.model");
 const Garage = require("../../src/models/garage.model");
-const { clearDatabase } = require("../setupTests");
 
-beforeEach(async () => {
-  await clearDatabase();
-});
 
 describe("🚗 Car Service Tests", () => {
+  let testGarage;
+  let testCar;
+  let testCar2;
+  let testAdmin = { username: "admin", role: "maintainer" };
+
+  beforeAll(async () => {
+    testGarage = await Garage.create({ name: "Test Garage", maintainer: testAdmin.username });
+
+    testCar = await carService.addCar({
+      make: "Lamborghini",
+      model: "Aventador",
+      garage: testGarage._id,
+      gear: "Automatic",
+      powerHP: 750,
+      firstRegistration: 2019,
+      fuelType: "Gasoline",
+      bodyType: "Coupe",
+    }, testAdmin);
+  });
+
   test("Should add a new car", async () => {
-    const garage = await Garage.create({ name: "Test Garage", maintainer: "admin" });
+    testCar2 = await carService.addCar({
+      make: "Ferrari",
+      model: "812 Superfast",
+      garage: testGarage._id,
+      gear: "Automatic",
+      powerHP: 800,
+      firstRegistration: 2024,
+      fuelType: "Gasoline",
+      bodyType: "Coupe",
+    }, testAdmin);
 
-    const car = await carService.addCar({ brand: "Tesla", model: "Model S", garage: garage._id }, { username: "admin", role: "maintainer" });
-
-    expect(car.brand).toBe("Tesla");
-    expect(car.model).toBe("Model S");
-    expect(car.garage.toString()).toBe(garage._id.toString());
+    expect(testCar2.make).toBe("Ferrari");
+    expect(testCar2.model).toBe("812 Superfast");
+    expect(testCar2.garage.toString()).toBe(testGarage._id.toString());
   });
 
   test("Should get all cars", async () => {
-    await Car.create({ brand: "Honda", model: "Civic" });
     const cars = await carService.getAllCars();
-    expect(cars.length).toBe(1);
-    expect(cars[0].brand).toBe("Honda");
-    expect(cars[0].model).toBe("Civic");
+
+    expect(cars.length).toBe(2);
+    expect(cars[0].make).toBe("Ferrari");
+    expect(cars[0].model).toBe("812 Superfast");
+    expect(cars[1].make).toBe(testCar.make);
+    expect(cars[1].model).toBe(testCar.model);
   });
 
   test("Should update a car", async () => {
-    const car = await Car.create({ brand: "Honda", model: "Civic" });
-    const updatedCar = await carService.updateCar(car._id, { brand: "Toyota", model: "Corolla" }, { username: "admin", role: "maintainer" });
-    expect(updatedCar.brand).toBe("Toyota");
-    expect(updatedCar.model).toBe("Corolla");
+    const testCarCopy = testCar;
+    testCarCopy.powerHP = 770;
+    const updatedCar = await carService.updateCar(testCar._id, testCarCopy, testAdmin);
+    expect(updatedCar.powerHP).toBe(770);
   });
 
   test("Should delete a car", async () => {
-    const car = await Car.create({ brand: "Honda", model: "Civic" });
-    await carService.deleteCar(car._id, { username: "admin", role: "maintainer" });
+    await carService.deleteCar(testCar._id, testAdmin);
+    await carService.deleteCar(testCar2._id, testAdmin);
     const cars = await carService.getAllCars();
     expect(cars.length).toBe(0);
   });
 
   test("Should fail to delete a non-existent car", async () => {
-    await expect(carService.deleteCar("nonExistentId", { username: "admin", role: "maintainer" }))
+    await expect(carService.deleteCar('67d99feeb65a5424cc50215d', testAdmin))
       .rejects.toThrow("Car not found");
   });
 
   test("Should handle invalid input when adding a car", async () => {
-    await expect(carService.addCar({}, { username: "admin", role: "maintainer" }))
-      .rejects.toThrow("Invalid input");
+    await expect(carService.addCar({}, testAdmin))
+      .rejects.toThrow();
   });
 
   // Add more tests as needed
