@@ -3,11 +3,12 @@ const User = require("../../src/models/user.model");
 const bcrypt = require("bcrypt");
 const { clearDatabase } = require("../setupTests");
 
-beforeEach(async () => {
-  await clearDatabase();
-});
+// beforeEach(async () => {
+//   await clearDatabase();
+// });
 
-describe("👤 User Service Tests", () => {
+// Skip these tests since the users are managed by AWS now
+describe.skip("👤 User Service Tests", () => {
   test("Should register a new user", async () => {
     const user = await userService.registerUser({ username: "testUser", email: "test@example.com", password: "password123" });
     expect(user).toBeDefined();
