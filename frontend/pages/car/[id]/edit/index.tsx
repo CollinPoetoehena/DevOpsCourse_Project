@@ -218,7 +218,7 @@ const EditCar = () => {
             </div>
 
             {/* Image */}
-            <div>
+            {/* <div>
               <label htmlFor="image" className="block mb-2 text-sm font-medium">Image URL</label>
               <input
                 type="url"
@@ -229,10 +229,10 @@ const EditCar = () => {
                 onChange={handleInputChange}
                 className="shadow-sm bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5"
               />
-            </div>
+            </div> */}
 
             {/* Status */}
-            <div>
+            {/* <div>
               <label htmlFor="status" className="block mb-2 text-sm font-medium">Status</label>
               <select
                 id="status"
@@ -245,7 +245,7 @@ const EditCar = () => {
                 <option value={CarStatus.available}>Available</option>
                 <option value={CarStatus.reserved}>Reserved</option>
               </select>
-            </div>
+            </div> */}
 
             {/* Save Changes Button */}
             <div className="col-span-full">

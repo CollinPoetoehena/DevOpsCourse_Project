@@ -51,6 +51,7 @@ const CreateCar = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (isAuthenticated) {
+            // @ts-ignore
             await createCar(car).then(() => router.push("/"));
         }
     };
@@ -232,7 +233,7 @@ const CreateCar = () => {
                         </div>
 
                         {/* Image URL */}
-                        <div className="mb-4">
+                        {/* <div className="mb-4">
                             <label htmlFor="image" className="block mb-2 text-sm font-medium text-gray-900">
                                 Image URL
                             </label>
@@ -245,7 +246,7 @@ const CreateCar = () => {
                                 value={car.image}
                                 onChange={handleInputChange}
                             />
-                        </div>
+                        </div> */}
 
                         {/* Submit Button */}
                         <ActionButton

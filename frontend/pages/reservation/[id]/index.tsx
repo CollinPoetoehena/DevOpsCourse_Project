@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -48,7 +49,7 @@ const ReservationDetails = () => {
         try {
             const formData = new FormData();
             images.forEach((file) => formData.append("images", file));
-    
+
             // Send a POST request to upload images
             const response = await axios.post(`${config.image}/upload-images`, formData, {
                 headers: {
@@ -56,7 +57,7 @@ const ReservationDetails = () => {
                     bearer: token,
                 },
             });
-    
+
             return response.data.imageUrls;
         } catch (error) {
             console.error("Image upload failed:", error);

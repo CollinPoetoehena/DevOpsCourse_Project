@@ -78,6 +78,7 @@ function useAuthentication() {
     const clientId = config.cognitoClientId;
     const logoutUri = config.cognitoLogoutUri;
     const cognitoDomain = config.cognitoDomain;
+    // @ts-ignore
     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   };
 

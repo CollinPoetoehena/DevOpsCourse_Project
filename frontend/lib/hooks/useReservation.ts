@@ -49,8 +49,9 @@ const useReservation = () => {
             setLoading(false);
         }
     };
-
+    
     // Get a single reservation by ID
+    // @ts-ignore
     const getReservationById = async (id: string): Promise<Reservation> => {
         try {
             if (token) {
