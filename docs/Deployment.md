@@ -52,6 +52,9 @@ getaddrinfo ENOTFOUND 'http
 This happened because the BACKEND_URL was inside '' in the GitHub environment variables. However, when removing the '' around it, it worked without problems.
 
 
+TODO: if deployment with build and "npm run start" for next.js instead of "npm run dev" fixes frontend to sometimes crash and render the EB environment inoperable and showing 502 Bad Gateway fixes that issue, add explanation here that you should use that, since npm run dev is not for production environments and causes those kinds of errors.
+
+
 ### Required variables and secrets for GitHub Actions
 The following repository secrets need to be created:
 - DOCKER_USERNAME: Docker Hub username
