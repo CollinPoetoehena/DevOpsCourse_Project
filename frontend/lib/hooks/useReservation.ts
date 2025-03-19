@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { useNotification } from "./useNotification";
 import config from "../config";
-import { Reservation } from "../types";
+import { Picture, Reservation } from "../types";
 import useAuthentication from './useAuthentication';
 import { useReservationContext } from '@/ReservationContext';
 import { useState } from 'react';
@@ -106,6 +106,7 @@ const useReservation = () => {
     };
 
     // Request return (User submits mileage and pictures)
+    // Keep pictures as string for the image URLs, the backend handles further processing
     const requestReturn = async (id: string, returnData: { pictures: string[] }): Promise<void> => {
         try {
             const result: AxiosResponse<{ message: string, reservation: Reservation }> = await axios.post(
@@ -126,7 +127,7 @@ const useReservation = () => {
     };
 
     // Approve return request (Maintainer confirms return)
-    const approveReturn = async (id: string, pictures: string[]): Promise<void> => {
+    const approveReturn = async (id: string, pictures: Picture[]): Promise<void> => {
         try {
             const result: AxiosResponse<{ message: string, reservation: Reservation }> = await axios.post(
                 `${config.reservation}/${id}/approve-return`,
@@ -146,7 +147,7 @@ const useReservation = () => {
     };
 
     // Reject return request (Maintainer rejects and reverts status to ongoing)
-    const rejectReturn = async (id: string, pictures: string[]): Promise<void> => {
+    const rejectReturn = async (id: string, pictures: Picture[]): Promise<void> => {
         try {
             const result: AxiosResponse<{ message: string, reservation: Reservation }> = await axios.post(
                 `${config.reservation}/${id}/reject-return`,

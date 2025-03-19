@@ -100,8 +100,8 @@ router.delete('/:id', auth, async (req, res) => {
  * - Changes reservation status from "ongoing" to "return_requested".
  */
 router.post('/:id/request-return', auth, async (req, res) => {
-    try {
-        const reservation = await requestReturn(req.params.id, req.user);
+    try { 
+        const reservation = await requestReturn(req.params.id, req.user, req.body.pictures);
         res.status(200).json({ message: 'Return requested successfully', reservation });
     } catch (error) {
         if (error.message === 'Reservation not found') {

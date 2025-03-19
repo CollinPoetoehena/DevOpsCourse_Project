@@ -52,6 +52,7 @@ reservationSchema.pre('save', function (next) {
 
 // Pre-save hook to automatically increment picture versions for new pictures
 reservationSchema.pre('save', function (next) {
+    // TODO: what does this do? This lets the pictures have version 2,3,4...till 6 for all the uploaded pictures, but why? Can be deleted?
     // Only run if the pictures array was modified
     if (this.isModified('pictures')) {
         let maxVersion = 0;
@@ -76,9 +77,14 @@ reservationSchema.pre('save', function (next) {
 });
 
 // Instance methods for handling return requests
-reservationSchema.methods.requestReturn = function () {
+reservationSchema.methods.requestReturn = function (pictures) {
     if (this.status === 'ongoing') {
         this.status = 'return_requested';
+        // Set pictures
+        this.pictures = pictures.map(url => ({
+            url: url,
+            uploadedAt: new Date()
+        }));
     } else {
         throw new Error("Cannot request return unless reservation is ongoing.");
     }
