@@ -6,7 +6,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "start": "next start",
+    "start": "npm run build && next start",
     "tw": "tailwind build ./styles/globals.css -o ./styles/tailwind.css",
     "test": "jest test/main.test.js"
   },
