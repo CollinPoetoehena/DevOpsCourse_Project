@@ -181,7 +181,7 @@ const CarPage = () => {
             </div>
 
             {/* Status */}
-            <div>
+            {/* <div>
               <label htmlFor="car-status" className="block mb-2 text-sm font-medium">Status</label>
               <input
                 id="car-status"
@@ -191,7 +191,7 @@ const CarPage = () => {
                 value={car?.status || CarStatus.reserved}
                 readOnly
               />
-            </div>
+            </div> */}
           </form>
         </div>
       </div>

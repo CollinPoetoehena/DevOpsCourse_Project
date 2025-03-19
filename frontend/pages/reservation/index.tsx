@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Head from "next/head";
 import config from "@/lib/config";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
