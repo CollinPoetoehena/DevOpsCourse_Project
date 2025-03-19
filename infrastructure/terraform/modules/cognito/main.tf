@@ -53,9 +53,9 @@ resource "aws_cognito_user_pool_client" "main_user_pool_client" {
   allowed_oauth_flows = ["code", "implicit"]
   allowed_oauth_scopes = ["email", "openid", "phone", "profile", "aws.cognito.signin.user.admin"]
   # Callback urls cannot be empty with above settings, so use this default one for now, can be edited in code later
-  callback_urls = ["http://localhost:3000/auth/callback"]
+  callback_urls = ["http://localhost:3000/auth/callback", "https://www.rent-a-car-cloud.click/auth/callback"]
   # Do the same for logout urls, can be changed later
-  logout_urls = ["http://localhost:3000/auth/logout"]
+  logout_urls = ["http://localhost:3000/auth/logout", "https://www.rent-a-car-cloud.click/auth/logout"]
   # Add Cognito as an identity provider to allow the login page to have a provider (will otherwise not work without providers)
   supported_identity_providers = ["COGNITO"]
 
