@@ -46,4 +46,3 @@ jobs:
       APP_NAME: rac-app
       # Application name and version. Use Git commit id to create unique uploads and link back to commits
       APP_NAME_VERSION: "rac-app-${{ github.sha }}"
-      # TODO: find something else for version, since github.sha is not really a good one.

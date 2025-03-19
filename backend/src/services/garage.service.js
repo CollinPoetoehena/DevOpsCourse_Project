@@ -11,19 +11,8 @@ async function createGarage(garageData, creator) {
     // Automatically assign the creator as the maintainer
     garageData.maintainer = creator.username;
 
-    // TODO: this is not possible anymore, since the users are now in AWS Cognito groups for their role
-    // // If the creator isn't already a maintainer, update their role accordingly
-    // if (creator.role !== 'maintainer') {
-    //     await User.findByIdAndUpdate(creator._id, { role: 'maintainer' });
-    //     creator.role = 'maintainer';
-    // }
-
     // Create the garage
     const newGarage = await Garage.create(garageData);
-
-    // TODO: this is not possible anymore, since the users are now in AWS Cognito groups for their role
-    // // Update the user document to reference the new garage
-    // await User.findByIdAndUpdate(creator._id, { garage: newGarage._id });
 
     return newGarage;
 }
