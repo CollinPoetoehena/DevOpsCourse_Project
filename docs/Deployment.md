@@ -1,12 +1,50 @@
 # Deployment
 
-TODO: explain how the application is deployed using Docker
+Infrastructure deployment:
 
-TODO: explain that AWS EB automatically runs the docker-compose.yml, which pulls the images. 
-TODO: explain: a custom prebuild script 01-docker-login.sh is executed beforehand to login to docker with the necessary credentials to allow docker-compose.yml to pull images from the private Docker Hub repository.
-TODO: The user automatically becomes a user. We manage this by only having a maintainer and admin group in AWS Cognito, where if the user is part of the maintainer group, the maintainer role is assigned for example. If not part of any of those groups, the user has the user role. This optimizes storage and efficiency, since we now only have two groups, and all other users automatically get the user role.
+![alt text](./assets/AppInfrastructureArhitecture_DevOpsProject.drawio.png)
 
-TODO: explain how deployment works with load balancers, etc. Add the drawio figure here as well.
+## AWS Services Overview
+The infrastructure utilizes multiple AWS services, each fulfilling a specific role in the system architecture:
+
+- **Route 53:** Provides reliable and scalable DNS management for the domain `rent-a-car-cloud.click`. It ensures that user requests are correctly routed to the frontend application through DNS resolution.
+
+- **Certificate Manager:** Manages and provisions SSL/TLS certificates to secure all traffic between the client and server, ensuring end-to-end encrypted communication via HTTPS.
+
+- **Application Load Balancers:** Distribute traffic efficiently between the frontend and backend, enhancing availability and reliability. The frontend load balancer provides an endpoint for frontend requests, while the backend load balancer provides an endpoint for requests to the backend, which the frontend can utilize.
+
+- **Elastic Beanstalk:** Provides a Platform-as-a-Service (PaaS) environment for deploying and managing our containerized applications. Both the frontend (Next.js) and backend (Node.js) are deployed on separate Elastic Beanstalk environments for clear separation of concerns and improved maintainability.
+
+- **Cognito User Pool:** Handles user authentication and authorization. AWS Cognito provides managed user pools, issuing JWT tokens for securely verifying user identity and authorizing access to protected resources within the backend.
+
+- **Simple Storage Service (S3):** Serves as a scalable cloud storage solution for user-uploaded images. AWS S3 ensures high availability, durability, and cost-efficiency, making it an ideal choice for managing media assets.
+
+---
+
+### Other Integrated Services
+In addition to AWS services, we utilize external tools to enhance our infrastructure's efficiency and robustness:
+
+- **MongoDB Atlas:** A fully-managed NoSQL cloud database used for storing application data such as car information, user reservations, and other relevant entities. Its high availability and flexible schema design make it well-suited for our application’s needs.
+
+- **Terraform:** We use Terraform for Infrastructure as Code (IaC), allowing us to automate the provisioning and management of all AWS resources. The infrastructure is structured using Terraform modules divided for each AWS service, such as AWS Cognito, Elastic Beanstalk, and S3. This modular approach ensures consistency, scalability, and ease of management. The infrastructure can be fully deployed or modified using a single command (see Terraform.md):
+
+```bash
+terraform apply -auto-approve
+```
+
+## System Operation Workflow
+The following steps describe how the system operates and how the different services interact during runtime:
+
+1. The user accesses the frontend application via a browser at `www.rent-a-car-cloud.click`. The request is routed through the Internet Gateway and directed to Route 53 for DNS resolution.
+   
+2. **Route 53** forwards the request to the Application Load Balancer, which securely directs the user to the frontend application running on Elastic Beanstalk. The connection is protected by SSL/TLS certificates managed by AWS Certificate Manager.
+   
+3. When requests are made to the backend, such as fetching car information or making a reservation, the frontend communicates with the backend's Application Load Balancer via HTTPS at `api.rent-a-car-cloud.click`. The backend service is deployed on Elastic Beanstalk, running a Node.js REST API.
+   
+4. For user authentication, the frontend redirects users to a managed login page provided by the AWS Cognito User Pool. Upon successful login, AWS Cognito issues JWT tokens, which the frontend uses to authenticate subsequent requests to the backend. The full authentication flow is explained in one of the subsequent sections.
+   
+5. Images uploaded by users are sent from the frontend to the backend, which stores them in AWS S3. Furthermore, the backend stores application data, such as car inventory and user reservations, in MongoDB Atlas.
+
 
 
 ## Cost Comparison: Single vs. Separate Elastic Beanstalk Services for Frontend and Backend
@@ -35,7 +73,7 @@ Therefore:
 
 It is a best practice to separate them, however, depending on the specific application it can also be possible to combine them into one service to optimize costs and simplicity for example.
 
-TODO: explain here new version, using two separate EB environments, since it was hell to debug and access logs, etc. This allowed for a better decomposition into a more modularized approach, with the frontend and backend having its own EB environment. This allows for scaling separately when needed and better debugging and fault localization when necessary.
+Initially, given our tightly coupled architecture, we opted to deploy both the frontend and backend within a single Elastic Beanstalk environment using Docker Compose. While deploying them separately allows for independent scaling, we thought our application does not require such flexibility. Consolidating both services reduces infrastructure costs and simplified management. This decision aligns with one of our key requirements: optimizing cloud expenses. However, later we encountered many problems with this setup, such as a lack of modularization and decomposition in elements such as logs and error handling. Particularly during development we found it hard to identify the root service (frontend or backend) that caused problems. Therefore, we opted to switch to a setup with two load balanced Elastic Beanstalk environments, ensuring modularization and clear separation of concerns, increasing the maintainability of our system and solving the above encountered problems during development.
 
 
 
@@ -50,9 +88,6 @@ For the secrets and variables:
 getaddrinfo ENOTFOUND 'http
 ```
 This happened because the BACKEND_URL was inside '' in the GitHub environment variables. However, when removing the '' around it, it worked without problems.
-
-
-TODO: if deployment with build and "npm run start" for next.js instead of "npm run dev" fixes frontend to sometimes crash and render the EB environment inoperable and showing 502 Bad Gateway fixes that issue, add explanation here that you should use that, since npm run dev is not for production environments and causes those kinds of errors.
 
 
 ### Required variables and secrets for GitHub Actions

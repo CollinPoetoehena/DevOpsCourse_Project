@@ -49,3 +49,9 @@ curl http://rac-app-env.eba-tb7prr3h.eu-central-1.elasticbeanstalk.com
 # You can then go to /var/log to look at the logs of the EC2 instance for example after accessing the EC2 instance with SSH
 # But this is mainly a last resort option to manually look at the logs
 ```
+
+
+## Major problem encountered example: "npm run dev" problem in AWS Elastic Beanstalk
+Initially, we used "npm run dev" for the frontend to run Next.js and "npm run start" for the backend, since the frontend was still under development. However, the frontend kept crashing after some time in the AWS Elastic Beanstalk environment with for example a 502 Bad Gateway. We found out that this was due to the development behaviour of Next.js, which for some reason caused it to crash and go to the 502 Bad Gateway in the deployed AWS Elastic Beanstalk environment. In hind sight, this is logical, since the development setup for Next.js is not suited for deployment environments. 
+
+Eventually, when we changed the frontend to build and then "npm run start" for the production environment, the problem was fixed and everything worked as expected in the deployment environment. This illustrates a problem we encountered and may be an explanation for future problems to give us an illustration of what could go wrong in the deployment environment.
