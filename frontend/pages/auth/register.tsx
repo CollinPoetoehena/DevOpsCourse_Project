@@ -1,3 +1,5 @@
+// Old: this was our setup before migrating to Cognito, where we still manually managed users with JWT and the Mongo database.
+
 // import Link from 'next/link';
 // import React, { useState } from 'react';
 // import Head from 'next/head';

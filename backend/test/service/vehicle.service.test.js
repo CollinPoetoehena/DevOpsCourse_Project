@@ -30,6 +30,4 @@ describe("Vehicle Service Tests", () => {
     const result = await vehicleService.fetchVehicleMakes();
     expect(result).toEqual([]);
   });
-
-  // Add more tests as needed
 });

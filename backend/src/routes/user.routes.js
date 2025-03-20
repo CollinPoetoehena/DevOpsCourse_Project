@@ -1,3 +1,5 @@
+// Old: this was our setup before migrating to Cognito, where we still manually managed users with JWT and the Mongo database.
+
 // const express = require('express');
 // const router = express.Router();
 // const userService = require('../services/user.service');

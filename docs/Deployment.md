@@ -37,7 +37,7 @@ The following steps describe how the system operates and how the different servi
 
 1. The user accesses the frontend application via a browser at `www.rent-a-car-cloud.click`. The request is routed through the Internet Gateway and directed to Route 53 for DNS resolution.
    
-2. **Route 53** forwards the request to the Application Load Balancer, which securely directs the user to the frontend application running on Elastic Beanstalk. The connection is protected by SSL/TLS certificates managed by AWS Certificate Manager.
+2. Route 53 forwards the request to the Application Load Balancer, which securely directs the user to the frontend application running on Elastic Beanstalk. The connection is protected by SSL/TLS certificates managed by AWS Certificate Manager.
    
 3. When requests are made to the backend, such as fetching car information or making a reservation, the frontend communicates with the backend's Application Load Balancer via HTTPS at `api.rent-a-car-cloud.click`. The backend service is deployed on Elastic Beanstalk, running a Node.js REST API.
    
@@ -62,7 +62,7 @@ You can use Docker Compose to run both services in a single AWS EB service, or y
 In summary:
 | Deployment Method | Pros | Cons |
 |------------------|------|------|
-| **Single EB Service (Docker Compose via `Dockerrun.aws.json`)** | ✅ Easier deployment, both services scale together, simple setup. | ❌ Less flexibility, both services share resources. |
+| **Single EB Service (Docker Compose via docker-compose.yml)** | ✅ Easier deployment, both services scale together, simple setup. | ❌ Less flexibility, both services share resources. |
 | **Separate EB Services (One for Frontend, One for Backend)** | ✅ Can scale frontend & backend independently, better fault isolation. | ❌ More complex, needs manual service linking. |
 
 Therefore: 

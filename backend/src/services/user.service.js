@@ -1,3 +1,5 @@
+// Old: this was our setup before migrating to Cognito, where we still manually managed users with JWT and the Mongo database.
+
 // const User = require('../models/user.model');
 // const bcrypt = require('bcrypt');
 // const jwt = require('jsonwebtoken');
